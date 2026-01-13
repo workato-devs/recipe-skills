@@ -35,28 +35,28 @@ Recipe Skills encapsulate the complexity of vendor-specific API operations and i
 
 ### For AI Agents (Claude Code)
 
-1. Navigate to this repo directory
-2. Invoke a skill:
-   - `/workato-recipes` - Learn recipe fundamentals and trigger types
-   - `/stripe-recipes` - Generate Stripe payment integration recipes
-   - `/salesforce-recipes` - Generate Salesforce CRM recipes
-3. Ask to generate a recipe:
-   - "Create an API endpoint recipe that accepts customer data"
-   - "Create a recipe to search for a Stripe customer by email"
-   - "Create a recipe to upsert a Salesforce Contact by external ID"
+When a user invokes a skill (`/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`), you will have full context to help them generate valid Workato recipe JSON using natural language.
+
+Users can ask you to build recipes using requests like:
+- "Create an API endpoint recipe that accepts customer data"
+- "Create a recipe to search for a Stripe customer by email"
+- "Create a recipe to upsert a Salesforce Contact by external ID"
+
+Each skill contains documentation, templates, and patterns you can reference to generate recipes that follow Workato best practices.
 
 ### For Human Developers
 
 Skills are designed for AI agents to generate recipes. As a human developer:
 
-1. Use Claude Code (or another AI agent) with the appropriate skill to generate recipes
-2. Review and test the generated recipe JSON
-3. Deploy: `workato push`
+1. Navigate to this repo directory in Claude Code
+2. Invoke a skill: `/workato-recipes`, `/stripe-recipes`, or `/salesforce-recipes`
+3. Ask the agent to generate a recipe using natural language
+4. Review and test the generated recipe JSON
+5. Deploy: `workato push`
 
 For reference and learning, you can browse:
 - Skill documentation: `skills/{skill-name}/SKILL_INSTRUCTIONS.md`
 - Example templates: `skills/{skill-name}/templates/*.json`
-- Generated examples: `test-deploy/`
 
 ### Proposed CLI (Future)
 
@@ -103,7 +103,7 @@ This repo includes a `.claude/commands/` directory with slash commands:
 "Create a recipe to search and update Salesforce Accounts"
 ```
 
-The agent will have full context from the skill to generate valid Workato recipe JSON. See `test-deploy/` for example generated recipes.
+The agent will have full context from the skill to generate valid Workato recipe JSON.
 
 ## Contributing
 
@@ -130,7 +130,6 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ### Project Documentation
 - [CLI Extension Spec](docs/cli-extension-spec.md) - Proposed Workato CLI integration
-- [test-deploy/](test-deploy/) - Example generated recipes
 
 ## Roadmap
 
@@ -140,7 +139,6 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - [x] salesforce-recipes skill with SObject operations
 - [x] Claude Code slash command integration
 - [x] CLI extension specification
-- [x] Example recipes in test-deploy/
 
 ### Next
 - [ ] Expand connector skill coverage
