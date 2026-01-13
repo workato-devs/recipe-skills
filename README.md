@@ -18,28 +18,45 @@ Recipe Skills encapsulate the complexity of vendor-specific API operations and i
 
 ## Available Skills
 
+### Base Skill
+
+| Skill | Description | Status |
+|-------|-------------|--------|
+| [workato-recipes](skills/workato-recipes/) | Core Workato recipe fundamentals (triggers, control flow, datapills) | v1.0.0 |
+
 ### Connector-Specific Skills
 
 | Skill | Description | Status |
 |-------|-------------|--------|
+| [salesforce-recipes](skills/salesforce-recipes/) | Salesforce CRM recipes (standard & custom objects) | v1.0.0 |
 | [stripe-recipes](skills/stripe-recipes/) | Stripe payment integration recipes | v1.0.0 |
-| salesforce-recipes | Salesforce CRM recipes | Planned |
-| netsuite-recipes | NetSuite ERP recipes | Planned |
 
 ## Quick Start
 
 ### For AI Agents (Claude Code)
 
 1. Navigate to this repo directory
-2. Invoke the skill: `/stripe-recipes`
-3. Ask to generate a recipe: "Create a recipe to search for a Stripe customer by email"
+2. Invoke a skill:
+   - `/workato-recipes` - Learn recipe fundamentals and trigger types
+   - `/stripe-recipes` - Generate Stripe payment integration recipes
+   - `/salesforce-recipes` - Generate Salesforce CRM recipes
+3. Ask to generate a recipe:
+   - "Create an API endpoint recipe that accepts customer data"
+   - "Create a recipe to search for a Stripe customer by email"
+   - "Create a recipe to upsert a Salesforce Contact by external ID"
 
 ### For Human Developers
 
-1. Read the skill instructions: `skills/stripe-recipes/SKILL_INSTRUCTIONS.md`
-2. Copy a template: `skills/stripe-recipes/templates/create-customer.json`
-3. Adapt for your use case
-4. Deploy: `workato push`
+Skills are designed for AI agents to generate recipes. As a human developer:
+
+1. Use Claude Code (or another AI agent) with the appropriate skill to generate recipes
+2. Review and test the generated recipe JSON
+3. Deploy: `workato push`
+
+For reference and learning, you can browse:
+- Skill documentation: `skills/{skill-name}/SKILL_INSTRUCTIONS.md`
+- Example templates: `skills/{skill-name}/templates/*.json`
+- Generated examples: `test-deploy/`
 
 ### Proposed CLI (Future)
 
@@ -76,13 +93,17 @@ This repo includes a `.claude/commands/` directory with slash commands:
 
 ```bash
 # In Claude Code, from this repo:
-/stripe-recipes
+/workato-recipes   # Learn recipe structure and triggers
+/stripe-recipes    # Generate Stripe recipes
+/salesforce-recipes # Generate Salesforce recipes
 
-# Then ask:
-"Generate a recipe to create a Stripe PaymentIntent"
+# Examples:
+"Generate a recipe with an API endpoint trigger"
+"Create a recipe to create a Stripe PaymentIntent"
+"Create a recipe to search and update Salesforce Accounts"
 ```
 
-The agent will have full context from the skill to generate valid Workato recipe JSON.
+The agent will have full context from the skill to generate valid Workato recipe JSON. See `test-deploy/` for example generated recipes.
 
 ## Contributing
 
@@ -102,25 +123,35 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Documentation
 
+### Skills
+- [workato-recipes Instructions](skills/workato-recipes/SKILL_INSTRUCTIONS.md) - Recipe fundamentals and base patterns
+- [stripe-recipes Instructions](skills/stripe-recipes/SKILL_INSTRUCTIONS.md) - Stripe payment integration patterns
+- [salesforce-recipes Instructions](skills/salesforce-recipes/SKILL_INSTRUCTIONS.md) - Salesforce CRM integration patterns
+
+### Project Documentation
 - [CLI Extension Spec](docs/cli-extension-spec.md) - Proposed Workato CLI integration
-- [stripe-recipes Instructions](skills/stripe-recipes/SKILL_INSTRUCTIONS.md) - Full Stripe skill documentation
+- [test-deploy/](test-deploy/) - Example generated recipes
 
 ## Roadmap
 
-### Current (v0.1)
+### Completed (v1.0)
+- [x] workato-recipes base skill (triggers, control flow, fundamentals)
 - [x] stripe-recipes skill with templates and patterns
+- [x] salesforce-recipes skill with SObject operations
 - [x] Claude Code slash command integration
 - [x] CLI extension specification
+- [x] Example recipes in test-deploy/
 
 ### Next
-- [ ] salesforce-recipes skill
+- [ ] Expand connector skill coverage
+- [ ] Community and vendor contribution guidelines and templates
 - [ ] Workato CLI integration (pending platform support)
 - [ ] Skill validation rules
 
 ### Future
 - [ ] Central skill registry
-- [ ] AI-assisted recipe generation
 - [ ] Vendor contribution program
+- [ ] CI/CD recipe validation
 
 ## License
 
