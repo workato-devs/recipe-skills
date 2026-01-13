@@ -1,0 +1,167 @@
+{
+  "name": "API Endpoint Template",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "api_trigger",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[{\"name\":\"input_field\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Input Field\",\"hint\":\"Description of input field\"}]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "name": "Success",
+            "http_status_code": "200",
+            "body_schema": "[{\"name\":\"result\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Result\"},{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"}]"
+          },
+          {
+            "name": "Error",
+            "http_status_code": "400",
+            "body_schema": "[{\"name\":\"error\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error\"}]"
+          }
+        ]
+      }
+    },
+    "extended_output_schema": [
+      {
+        "label": "Request",
+        "name": "request",
+        "type": "object",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Input Field",
+            "optional": false,
+            "type": "string",
+            "name": "input_field",
+            "hint": "Description of input field"
+          }
+        ]
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "as": "return_success",
+        "keyword": "action",
+        "toggleCfg": {
+          "response.success": true
+        },
+        "input": {
+          "http_status_code": "200",
+          "response": {
+            "result": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"input_field\"]}')}",
+            "success": "true"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "change_on_blur": true,
+            "control_type": "select",
+            "extends_schema": true,
+            "label": "Response",
+            "name": "http_status_code",
+            "pick_list": [
+              ["Success", "200"],
+              ["Error", "400"]
+            ],
+            "type": "string"
+          },
+          {
+            "label": "Response body",
+            "name": "response",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Result",
+                "name": "result",
+                "type": "string"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Success",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "success",
+                "type": "boolean",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Success",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "success",
+                  "type": "boolean"
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "change_on_blur": true,
+            "control_type": "select",
+            "extends_schema": true,
+            "label": "Response",
+            "name": "http_status_code",
+            "pick_list": [
+              ["Success", "200"],
+              ["Error", "400"]
+            ],
+            "type": "string"
+          },
+          {
+            "label": "Response body",
+            "name": "response",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Result",
+                "name": "result",
+                "type": "string"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Success",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "success",
+                "type": "boolean",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Success",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "success",
+                  "type": "boolean"
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "return-success-001"
+      }
+    ],
+    "uuid": "api-trigger-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

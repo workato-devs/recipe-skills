@@ -1,0 +1,58 @@
+# Salesforce Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write production-grade
+# Salesforce integration recipes in Workato's recipe JSON format.
+
+name: salesforce-recipes
+version: 1.0.0
+description: >
+  Salesforce integration recipes for Workato. This skill enables AI agents
+  to generate valid Workato recipe JSON files for Salesforce operations including
+  record creation, updates, upserts, and searches using standard SObjects and
+  custom objects.
+
+author: Workato
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Search Salesforce records by field values
+  - Create and upsert SObject records with external ID handling
+  - Update existing records by Salesforce ID
+  - Handle standard and custom SObjects
+  - Work with custom fields, picklists, and relationships
+  - Conditional field updates using formulas
+
+# Entry point for agent consumption
+entry_point: SKILL_INSTRUCTIONS.md
+
+# Templates available for reference/adaptation
+templates:
+  - templates/upsert-contact.json
+  - templates/search-contact.json
+  - templates/update-record.json
+
+# Pattern documentation
+patterns:
+  - patterns/upsert-with-external-id.md
+  - patterns/custom-fields.md
+  - patterns/search-sobjects.md
+
+# Target platforms
+platforms:
+  - workato
+  - salesforce
+
+# Salesforce API version information
+salesforce_api_version: "v59.0"
+
+# Tags for discovery
+tags:
+  - salesforce
+  - crm
+  - workato
+  - integration
+  - recipes
+  - sobjects

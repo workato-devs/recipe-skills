@@ -1,0 +1,434 @@
+{
+  "name": "Callable Recipe Complete Example",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"input_value\",\"label\":\"Input value\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Main input parameter\"},{\"name\":\"optional_flag\",\"label\":\"Optional flag\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"optional\":true,\"hint\":\"Optional boolean flag\"}]",
+      "result_schema_json": "[{\"name\":\"result\",\"label\":\"Result\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"success\",\"label\":\"Success\",\"type\":\"boolean\",\"control_type\":\"checkbox\"},{\"name\":\"error_message\",\"label\":\"Error message\",\"type\":\"string\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Input value",
+            "name": "input_value",
+            "type": "string",
+            "optional": false,
+            "hint": "Main input parameter"
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Optional flag",
+            "name": "optional_flag",
+            "type": "boolean",
+            "optional": true,
+            "hint": "Optional boolean flag"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "as": "check_input",
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"input_value\"]}')}",
+                  "uuid": "condition-input-present-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 3,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "log_success",
+                "keyword": "action",
+                "input": {
+                  "message": "Processing input: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"input_value\"]}')}",
+                  "user_logs_enabled": "false"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "log-success-003"
+              },
+              {
+                "number": 4,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_success",
+                "keyword": "action",
+                "toggleCfg": {
+                  "result.success": true
+                },
+                "input": {
+                  "result": {
+                    "result": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"input_value\"]}').upcase",
+                    "success": "true",
+                    "error_message": "=null"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Result",
+                        "name": "result",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Success",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "success",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Success",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "success",
+                          "type": "boolean"
+                        }
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error message",
+                        "name": "error_message",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Result",
+                        "name": "result",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Success",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "success",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Success",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "success",
+                          "type": "boolean"
+                        }
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error message",
+                        "name": "error_message",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-success-004"
+              },
+              {
+                "number": 5,
+                "as": "else_branch",
+                "keyword": "else",
+                "input": {},
+                "block": [
+                  {
+                    "number": 6,
+                    "provider": "workato_recipe_function",
+                    "name": "return_result",
+                    "as": "return_invalid",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "result.success": true
+                    },
+                    "input": {
+                      "result": {
+                        "result": "=null",
+                        "success": "false",
+                        "error_message": "Input value is required"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Result",
+                            "name": "result",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error message",
+                            "name": "error_message",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Result",
+                            "name": "result",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error message",
+                            "name": "error_message",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-invalid-006"
+                  }
+                ],
+                "uuid": "else-branch-005"
+              }
+            ],
+            "uuid": "if-check-input-002"
+          },
+          {
+            "number": 7,
+            "as": "catch_error",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 8,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "log_error",
+                "keyword": "action",
+                "input": {
+                  "message": "Error occurred: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')}",
+                  "user_logs_enabled": "false"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "log-error-008"
+              },
+              {
+                "number": 9,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_error",
+                "keyword": "action",
+                "toggleCfg": {
+                  "result.success": true
+                },
+                "input": {
+                  "result": {
+                    "result": "=null",
+                    "success": "false",
+                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Result",
+                        "name": "result",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Success",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "success",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Success",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "success",
+                          "type": "boolean"
+                        }
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error message",
+                        "name": "error_message",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Result",
+                        "name": "result",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Success",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "success",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Success",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "success",
+                          "type": "boolean"
+                        }
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error message",
+                        "name": "error_message",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-error-009"
+              }
+            ],
+            "uuid": "catch-error-007"
+          }
+        ],
+        "uuid": "try-main-001"
+      }
+    ],
+    "uuid": "trigger-callable-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

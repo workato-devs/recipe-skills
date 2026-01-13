@@ -1,0 +1,286 @@
+{
+  "name": "Update Salesforce record",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"record_id\",\"label\":\"Record ID\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Salesforce 18-character record ID\"},{\"name\":\"sobject_name\",\"label\":\"SObject name\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"SObject API name (e.g., Contact, Account)\"},{\"name\":\"field_name\",\"label\":\"Field name\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Field API name to update\"},{\"name\":\"field_value\",\"label\":\"Field value\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"New field value\"}]",
+      "result_schema_json": "[{\"name\":\"id\",\"label\":\"Record ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"updated\",\"label\":\"Updated\",\"type\":\"boolean\",\"control_type\":\"checkbox\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Record ID",
+            "name": "record_id",
+            "type": "string",
+            "optional": false,
+            "hint": "Salesforce 18-character record ID"
+          },
+          {
+            "control_type": "text",
+            "label": "SObject name",
+            "name": "sobject_name",
+            "type": "string",
+            "optional": false,
+            "hint": "SObject API name (e.g., Contact, Account)"
+          },
+          {
+            "control_type": "text",
+            "label": "Field name",
+            "name": "field_name",
+            "type": "string",
+            "optional": false,
+            "hint": "Field API name to update"
+          },
+          {
+            "control_type": "text",
+            "label": "Field value",
+            "name": "field_value",
+            "type": "string",
+            "optional": false,
+            "hint": "New field value"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "provider": "salesforce",
+            "name": "update_sobject",
+            "as": "update_record",
+            "keyword": "action",
+            "input": {
+              "sobject_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"sobject_name\"]}')}",
+              "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"record_id\"]}')}",
+              "{{FIELD_NAME}}": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"field_value\"]}')}"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "name": "id",
+                "type": "string"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Salesforce internal ID of record to update",
+                "label": "Record ID",
+                "name": "id",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "{{FIELD_LABEL}}",
+                "name": "{{FIELD_NAME}}",
+                "optional": true,
+                "type": "string",
+                "sfdc_updateable": true
+              }
+            ],
+            "visible_config_fields": [
+              "sobject_name",
+              "id",
+              "{{FIELD_NAME}}"
+            ],
+            "uuid": "update-record-002"
+          },
+          {
+            "number": 3,
+            "provider": "workato_recipe_function",
+            "name": "return_result",
+            "as": "return_success",
+            "keyword": "action",
+            "input": {
+              "result": {
+                "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"record_id\"]}')}",
+                "updated": "true"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "name": "id",
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Updated",
+                    "name": "updated",
+                    "type": "boolean"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "name": "id",
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Updated",
+                    "name": "updated",
+                    "type": "boolean"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "return-success-003"
+          },
+          {
+            "number": 4,
+            "as": "catch_error",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 5,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "log_error",
+                "keyword": "action",
+                "input": {
+                  "message": "Error updating record: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')}",
+                  "user_logs_enabled": "false"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "log-error-005"
+              },
+              {
+                "number": 6,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_error",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"record_id\"]}')}",
+                    "updated": "false"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Record ID",
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Updated",
+                        "name": "updated",
+                        "type": "boolean"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Record ID",
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Updated",
+                        "name": "updated",
+                        "type": "boolean"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-error-006"
+              }
+            ],
+            "uuid": "catch-error-004"
+          }
+        ],
+        "uuid": "try-update-001"
+      }
+    ],
+    "uuid": "trigger-update-record-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Workspace Connections/salesforce_connection.connection.json",
+        "name": "SF Dev Environment",
+        "folder": "Workspace Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

@@ -1,0 +1,692 @@
+{
+  "name": "API Endpoint Complete Example",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "api_trigger",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[{\"name\":\"email\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Email\",\"optional\":false,\"hint\":\"Email address\"},{\"name\":\"action\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Action\",\"optional\":false,\"hint\":\"Action to perform: create, update, delete\"},{\"name\":\"value\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Value\",\"optional\":true,\"hint\":\"Optional value field\"}]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "name": "Success",
+            "http_status_code": "200",
+            "body_schema": "[{\"name\":\"id\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"ID\"},{\"name\":\"message\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Message\"},{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"}]"
+          },
+          {
+            "name": "Bad Request",
+            "http_status_code": "400",
+            "body_schema": "[{\"name\":\"error\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error\"},{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"}]"
+          },
+          {
+            "name": "Server Error",
+            "http_status_code": "500",
+            "body_schema": "[{\"name\":\"error\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error\"},{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"}]"
+          }
+        ]
+      }
+    },
+    "extended_output_schema": [
+      {
+        "label": "Request",
+        "name": "request",
+        "type": "object",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Email",
+            "name": "email",
+            "type": "string",
+            "optional": false,
+            "hint": "Email address"
+          },
+          {
+            "control_type": "text",
+            "label": "Action",
+            "name": "action",
+            "type": "string",
+            "optional": false,
+            "hint": "Action to perform: create, update, delete"
+          },
+          {
+            "control_type": "text",
+            "label": "Value",
+            "name": "value",
+            "type": "string",
+            "optional": true,
+            "hint": "Optional value field"
+          }
+        ]
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "as": "validate_input",
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"email\"]}')}",
+                  "uuid": "condition-email-present-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 3,
+                "as": "check_action",
+                "keyword": "if",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "equals",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"action\"]}')}",
+                      "rhs": "create",
+                      "uuid": "condition-action-create-001"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 4,
+                    "provider": "logger",
+                    "name": "log_message",
+                    "as": "log_create",
+                    "keyword": "action",
+                    "input": {
+                      "message": "Creating record for: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"email\"]}')}",
+                      "user_logs_enabled": "false"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "switch",
+                        "default": false,
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                        "label": "Send to Workato log service",
+                        "name": "user_logs_enabled",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "uuid": "log-create-004"
+                  },
+                  {
+                    "number": 5,
+                    "provider": "workato_api_platform",
+                    "name": "return_response",
+                    "as": "return_created",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "response.success": true
+                    },
+                    "input": {
+                      "http_status_code": "200",
+                      "response": {
+                        "id": "generated-id-123",
+                        "message": "Record created successfully",
+                        "success": "true"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "change_on_blur": true,
+                        "control_type": "select",
+                        "extends_schema": true,
+                        "label": "Response",
+                        "name": "http_status_code",
+                        "pick_list": [
+                          ["Success", "200"],
+                          ["Bad Request", "400"],
+                          ["Server Error", "500"]
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "label": "Response body",
+                        "name": "response",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "ID",
+                            "name": "id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Message",
+                            "name": "message",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "change_on_blur": true,
+                        "control_type": "select",
+                        "extends_schema": true,
+                        "label": "Response",
+                        "name": "http_status_code",
+                        "pick_list": [
+                          ["Success", "200"],
+                          ["Bad Request", "400"],
+                          ["Server Error", "500"]
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "label": "Response body",
+                        "name": "response",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "ID",
+                            "name": "id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Message",
+                            "name": "message",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-created-005"
+                  },
+                  {
+                    "number": 6,
+                    "as": "else_update",
+                    "keyword": "else",
+                    "input": {},
+                    "block": [
+                      {
+                        "number": 7,
+                        "provider": "logger",
+                        "name": "log_message",
+                        "as": "log_other_action",
+                        "keyword": "action",
+                        "input": {
+                          "message": "Action '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"action\"]}')}' for: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"email\"]}')}",
+                          "user_logs_enabled": "false"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "switch",
+                            "default": false,
+                            "disable_formula": true,
+                            "extends_schema": true,
+                            "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                            "label": "Send to Workato log service",
+                            "name": "user_logs_enabled",
+                            "optional": true,
+                            "type": "string"
+                          }
+                        ],
+                        "uuid": "log-other-007"
+                      },
+                      {
+                        "number": 8,
+                        "provider": "workato_api_platform",
+                        "name": "return_response",
+                        "as": "return_other",
+                        "keyword": "action",
+                        "toggleCfg": {
+                          "response.success": true
+                        },
+                        "input": {
+                          "http_status_code": "200",
+                          "response": {
+                            "id": "=null",
+                            "message": "='Action ' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"action\"]}') + ' processed'",
+                            "success": "true"
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "change_on_blur": true,
+                            "control_type": "select",
+                            "extends_schema": true,
+                            "label": "Response",
+                            "name": "http_status_code",
+                            "pick_list": [
+                              ["Success", "200"],
+                              ["Bad Request", "400"],
+                              ["Server Error", "500"]
+                            ],
+                            "type": "string"
+                          },
+                          {
+                            "label": "Response body",
+                            "name": "response",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "ID",
+                                "name": "id",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Message",
+                                "name": "message",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Success",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "success",
+                                "type": "boolean",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Success",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "success",
+                                  "type": "boolean"
+                                }
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "change_on_blur": true,
+                            "control_type": "select",
+                            "extends_schema": true,
+                            "label": "Response",
+                            "name": "http_status_code",
+                            "pick_list": [
+                              ["Success", "200"],
+                              ["Bad Request", "400"],
+                              ["Server Error", "500"]
+                            ],
+                            "type": "string"
+                          },
+                          {
+                            "label": "Response body",
+                            "name": "response",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "ID",
+                                "name": "id",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Message",
+                                "name": "message",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Success",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "success",
+                                "type": "boolean",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Success",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "success",
+                                  "type": "boolean"
+                                }
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "uuid": "return-other-008"
+                      }
+                    ],
+                    "uuid": "else-update-006"
+                  }
+                ],
+                "uuid": "if-action-create-003"
+              },
+              {
+                "number": 9,
+                "as": "else_invalid",
+                "keyword": "else",
+                "input": {},
+                "block": [
+                  {
+                    "number": 10,
+                    "provider": "workato_api_platform",
+                    "name": "return_response",
+                    "as": "return_invalid_input",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "response.success": true
+                    },
+                    "input": {
+                      "http_status_code": "400",
+                      "response": {
+                        "error": "Email is required",
+                        "success": "false"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "change_on_blur": true,
+                        "control_type": "select",
+                        "extends_schema": true,
+                        "label": "Response",
+                        "name": "http_status_code",
+                        "pick_list": [
+                          ["Success", "200"],
+                          ["Bad Request", "400"],
+                          ["Server Error", "500"]
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "label": "Response body",
+                        "name": "response",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Error",
+                            "name": "error",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "change_on_blur": true,
+                        "control_type": "select",
+                        "extends_schema": true,
+                        "label": "Response",
+                        "name": "http_status_code",
+                        "pick_list": [
+                          ["Success", "200"],
+                          ["Bad Request", "400"],
+                          ["Server Error", "500"]
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "label": "Response body",
+                        "name": "response",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Error",
+                            "name": "error",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-invalid-input-010"
+                  }
+                ],
+                "uuid": "else-invalid-009"
+              }
+            ],
+            "uuid": "if-validate-002"
+          },
+          {
+            "number": 11,
+            "as": "catch_error",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 12,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "log_error",
+                "keyword": "action",
+                "input": {
+                  "message": "Error occurred: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')}",
+                  "user_logs_enabled": "false"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "log-error-012"
+              },
+              {
+                "number": 13,
+                "provider": "workato_api_platform",
+                "name": "return_response",
+                "as": "return_error",
+                "keyword": "action",
+                "toggleCfg": {
+                  "response.success": true
+                },
+                "input": {
+                  "http_status_code": "500",
+                  "response": {
+                    "error": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')}",
+                    "success": "false"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      ["Success", "200"],
+                      ["Bad Request", "400"],
+                      ["Server Error", "500"]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Success",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "success",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Success",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "success",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      ["Success", "200"],
+                      ["Bad Request", "400"],
+                      ["Server Error", "500"]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Success",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "success",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Success",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "success",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-error-013"
+              }
+            ],
+            "uuid": "catch-error-011"
+          }
+        ],
+        "uuid": "try-main-001"
+      }
+    ],
+    "uuid": "trigger-api-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

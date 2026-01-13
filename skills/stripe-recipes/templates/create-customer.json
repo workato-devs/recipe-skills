@@ -1,0 +1,633 @@
+{
+  "name": "Create Stripe customer",
+  "version": 3,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"email\",\"label\":\"Email\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Guest email address (unique identifier)\"},{\"name\":\"name\",\"label\":\"Name\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Guest full name\"},{\"name\":\"guest_id\",\"label\":\"Guest ID\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Internal system guest/contact ID\"},{\"name\":\"phone\",\"label\":\"Phone\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true,\"hint\":\"Guest phone number\"},{\"name\":\"idempotency_token\",\"label\":\"Idempotency token\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Client-generated UUID for safe retries\"}]",
+      "result_schema_json": "[{\"name\":\"customer_id\",\"label\":\"Customer ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"email\",\"label\":\"Email\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"created\",\"label\":\"Created\",\"type\":\"boolean\",\"control_type\":\"checkbox\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Email",
+            "name": "email",
+            "type": "string",
+            "optional": false,
+            "hint": "Guest email address (unique identifier)"
+          },
+          {
+            "control_type": "text",
+            "label": "Name",
+            "name": "name",
+            "type": "string",
+            "optional": false,
+            "hint": "Guest full name"
+          },
+          {
+            "control_type": "text",
+            "label": "Guest ID",
+            "name": "guest_id",
+            "type": "string",
+            "optional": false,
+            "hint": "Internal system guest/contact ID"
+          },
+          {
+            "control_type": "text",
+            "label": "Phone",
+            "name": "phone",
+            "type": "string",
+            "optional": true,
+            "hint": "Guest phone number"
+          },
+          {
+            "control_type": "text",
+            "label": "Idempotency token",
+            "name": "idempotency_token",
+            "type": "string",
+            "optional": false,
+            "hint": "Client-generated UUID for safe retries"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "provider": "stripe",
+            "name": "__adhoc_http_action",
+            "as": "search_customer",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Search customers",
+              "path": "/v1/customers/search",
+              "verb": "get",
+              "response_type": "json",
+              "input": {
+                "schema": "[{\"name\":\"query\",\"type\":\"string\",\"optional\":false,\"label\":\"Query\",\"hint\":\"Stripe search query\",\"details\":{\"real_name\":\"query\"},\"control_type\":\"text\"},{\"name\":\"limit\",\"type\":\"string\",\"optional\":true,\"label\":\"Limit\",\"hint\":\"Number of results\",\"details\":{\"real_name\":\"limit\"},\"control_type\":\"text\"}]",
+                "data": {
+                  "query": "email:'#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}'",
+                  "limit": "1"
+                }
+              },
+              "output": "[{\"name\":\"data\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Data\",\"properties\":[{\"name\":\"id\",\"type\":\"string\",\"label\":\"Customer ID\"},{\"name\":\"email\",\"type\":\"string\",\"label\":\"Email\"}]},{\"name\":\"total_count\",\"type\":\"integer\",\"label\":\"Total count\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Data",
+                "name": "data",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Customer ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "optional": true,
+                    "type": "string",
+                    "name": "email"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "text",
+                "label": "Total count",
+                "name": "total_count",
+                "optional": true,
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://api.stripe.com/v1/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "add_field_label": "Add URL parameter",
+                "control_type": "form-schema-builder",
+                "label": "Request URL parameters",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "sticky": false,
+                    "optional": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Query",
+                        "optional": false,
+                        "hint": "Stripe search query",
+                        "details": {
+                          "real_name": "query"
+                        },
+                        "sticky": true,
+                        "type": "string",
+                        "name": "query"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Limit",
+                        "optional": true,
+                        "hint": "Number of results",
+                        "details": {
+                          "real_name": "limit"
+                        },
+                        "sticky": true,
+                        "type": "string",
+                        "name": "limit"
+                      }
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "sticky": false,
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "uuid": "search-customer-001"
+          },
+          {
+            "number": 3,
+            "as": "check_customer_found",
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
+                  "uuid": "condition-customer-found-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 4,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_existing",
+                "keyword": "action",
+                "toggleCfg": {
+                  "result.created": true
+                },
+                "input": {
+                  "result": {
+                    "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
+                    "email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}",
+                    "created": "false"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Customer ID",
+                        "name": "customer_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "name": "email",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "created",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Created",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "created",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Customer ID",
+                        "name": "customer_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "name": "email",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "created",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Created",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "created",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-existing-001"
+              },
+              {
+                "number": 5,
+                "as": "create_new_customer",
+                "keyword": "else",
+                "input": {},
+                "block": [
+                  {
+                    "number": 6,
+                    "provider": "stripe",
+                    "name": "create_customer",
+                    "as": "create_customer",
+                    "keyword": "action",
+                    "input": {
+                      "email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}",
+                      "description": "Guest ID: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"guest_id\"]}')}",
+                      "metadata": [
+                        {
+                          "key": "guest_id",
+                          "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"guest_id\"]}')}"
+                        },
+                        {
+                          "key": "source",
+                          "value": "hotel_management_system"
+                        }
+                      ]
+                    },
+                    "uuid": "create-customer-001"
+                  },
+                  {
+                    "number": 7,
+                    "provider": "workato_recipe_function",
+                    "name": "return_result",
+                    "as": "return_created",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "result.created": true
+                    },
+                    "input": {
+                      "result": {
+                        "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}",
+                        "email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}",
+                        "created": "true"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Customer ID",
+                            "name": "customer_id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Email",
+                            "name": "email",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Created",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "created",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Created",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "created",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Customer ID",
+                            "name": "customer_id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Email",
+                            "name": "email",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Created",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "created",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Created",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "created",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-created-001"
+                  }
+                ],
+                "uuid": "else-create-001"
+              }
+            ],
+            "uuid": "if-customer-found-001"
+          },
+          {
+            "number": 8,
+            "as": "error",
+            "keyword": "catch",
+            "input": {},
+            "block": [
+              {
+                "number": 9,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_error",
+                "keyword": "action",
+                "toggleCfg": {
+                  "result.created": true
+                },
+                "input": {
+                  "result": {
+                    "customer_id": "=null",
+                    "email": "=null",
+                    "created": "false"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Customer ID",
+                        "name": "customer_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "name": "email",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "created",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Created",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "created",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Customer ID",
+                        "name": "customer_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "name": "email",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "created",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Created",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "created",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-error-001"
+              }
+            ],
+            "uuid": "catch-error-001"
+          }
+        ],
+        "uuid": "try-001"
+      }
+    ],
+    "uuid": "trigger-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "stripe",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Workspace Connections/zt_dev_stripe_account.connection.json",
+        "name": "Stripe Live",
+        "folder": "Workspace Connections"
+      }
+    }
+  ]
+}

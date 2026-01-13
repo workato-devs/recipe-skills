@@ -1,0 +1,750 @@
+{
+  "name": "Control Flow Examples",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"status\",\"label\":\"Status\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false},{\"name\":\"priority\",\"label\":\"Priority\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true},{\"name\":\"amount\",\"label\":\"Amount\",\"type\":\"number\",\"control_type\":\"number\",\"optional\":true}]",
+      "result_schema_json": "[{\"name\":\"action_taken\",\"label\":\"Action taken\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"success\",\"label\":\"Success\",\"type\":\"boolean\",\"control_type\":\"checkbox\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Status",
+            "name": "status",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Priority",
+            "name": "priority",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "number",
+            "label": "Amount",
+            "name": "amount",
+            "type": "number",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "as": "check_status_active",
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}')}",
+              "rhs": "active",
+              "uuid": "condition-status-active-001"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 2,
+            "as": "check_high_priority",
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"priority\"]}')}",
+                  "rhs": "high",
+                  "uuid": "condition-priority-high-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 3,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "log_high_priority",
+                "keyword": "action",
+                "input": {
+                  "message": "High priority active item",
+                  "user_logs_enabled": "false"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "log-high-priority-003"
+              },
+              {
+                "number": 4,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_high_priority",
+                "keyword": "action",
+                "toggleCfg": {
+                  "result.success": true
+                },
+                "input": {
+                  "result": {
+                    "action_taken": "Escalated high priority active item",
+                    "success": "true"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Action taken",
+                        "name": "action_taken",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Success",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "success",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Success",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "success",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Action taken",
+                        "name": "action_taken",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Success",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "success",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Success",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "success",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-high-priority-004"
+              },
+              {
+                "number": 5,
+                "as": "else_normal_priority",
+                "keyword": "else",
+                "input": {},
+                "block": [
+                  {
+                    "number": 6,
+                    "provider": "logger",
+                    "name": "log_message",
+                    "as": "log_normal",
+                    "keyword": "action",
+                    "input": {
+                      "message": "Normal priority active item",
+                      "user_logs_enabled": "false"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "switch",
+                        "default": false,
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                        "label": "Send to Workato log service",
+                        "name": "user_logs_enabled",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "uuid": "log-normal-006"
+                  },
+                  {
+                    "number": 7,
+                    "provider": "workato_recipe_function",
+                    "name": "return_result",
+                    "as": "return_normal",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "result.success": true
+                    },
+                    "input": {
+                      "result": {
+                        "action_taken": "Processed normal priority active item",
+                        "success": "true"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Action taken",
+                            "name": "action_taken",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Action taken",
+                            "name": "action_taken",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-normal-007"
+                  }
+                ],
+                "uuid": "else-normal-005"
+              }
+            ],
+            "uuid": "if-high-priority-002"
+          },
+          {
+            "number": 8,
+            "as": "else_not_active",
+            "keyword": "else",
+            "input": {},
+            "block": [
+              {
+                "number": 9,
+                "as": "check_amount",
+                "keyword": "if",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "present",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"amount\"]}')}",
+                      "uuid": "condition-amount-present-001"
+                    },
+                    {
+                      "operand": "greater_than",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"amount\"]}')}",
+                      "rhs": "1000",
+                      "uuid": "condition-amount-gt-002"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 10,
+                    "provider": "logger",
+                    "name": "log_message",
+                    "as": "log_high_amount",
+                    "keyword": "action",
+                    "input": {
+                      "message": "Inactive item with high amount: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"amount\"]}')}",
+                      "user_logs_enabled": "false"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "switch",
+                        "default": false,
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                        "label": "Send to Workato log service",
+                        "name": "user_logs_enabled",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "uuid": "log-high-amount-010"
+                  },
+                  {
+                    "number": 11,
+                    "provider": "workato_recipe_function",
+                    "name": "return_result",
+                    "as": "return_high_amount",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "result.success": true
+                    },
+                    "input": {
+                      "result": {
+                        "action_taken": "Flagged inactive item with high amount for review",
+                        "success": "true"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Action taken",
+                            "name": "action_taken",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Action taken",
+                            "name": "action_taken",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-high-amount-011"
+                  },
+                  {
+                    "number": 12,
+                    "as": "else_normal_amount",
+                    "keyword": "else",
+                    "input": {},
+                    "block": [
+                      {
+                        "number": 13,
+                        "provider": "workato_recipe_function",
+                        "name": "return_result",
+                        "as": "return_archived",
+                        "keyword": "action",
+                        "toggleCfg": {
+                          "result.success": true
+                        },
+                        "input": {
+                          "result": {
+                            "action_taken": "Archived inactive item",
+                            "success": "true"
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Result",
+                            "name": "result",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Action taken",
+                                "name": "action_taken",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Success",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "success",
+                                "type": "boolean",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Success",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "success",
+                                  "type": "boolean"
+                                }
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "label": "Result",
+                            "name": "result",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Action taken",
+                                "name": "action_taken",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Success",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "success",
+                                "type": "boolean",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Success",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "success",
+                                  "type": "boolean"
+                                }
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "uuid": "return-archived-013"
+                      }
+                    ],
+                    "uuid": "else-normal-amount-012"
+                  }
+                ],
+                "uuid": "if-check-amount-009"
+              }
+            ],
+            "uuid": "if-check-priority-002"
+          },
+          {
+            "number": 14,
+            "as": "else_status",
+            "keyword": "else",
+            "input": {},
+            "block": [
+              {
+                "number": 15,
+                "as": "check_compound",
+                "keyword": "if",
+                "input": {
+                  "type": "compound",
+                  "operand": "or",
+                  "conditions": [
+                    {
+                      "operand": "equals",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}')}",
+                      "rhs": "pending",
+                      "uuid": "condition-status-pending-001"
+                    },
+                    {
+                      "operand": "equals",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}')}",
+                      "rhs": "review",
+                      "uuid": "condition-status-review-002"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 16,
+                    "provider": "workato_recipe_function",
+                    "name": "return_result",
+                    "as": "return_pending",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "result.success": true
+                    },
+                    "input": {
+                      "result": {
+                        "action_taken": "='Queued ' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}') + ' item for processing'",
+                        "success": "true"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Action taken",
+                            "name": "action_taken",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Action taken",
+                            "name": "action_taken",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Success",
+                            "render_input": "boolean_conversion",
+                            "parse_output": "boolean_conversion",
+                            "name": "success",
+                            "type": "boolean",
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Success",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "name": "success",
+                              "type": "boolean"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-pending-016"
+                  },
+                  {
+                    "number": 17,
+                    "as": "else_unknown",
+                    "keyword": "else",
+                    "input": {},
+                    "block": [
+                      {
+                        "number": 18,
+                        "provider": "workato_recipe_function",
+                        "name": "return_result",
+                        "as": "return_unknown",
+                        "keyword": "action",
+                        "toggleCfg": {
+                          "result.success": true
+                        },
+                        "input": {
+                          "result": {
+                            "action_taken": "='Unknown status: ' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}')",
+                            "success": "true"
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Result",
+                            "name": "result",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Action taken",
+                                "name": "action_taken",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Success",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "success",
+                                "type": "boolean",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Success",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "success",
+                                  "type": "boolean"
+                                }
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "label": "Result",
+                            "name": "result",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Action taken",
+                                "name": "action_taken",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Success",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "success",
+                                "type": "boolean",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Success",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "success",
+                                  "type": "boolean"
+                                }
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "uuid": "return-unknown-018"
+                      }
+                    ],
+                    "uuid": "else-unknown-017"
+                  }
+                ],
+                "uuid": "if-check-amount-009"
+              }
+            ],
+            "uuid": "else-not-active-008"
+          }
+        ],
+        "uuid": "if-status-active-001"
+      }
+    ],
+    "uuid": "trigger-control-flow-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

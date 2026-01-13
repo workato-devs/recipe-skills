@@ -1,0 +1,153 @@
+{
+  "name": "{{RECIPE_NAME}}",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "stripe",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Workspace Connections/{{CONNECTION_FILE}}.connection.json",
+        "name": "{{CONNECTION_NAME}}",
+        "folder": "Workspace Connections"
+      }
+    }
+  ],
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"{{PARAM_1_NAME}}\",\"label\":\"{{PARAM_1_LABEL}}\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"{{PARAM_1_HINT}}\"},{\"name\":\"idempotency_token\",\"label\":\"Idempotency token\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Client-generated UUID for safe retries\"}]",
+      "result_schema_json": "[{\"name\":\"success\",\"label\":\"Success\",\"type\":\"boolean\",\"control_type\":\"checkbox\"},{\"name\":\"{{RESULT_FIELD}}\",\"label\":\"{{RESULT_LABEL}}\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"error_code\",\"label\":\"Error Code\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true},{\"name\":\"error_message\",\"label\":\"Error Message\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "{{PARAM_1_LABEL}}",
+            "name": "{{PARAM_1_NAME}}",
+            "type": "string",
+            "optional": false,
+            "hint": "{{PARAM_1_HINT}}"
+          },
+          {
+            "control_type": "text",
+            "label": "Idempotency token",
+            "name": "idempotency_token",
+            "type": "string",
+            "optional": false,
+            "hint": "Client-generated UUID for safe retries"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "provider": "stripe",
+            "name": "__adhoc_http_action",
+            "as": "{{ACTION_ALIAS}}",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "{{ACTION_DISPLAY_NAME}}",
+              "path": "{{STRIPE_API_PATH}}",
+              "verb": "{{HTTP_VERB}}",
+              "response_type": "json",
+              "headers": {
+                "Idempotency-Key": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"idempotency_token\"]}')}"
+              },
+              "input": {
+                "schema": "{{INPUT_SCHEMA_JSON}}",
+                "data": {
+                  "{{PARAM_NAME}}": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"{{PARAM_1_NAME}}\"]}')}'"
+                }
+              },
+              "output": "{{OUTPUT_SCHEMA_JSON}}"
+            },
+            "extended_output_schema": [],
+            "extended_input_schema": [],
+            "uuid": "{{ACTION_ALIAS}}-001"
+          },
+          {
+            "number": 3,
+            "provider": "workato_recipe_function",
+            "name": "return_result",
+            "as": "return_success",
+            "keyword": "action",
+            "toggleCfg": {
+              "result.success": true
+            },
+            "input": {
+              "result": {
+                "success": "true",
+                "{{RESULT_FIELD}}": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"{{ACTION_ALIAS}}\",\"path\":[\"{{OUTPUT_FIELD}}\"]}')}",
+                "error_code": "=null",
+                "error_message": "=null"
+              }
+            },
+            "extended_output_schema": [],
+            "extended_input_schema": [],
+            "uuid": "return-success-001"
+          },
+          {
+            "number": 4,
+            "provider": null,
+            "name": "catch",
+            "as": "catch_error",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 5,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_error",
+                "keyword": "action",
+                "toggleCfg": {
+                  "result.success": true
+                },
+                "input": {
+                  "result": {
+                    "success": "false",
+                    "{{RESULT_FIELD}}": "=null",
+                    "error_code": "internal_error",
+                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')}"
+                  }
+                },
+                "extended_output_schema": [],
+                "extended_input_schema": [],
+                "uuid": "return-error-001"
+              }
+            ],
+            "uuid": "catch-error-001"
+          }
+        ],
+        "uuid": "try-001"
+      }
+    ],
+    "uuid": "trigger-001"
+  }
+}

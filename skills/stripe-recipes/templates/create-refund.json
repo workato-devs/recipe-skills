@@ -1,0 +1,1099 @@
+{
+  "name": "Create Stripe refund",
+  "version": 10,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"payment_intent_id\",\"label\":\"Payment intent ID\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Stripe PaymentIntent ID\"},{\"name\":\"amount\",\"label\":\"Amount\",\"type\":\"integer\",\"control_type\":\"integer\",\"optional\":true,\"hint\":\"Refund amount in cents (omit for full refund)\"},{\"name\":\"reason\",\"label\":\"Reason\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true,\"hint\":\"Refund reason (duplicate, fraudulent, requested_by_customer)\"},{\"name\":\"metadata_reason\",\"label\":\"Metadata reason\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true,\"hint\":\"Detailed reason for metadata\"},{\"name\":\"idempotency_token\",\"label\":\"Idempotency token\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Client-generated UUID\"}]",
+      "result_schema_json": "[{\"name\":\"refund_id\",\"label\":\"Refund ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"payment_intent_id\",\"label\":\"Payment intent ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"amount\",\"label\":\"Amount\",\"type\":\"integer\",\"control_type\":\"integer\"},{\"name\":\"status\",\"label\":\"Status\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"reason\",\"label\":\"Reason\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"created\",\"label\":\"Created\",\"type\":\"boolean\",\"control_type\":\"checkbox\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Payment intent ID",
+            "name": "payment_intent_id",
+            "type": "string",
+            "optional": false,
+            "hint": "Stripe PaymentIntent ID"
+          },
+          {
+            "control_type": "integer",
+            "label": "Amount",
+            "parse_output": "integer_conversion",
+            "name": "amount",
+            "type": "integer",
+            "optional": true,
+            "hint": "Refund amount in cents (omit for full refund)"
+          },
+          {
+            "control_type": "text",
+            "label": "Reason",
+            "name": "reason",
+            "type": "string",
+            "optional": true,
+            "hint": "Refund reason (duplicate, fraudulent, requested_by_customer)"
+          },
+          {
+            "control_type": "text",
+            "label": "Metadata reason",
+            "name": "metadata_reason",
+            "type": "string",
+            "optional": true,
+            "hint": "Detailed reason for metadata"
+          },
+          {
+            "control_type": "text",
+            "label": "Idempotency token",
+            "name": "idempotency_token",
+            "type": "string",
+            "optional": false,
+            "hint": "Client-generated UUID"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"amount\"]}')}",
+                  "uuid": "refund-amount-present-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 3,
+                "provider": "stripe",
+                "name": "__adhoc_http_action",
+                "as": "create_refund_partial",
+                "keyword": "action",
+                "input": {
+                  "mnemonic": "Create refund",
+                  "path": "/v1/refunds",
+                  "verb": "post",
+                  "response_type": "json",
+                  "input": {
+                    "schema": "[{\"name\":\"payment_intent\",\"type\":\"string\",\"optional\":false,\"label\":\"Payment Intent\",\"hint\":\"Payment Intent ID\",\"details\":{\"real_name\":\"payment_intent\"},\"control_type\":\"text\"},{\"name\":\"amount\",\"type\":\"string\",\"optional\":true,\"label\":\"Amount\",\"hint\":\"Amount in cents (omit for full refund)\",\"details\":{\"real_name\":\"amount\"},\"control_type\":\"text\"},{\"name\":\"reason\",\"type\":\"string\",\"optional\":true,\"label\":\"Reason\",\"hint\":\"Refund reason\",\"details\":{\"real_name\":\"reason\"},\"control_type\":\"text\"},{\"name\":\"metadata[reason_detail]\",\"type\":\"string\",\"optional\":true,\"label\":\"Metadata reason detail\",\"hint\":\"Detailed reason\",\"details\":{\"real_name\":\"metadata[reason_detail]\"},\"control_type\":\"text\"}]",
+                    "data": {
+                      "payment_intent": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_intent_id\"]}')}",
+                      "amount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"amount\"]}')}",
+                      "reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"reason\"]}')}",
+                      "metadata_reason_detail_": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"metadata_reason\"]}')}"
+                    }
+                  },
+                  "output": "[{\"name\":\"id\",\"type\":\"string\",\"label\":\"Refund ID\"},{\"name\":\"payment_intent\",\"type\":\"string\",\"label\":\"Payment intent ID\"},{\"name\":\"amount\",\"type\":\"integer\",\"label\":\"Amount\"},{\"name\":\"status\",\"type\":\"string\",\"label\":\"Status\"},{\"name\":\"reason\",\"type\":\"string\",\"label\":\"Reason\"}]",
+                  "request_headers": [
+                    {
+                      "name": "Idempotency-Key",
+                      "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"idempotency_token\"]}')}"
+                    }
+                  ],
+                  "request_type": "urlencoded"
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "label": "Refund ID",
+                    "name": "id",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Payment intent ID",
+                    "name": "payment_intent",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Amount",
+                    "name": "amount",
+                    "optional": true,
+                    "parse_output": "integer_conversion",
+                    "type": "integer"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Status",
+                    "name": "status",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Reason",
+                    "name": "reason",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Base URI is <b>https://api.stripe.com/v1/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                    "label": "Path",
+                    "name": "path",
+                    "optional": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "select",
+                    "default": "json",
+                    "extends_schema": true,
+                    "label": "Request type",
+                    "name": "request_type",
+                    "optional": true,
+                    "pick_list": [
+                      [
+                        "JSON request body",
+                        "json"
+                      ],
+                      [
+                        "URL encoded form",
+                        "urlencoded"
+                      ],
+                      [
+                        "Multipart form",
+                        "multipart"
+                      ],
+                      [
+                        "Raw JSON request body",
+                        "raw"
+                      ],
+                      [
+                        "XML request body",
+                        "xml"
+                      ],
+                      [
+                        "Plain text",
+                        "text"
+                      ],
+                      [
+                        "Raw request body",
+                        "rawdata"
+                      ]
+                    ],
+                    "sticky": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "select",
+                    "default": "json",
+                    "extends_schema": true,
+                    "label": "Response type",
+                    "name": "response_type",
+                    "optional": true,
+                    "pick_list": [
+                      [
+                        "JSON response",
+                        "json"
+                      ],
+                      [
+                        "Raw JSON Response",
+                        "raw"
+                      ],
+                      [
+                        "XML Response",
+                        "xml2"
+                      ],
+                      [
+                        "Raw response",
+                        "text"
+                      ]
+                    ],
+                    "sticky": false,
+                    "type": "string"
+                  },
+                  {
+                    "label": "Input",
+                    "name": "input",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "schema-designer",
+                        "label": "Request body parameters",
+                        "extends_schema": true,
+                        "schema_neutral": true,
+                        "sample_data_type": "json_input",
+                        "sticky": false,
+                        "add_field_label": "Add request body parameter",
+                        "optional": true,
+                        "type": "string",
+                        "name": "schema"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Payment Intent",
+                            "optional": false,
+                            "hint": "Payment Intent ID",
+                            "details": {
+                              "real_name": "payment_intent"
+                            },
+                            "sticky": true,
+                            "type": "string",
+                            "name": "payment_intent"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Amount",
+                            "optional": true,
+                            "hint": "Amount in cents (omit for full refund)",
+                            "details": {
+                              "real_name": "amount"
+                            },
+                            "sticky": true,
+                            "type": "string",
+                            "name": "amount"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Reason",
+                            "optional": true,
+                            "hint": "Refund reason",
+                            "details": {
+                              "real_name": "reason"
+                            },
+                            "sticky": true,
+                            "type": "string",
+                            "name": "reason"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Metadata reason detail",
+                            "optional": true,
+                            "hint": "Detailed reason",
+                            "details": {
+                              "real_name": "metadata[reason_detail]"
+                            },
+                            "sticky": true,
+                            "type": "string",
+                            "name": "metadata_reason_detail_"
+                          }
+                        ],
+                        "label": "Data",
+                        "optional": true,
+                        "type": "object",
+                        "name": "data"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "key_value",
+                    "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                    "empty_list_title": "Does this HTTP request require headers?",
+                    "item_label": "Header",
+                    "label": "Request headers",
+                    "name": "request_headers",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Name",
+                        "optional": true,
+                        "type": "string",
+                        "name": "name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "extends_schema": true,
+                    "label": "Response body",
+                    "name": "output",
+                    "optional": true,
+                    "sample_data_type": "json_http",
+                    "sticky": true,
+                    "type": "string",
+                    "schema_neutral": true
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "extends_schema": true,
+                    "label": "Response headers",
+                    "name": "response_headers",
+                    "optional": true,
+                    "sample_data_type": "json_http",
+                    "sticky": false,
+                    "type": "string",
+                    "schema_neutral": true
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Inspect",
+                    "name": "inspect",
+                    "ngIf": "false",
+                    "optional": true,
+                    "parse_output": "float_conversion",
+                    "type": "number"
+                  }
+                ],
+                "visible_config_fields": [
+                  "mnemonic",
+                  "verb",
+                  "path",
+                  "response_type",
+                  "input",
+                  "input.schema",
+                  "input.data",
+                  "request_headers",
+                  "output"
+                ],
+                "uuid": "refund-partial-http-003"
+              },
+              {
+                "number": 4,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_partial_success",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "refund_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_partial\",\"path\":[\"id\"]}')}",
+                    "payment_intent_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_partial\",\"path\":[\"payment_intent\"]}')}",
+                    "amount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_partial\",\"path\":[\"amount\"]}')}",
+                    "status": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_partial\",\"path\":[\"status\"]}')}",
+                    "reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_partial\",\"path\":[\"reason\"]}')}",
+                    "created": "true"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Refund ID",
+                        "name": "refund_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount",
+                        "parse_output": "integer_conversion",
+                        "name": "amount",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "name": "created",
+                        "type": "boolean"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Refund ID",
+                        "name": "refund_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount",
+                        "parse_output": "integer_conversion",
+                        "name": "amount",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "name": "created",
+                        "type": "boolean"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "refund-partial-return-004"
+              }
+            ],
+            "uuid": "refund-if-amount-002"
+          },
+          {
+            "number": 5,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "blank",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"amount\"]}')}",
+                  "uuid": "refund-amount-not-present-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "stripe",
+                "name": "__adhoc_http_action",
+                "as": "create_refund_full",
+                "keyword": "action",
+                "input": {
+                  "mnemonic": "Create refund (full)",
+                  "path": "/v1/refunds",
+                  "verb": "post",
+                  "response_type": "json",
+                  "input": {
+                    "schema": "[{\"name\":\"payment_intent\",\"type\":\"string\",\"optional\":false,\"label\":\"Payment Intent\",\"hint\":\"Payment Intent ID\",\"details\":{\"real_name\":\"payment_intent\"},\"control_type\":\"text\"},{\"name\":\"reason\",\"type\":\"string\",\"optional\":true,\"label\":\"Reason\",\"hint\":\"Refund reason\",\"details\":{\"real_name\":\"reason\"},\"control_type\":\"text\"},{\"name\":\"metadata[reason_detail]\",\"type\":\"string\",\"optional\":true,\"label\":\"Metadata reason detail\",\"hint\":\"Detailed reason\",\"details\":{\"real_name\":\"metadata[reason_detail]\"},\"control_type\":\"text\"}]",
+                    "data": {
+                      "payment_intent": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_intent_id\"]}')}",
+                      "reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"reason\"]}')}",
+                      "metadata_reason_detail_": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"metadata_reason\"]}')}"
+                    }
+                  },
+                  "output": "[{\"name\":\"id\",\"type\":\"string\",\"label\":\"Refund ID\"},{\"name\":\"payment_intent\",\"type\":\"string\",\"label\":\"Payment intent ID\"},{\"name\":\"amount\",\"type\":\"integer\",\"label\":\"Amount\"},{\"name\":\"status\",\"type\":\"string\",\"label\":\"Status\"},{\"name\":\"reason\",\"type\":\"string\",\"label\":\"Reason\"}]",
+                  "request_headers": [
+                    {
+                      "name": "Idempotency-Key",
+                      "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"idempotency_token\"]}')}"
+                    }
+                  ],
+                  "request_type": "urlencoded"
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "label": "Refund ID",
+                    "name": "id",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Payment intent ID",
+                    "name": "payment_intent",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Amount",
+                    "name": "amount",
+                    "optional": true,
+                    "parse_output": "integer_conversion",
+                    "type": "integer"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Status",
+                    "name": "status",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Reason",
+                    "name": "reason",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Base URI is <b>https://api.stripe.com/v1/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                    "label": "Path",
+                    "name": "path",
+                    "optional": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "select",
+                    "default": "json",
+                    "extends_schema": true,
+                    "label": "Request type",
+                    "name": "request_type",
+                    "optional": true,
+                    "pick_list": [
+                      [
+                        "JSON request body",
+                        "json"
+                      ],
+                      [
+                        "URL encoded form",
+                        "urlencoded"
+                      ],
+                      [
+                        "Multipart form",
+                        "multipart"
+                      ],
+                      [
+                        "Raw JSON request body",
+                        "raw"
+                      ],
+                      [
+                        "XML request body",
+                        "xml"
+                      ],
+                      [
+                        "Plain text",
+                        "text"
+                      ],
+                      [
+                        "Raw request body",
+                        "rawdata"
+                      ]
+                    ],
+                    "sticky": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "select",
+                    "default": "json",
+                    "extends_schema": true,
+                    "label": "Response type",
+                    "name": "response_type",
+                    "optional": true,
+                    "pick_list": [
+                      [
+                        "JSON response",
+                        "json"
+                      ],
+                      [
+                        "Raw JSON Response",
+                        "raw"
+                      ],
+                      [
+                        "XML Response",
+                        "xml2"
+                      ],
+                      [
+                        "Raw response",
+                        "text"
+                      ]
+                    ],
+                    "sticky": false,
+                    "type": "string"
+                  },
+                  {
+                    "label": "Input",
+                    "name": "input",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "schema-designer",
+                        "label": "Request body parameters",
+                        "extends_schema": true,
+                        "schema_neutral": true,
+                        "sample_data_type": "json_input",
+                        "sticky": false,
+                        "add_field_label": "Add request body parameter",
+                        "optional": true,
+                        "type": "string",
+                        "name": "schema"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Payment Intent",
+                            "optional": false,
+                            "hint": "Payment Intent ID",
+                            "details": {
+                              "real_name": "payment_intent"
+                            },
+                            "sticky": true,
+                            "type": "string",
+                            "name": "payment_intent"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Reason",
+                            "optional": true,
+                            "hint": "Refund reason",
+                            "details": {
+                              "real_name": "reason"
+                            },
+                            "sticky": true,
+                            "type": "string",
+                            "name": "reason"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Metadata reason detail",
+                            "optional": true,
+                            "hint": "Detailed reason",
+                            "details": {
+                              "real_name": "metadata[reason_detail]"
+                            },
+                            "sticky": true,
+                            "type": "string",
+                            "name": "metadata_reason_detail_"
+                          }
+                        ],
+                        "label": "Data",
+                        "optional": true,
+                        "type": "object",
+                        "name": "data"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "key_value",
+                    "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                    "empty_list_title": "Does this HTTP request require headers?",
+                    "item_label": "Header",
+                    "label": "Request headers",
+                    "name": "request_headers",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Name",
+                        "optional": true,
+                        "type": "string",
+                        "name": "name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "extends_schema": true,
+                    "label": "Response body",
+                    "name": "output",
+                    "optional": true,
+                    "sample_data_type": "json_http",
+                    "sticky": true,
+                    "type": "string",
+                    "schema_neutral": true
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "extends_schema": true,
+                    "label": "Response headers",
+                    "name": "response_headers",
+                    "optional": true,
+                    "sample_data_type": "json_http",
+                    "sticky": false,
+                    "type": "string",
+                    "schema_neutral": true
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Inspect",
+                    "name": "inspect",
+                    "ngIf": "false",
+                    "optional": true,
+                    "parse_output": "float_conversion",
+                    "type": "number"
+                  }
+                ],
+                "visible_config_fields": [
+                  "mnemonic",
+                  "verb",
+                  "path",
+                  "response_type",
+                  "input",
+                  "input.schema",
+                  "input.data",
+                  "request_headers",
+                  "output"
+                ],
+                "uuid": "refund-full-http-006"
+              },
+              {
+                "number": 7,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_full_success",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "refund_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_full\",\"path\":[\"id\"]}')}",
+                    "payment_intent_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_full\",\"path\":[\"payment_intent\"]}')}",
+                    "amount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_full\",\"path\":[\"amount\"]}')}",
+                    "status": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_full\",\"path\":[\"status\"]}')}",
+                    "reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_refund_full\",\"path\":[\"reason\"]}')}",
+                    "created": "true"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Refund ID",
+                        "name": "refund_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount",
+                        "parse_output": "integer_conversion",
+                        "name": "amount",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "created",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Created",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "created",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Refund ID",
+                        "name": "refund_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount",
+                        "parse_output": "integer_conversion",
+                        "name": "amount",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "created",
+                        "type": "boolean",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Created",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "created",
+                          "type": "boolean"
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "refund-full-return-007"
+              }
+            ],
+            "uuid": "refund-if-no-amount-005"
+          },
+          {
+            "number": 8,
+            "as": "catch_error",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 9,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "log_error",
+                "keyword": "action",
+                "input": {
+                  "message": "='Stripe refund creation error - payment_intent_id: ' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_intent_id\"]}') + ', error: ' + _dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')",
+                  "user_logs_enabled": "false"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "visible_config_fields": [
+                  "message"
+                ],
+                "uuid": "refund-log-error-009"
+              },
+              {
+                "number": 10,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_error",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "refund_id": "=null",
+                    "payment_intent_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_intent_id\"]}')}",
+                    "amount": "=null",
+                    "status": "=null",
+                    "reason": "=null",
+                    "created": "false"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Refund ID",
+                        "name": "refund_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount",
+                        "parse_output": "integer_conversion",
+                        "name": "amount",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "name": "created",
+                        "type": "boolean"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Refund ID",
+                        "name": "refund_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount",
+                        "parse_output": "integer_conversion",
+                        "name": "amount",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Created",
+                        "name": "created",
+                        "type": "boolean"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-error-refund-010"
+              }
+            ],
+            "uuid": "catch-error-refund-008"
+          }
+        ],
+        "uuid": "try-refund-001"
+      }
+    ],
+    "uuid": "trigger-refund-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "stripe",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Workspace Connections/zt_dev_stripe_account.connection.json",
+        "name": "Stripe Production",
+        "folder": "Workspace Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

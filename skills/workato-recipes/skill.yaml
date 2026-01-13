@@ -1,0 +1,59 @@
+# Workato Recipes Base Skill
+# Foundation knowledge for writing Workato recipe JSON - trigger types,
+# control flow, datapill syntax, and recipe structure fundamentals.
+
+name: workato-recipes
+version: 1.0.0
+description: >
+  Base skill for Workato recipe development. Provides foundational knowledge
+  for recipe JSON structure, trigger types, control flow patterns, and datapill
+  syntax. Connector-specific skills (stripe-recipes, salesforce-recipes, etc.)
+  extend this base skill.
+
+author: Workato
+license: MIT
+
+# Capabilities this skill provides
+capabilities:
+  - Recipe JSON structure (name, version, config, code)
+  - Trigger types (API endpoint, callable recipe, webhook, scheduler)
+  - Control flow (if/else, try/catch, loops)
+  - Datapill syntax and references
+  - Config section and connection definitions
+  - Return/response handling
+
+# Entry point for agent consumption
+entry_point: SKILL_INSTRUCTIONS.md
+
+# Trigger documentation
+triggers:
+  - triggers/api-endpoint.md
+  - triggers/callable-recipe.md
+
+# Control flow documentation
+control_flow:
+  - control-flow/if-else.md
+  - control-flow/try-catch.md
+
+# Fundamentals
+fundamentals:
+  - fundamentals/recipe-structure.md
+  - fundamentals/datapill-syntax.md
+  - fundamentals/config-section.md
+
+# Templates
+templates:
+  - templates/api-endpoint-trigger.template.json
+  - templates/callable-recipe-trigger.template.json
+
+# Target platforms
+platforms:
+  - workato
+
+# Tags for discovery
+tags:
+  - workato
+  - recipes
+  - integration
+  - automation
+  - triggers

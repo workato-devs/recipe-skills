@@ -1,0 +1,56 @@
+# Stripe Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write production-grade
+# Stripe payment integration recipes in Workato's recipe JSON format.
+
+name: stripe-recipes
+version: 1.0.0
+description: >
+  Stripe payment integration recipes for Workato. This skill enables AI agents
+  to generate valid Workato recipe JSON files for Stripe operations including
+  customer management, payment processing, and refunds.
+
+author: Workato
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Create and search Stripe customers (with deduplication)
+  - Create and confirm PaymentIntents
+  - Handle 3D Secure authentication flows
+  - Process refunds for completed payments
+  - Retrieve payment and subscription status
+
+# Entry point for agent consumption
+entry_point: SKILL_INSTRUCTIONS.md
+
+# Templates available for reference/adaptation
+templates:
+  - templates/atomic-recipe.template.json
+  - templates/create-customer.json
+  - templates/confirm-payment.json
+  - templates/create-refund.json
+
+# Pattern documentation
+patterns:
+  - patterns/datapill-syntax.md
+  - patterns/error-handling.md
+  - patterns/idempotency.md
+  - patterns/search-before-create.md
+
+# Target platforms
+platforms:
+  - workato
+
+# Stripe API version tested against
+stripe_api_version: "2024-11-20.acacia"
+
+# Tags for discovery
+tags:
+  - payments
+  - stripe
+  - workato
+  - integration
+  - recipes

@@ -1,0 +1,431 @@
+{
+  "name": "Search Salesforce contact by email",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"email\",\"label\":\"Email\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Contact email address to search for\"}]",
+      "result_schema_json": "[{\"name\":\"id\",\"label\":\"Contact ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"email\",\"label\":\"Email\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"first_name\",\"label\":\"First name\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"last_name\",\"label\":\"Last name\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"phone\",\"label\":\"Phone\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"found\",\"label\":\"Found\",\"type\":\"boolean\",\"control_type\":\"checkbox\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Email",
+            "name": "email",
+            "type": "string",
+            "optional": false,
+            "hint": "Contact email address to search for"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "provider": "salesforce",
+            "name": "search_sobjects",
+            "as": "search_contact",
+            "keyword": "action",
+            "input": {
+              "sobject_name": "Contact",
+              "limit": "150",
+              "Email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Contacts",
+                "name": "Contact",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Contact ID",
+                    "name": "Id",
+                    "optional": true,
+                    "custom": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "Email",
+                    "optional": true,
+                    "custom": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "First Name",
+                    "name": "FirstName",
+                    "optional": true,
+                    "custom": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last Name",
+                    "name": "LastName",
+                    "optional": true,
+                    "custom": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "phone",
+                    "label": "Business Phone",
+                    "name": "Phone",
+                    "optional": true,
+                    "custom": false,
+                    "type": "string"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Maximum number of records to return",
+                "label": "Limit",
+                "name": "limit",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Email",
+                "name": "Email",
+                "optional": true,
+                "type": "string"
+              }
+            ],
+            "uuid": "search-contact-002"
+          },
+          {
+            "number": 3,
+            "as": "check_found",
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"search_contact\",\"path\":[\"Contact\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+                  "uuid": "condition-contact-found-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 4,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_found",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"search_contact\",\"path\":[\"Contact\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+                    "email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"search_contact\",\"path\":[\"Contact\",{\"path_element_type\":\"current_item\"},\"Email\"]}')}",
+                    "first_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"search_contact\",\"path\":[\"Contact\",{\"path_element_type\":\"current_item\"},\"FirstName\"]}')}",
+                    "last_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"search_contact\",\"path\":[\"Contact\",{\"path_element_type\":\"current_item\"},\"LastName\"]}')}",
+                    "phone": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"search_contact\",\"path\":[\"Contact\",{\"path_element_type\":\"current_item\"},\"Phone\"]}')}",
+                    "found": "true"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Contact ID",
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "name": "email",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "First name",
+                        "name": "first_name",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last name",
+                        "name": "last_name",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Phone",
+                        "name": "phone",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Found",
+                        "name": "found",
+                        "type": "boolean"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Contact ID",
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "name": "email",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "First name",
+                        "name": "first_name",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last name",
+                        "name": "last_name",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Phone",
+                        "name": "phone",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Found",
+                        "name": "found",
+                        "type": "boolean"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-found-004"
+              },
+              {
+                "number": 5,
+                "as": "not_found_branch",
+                "keyword": "else",
+                "input": {},
+                "block": [
+                  {
+                    "number": 6,
+                    "provider": "workato_recipe_function",
+                    "name": "return_result",
+                    "as": "return_not_found",
+                    "keyword": "action",
+                    "input": {
+                      "result": {
+                        "id": "=null",
+                        "email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}",
+                        "first_name": "=null",
+                        "last_name": "=null",
+                        "phone": "=null",
+                        "found": "false"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Contact ID",
+                            "name": "id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Email",
+                            "name": "email",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "First name",
+                            "name": "first_name",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Last name",
+                            "name": "last_name",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Phone",
+                            "name": "phone",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Found",
+                            "name": "found",
+                            "type": "boolean"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Contact ID",
+                            "name": "id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Email",
+                            "name": "email",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "First name",
+                            "name": "first_name",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Last name",
+                            "name": "last_name",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Phone",
+                            "name": "phone",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Found",
+                            "name": "found",
+                            "type": "boolean"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-not-found-006"
+                  }
+                ],
+                "uuid": "else-not-found-005"
+              }
+            ],
+            "uuid": "if-found-003"
+          },
+          {
+            "number": 7,
+            "as": "catch_error",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 8,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "log_error",
+                "keyword": "action",
+                "input": {
+                  "message": "Error searching contact: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')}",
+                  "user_logs_enabled": "false"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "log-error-008"
+              }
+            ],
+            "uuid": "catch-error-007"
+          }
+        ],
+        "uuid": "try-search-001"
+      }
+    ],
+    "uuid": "trigger-search-contact-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Workspace Connections/salesforce_connection.connection.json",
+        "name": "Salesforce Sandbox",
+        "folder": "Workspace Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

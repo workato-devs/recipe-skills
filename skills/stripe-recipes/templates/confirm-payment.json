@@ -1,0 +1,1170 @@
+{
+  "name": "Confirm Stripe payment",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"payment_intent_id\",\"label\":\"Payment intent ID\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Stripe PaymentIntent ID\"},{\"name\":\"payment_method_id\",\"label\":\"Payment method ID\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Stripe PaymentMethod ID (tokenized card)\"},{\"name\":\"return_url\",\"label\":\"Return URL\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true,\"hint\":\"URL for 3D Secure redirect\"}]",
+      "result_schema_json": "[{\"name\":\"payment_intent_id\",\"label\":\"Payment intent ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"status\",\"label\":\"Status\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"charge_id\",\"label\":\"Charge ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"amount_received\",\"label\":\"Amount received\",\"type\":\"integer\",\"control_type\":\"integer\"},{\"name\":\"error_code\",\"label\":\"Error code\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"error_message\",\"label\":\"Error message\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"next_action_type\",\"label\":\"Next action type\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"next_action_url\",\"label\":\"Next action URL\",\"type\":\"string\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Payment intent ID",
+            "name": "payment_intent_id",
+            "type": "string",
+            "optional": false,
+            "hint": "Stripe PaymentIntent ID"
+          },
+          {
+            "control_type": "text",
+            "label": "Payment method ID",
+            "name": "payment_method_id",
+            "type": "string",
+            "optional": false,
+            "hint": "Stripe PaymentMethod ID (tokenized card)"
+          },
+          {
+            "control_type": "text",
+            "label": "Return URL",
+            "name": "return_url",
+            "type": "string",
+            "optional": true,
+            "hint": "URL for 3D Secure redirect"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "as": "check_return_url",
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "blank",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"return_url\"]}')}",
+                  "uuid": "condition-url-blank-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 3,
+                "provider": "stripe",
+                "name": "__adhoc_http_action",
+                "as": "confirm_payment_no_url",
+                "keyword": "action",
+                "input": {
+                  "mnemonic": "Confirm payment intent",
+                  "path": "payment_intents/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_intent_id\"]}')}/confirm",
+                  "verb": "post",
+                  "response_type": "json",
+                  "input": {
+                    "schema": "[{\"name\":\"payment_method\",\"type\":\"string\",\"optional\":false,\"label\":\"Payment method\",\"hint\":\"Payment method ID\",\"details\":{\"real_name\":\"payment_method\"},\"control_type\":\"text\"}]",
+                    "data": {
+                      "payment_method": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_method_id\"]}')}"
+                    }
+                  },
+                  "output": "[{\"name\":\"id\",\"type\":\"string\",\"label\":\"Payment Intent ID\"},{\"name\":\"status\",\"type\":\"string\",\"label\":\"Status\"},{\"name\":\"amount_received\",\"type\":\"integer\",\"label\":\"Amount Received\"},{\"name\":\"charges\",\"type\":\"object\",\"label\":\"Charges\",\"properties\":[{\"name\":\"data\",\"type\":\"array\",\"label\":\"Data\",\"of\":\"object\",\"properties\":[{\"name\":\"id\",\"type\":\"string\",\"label\":\"Charge ID\"}]}]},{\"name\":\"last_payment_error\",\"type\":\"object\",\"label\":\"Last Payment Error\",\"properties\":[{\"name\":\"code\",\"type\":\"string\",\"label\":\"Code\"},{\"name\":\"message\",\"type\":\"string\",\"label\":\"Message\"}]},{\"name\":\"next_action\",\"type\":\"object\",\"label\":\"Next Action\",\"properties\":[{\"name\":\"type\",\"type\":\"string\",\"label\":\"Type\"},{\"name\":\"redirect_to_url\",\"type\":\"object\",\"label\":\"Redirect to URL\",\"properties\":[{\"name\":\"url\",\"type\":\"string\",\"label\":\"URL\"}]}]}]",
+                  "request_type": "urlencoded"
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "label": "Payment Intent ID",
+                    "name": "id",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Status",
+                    "name": "status",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Amount Received",
+                    "name": "amount_received",
+                    "optional": true,
+                    "parse_output": "integer_conversion",
+                    "type": "integer"
+                  },
+                  {
+                    "label": "Charges",
+                    "name": "charges",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "label": "Data",
+                        "optional": true,
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Charge ID",
+                            "optional": true,
+                            "type": "string",
+                            "name": "id"
+                          }
+                        ],
+                        "type": "array",
+                        "name": "data"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "label": "Last Payment Error",
+                    "name": "last_payment_error",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Code",
+                        "optional": true,
+                        "type": "string",
+                        "name": "code"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Message",
+                        "optional": true,
+                        "type": "string",
+                        "name": "message"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "label": "Next Action",
+                    "name": "next_action",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Type",
+                        "optional": true,
+                        "type": "string",
+                        "name": "type"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "URL",
+                            "optional": true,
+                            "type": "string",
+                            "name": "url"
+                          }
+                        ],
+                        "label": "Redirect to URL",
+                        "optional": true,
+                        "type": "object",
+                        "name": "redirect_to_url"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Base URI is <b>https://api.stripe.com/v1/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                    "label": "Path",
+                    "name": "path",
+                    "optional": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "select",
+                    "default": "json",
+                    "extends_schema": true,
+                    "label": "Request type",
+                    "name": "request_type",
+                    "optional": true,
+                    "pick_list": [
+                      [
+                        "JSON request body",
+                        "json"
+                      ],
+                      [
+                        "URL encoded form",
+                        "urlencoded"
+                      ],
+                      [
+                        "Multipart form",
+                        "multipart"
+                      ],
+                      [
+                        "Raw JSON request body",
+                        "raw"
+                      ],
+                      [
+                        "XML request body",
+                        "xml"
+                      ],
+                      [
+                        "Plain text",
+                        "text"
+                      ],
+                      [
+                        "Raw request body",
+                        "rawdata"
+                      ]
+                    ],
+                    "sticky": false,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "select",
+                    "default": "json",
+                    "extends_schema": true,
+                    "label": "Response type",
+                    "name": "response_type",
+                    "optional": true,
+                    "pick_list": [
+                      [
+                        "JSON response",
+                        "json"
+                      ],
+                      [
+                        "Raw JSON Response",
+                        "raw"
+                      ],
+                      [
+                        "XML Response",
+                        "xml2"
+                      ],
+                      [
+                        "Raw response",
+                        "text"
+                      ]
+                    ],
+                    "sticky": false,
+                    "type": "string"
+                  },
+                  {
+                    "label": "Input",
+                    "name": "input",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "schema-designer",
+                        "label": "Request body parameters",
+                        "extends_schema": true,
+                        "schema_neutral": true,
+                        "sample_data_type": "json_input",
+                        "sticky": false,
+                        "add_field_label": "Add request body parameter",
+                        "optional": true,
+                        "type": "string",
+                        "name": "schema"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Payment method",
+                            "optional": false,
+                            "hint": "Payment method ID",
+                            "details": {
+                              "real_name": "payment_method"
+                            },
+                            "sticky": true,
+                            "type": "string",
+                            "name": "payment_method"
+                          }
+                        ],
+                        "label": "Data",
+                        "optional": true,
+                        "type": "object",
+                        "name": "data"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "key_value",
+                    "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                    "empty_list_title": "Does this HTTP request require headers?",
+                    "item_label": "Header",
+                    "label": "Request headers",
+                    "name": "request_headers",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Name",
+                        "optional": true,
+                        "type": "string",
+                        "name": "name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "extends_schema": true,
+                    "label": "Response body",
+                    "name": "output",
+                    "optional": true,
+                    "sample_data_type": "json_http",
+                    "sticky": true,
+                    "type": "string",
+                    "schema_neutral": true
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "extends_schema": true,
+                    "label": "Response headers",
+                    "name": "response_headers",
+                    "optional": true,
+                    "sample_data_type": "json_http",
+                    "sticky": false,
+                    "type": "string",
+                    "schema_neutral": true
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Inspect",
+                    "name": "inspect",
+                    "ngIf": "false",
+                    "optional": true,
+                    "parse_output": "float_conversion",
+                    "type": "number"
+                  }
+                ],
+                "uuid": "confirm-no-url-002"
+              },
+              {
+                "number": 4,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_no_url",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "payment_intent_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_no_url\",\"path\":[\"id\"]}')}",
+                    "status": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_no_url\",\"path\":[\"status\"]}')}",
+                    "charge_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_no_url\",\"path\":[\"charges\",\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
+                    "amount_received": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_no_url\",\"path\":[\"amount_received\"]}')}",
+                    "error_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_no_url\",\"path\":[\"last_payment_error\",\"code\"]}')}",
+                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_no_url\",\"path\":[\"last_payment_error\",\"message\"]}')}",
+                    "next_action_type": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_no_url\",\"path\":[\"next_action\",\"type\"]}')}",
+                    "next_action_url": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_no_url\",\"path\":[\"next_action\",\"redirect_to_url\",\"url\"]}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Charge ID",
+                        "name": "charge_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount received",
+                        "parse_output": "integer_conversion",
+                        "name": "amount_received",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error code",
+                        "name": "error_code",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error message",
+                        "name": "error_message",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next action type",
+                        "name": "next_action_type",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next action URL",
+                        "name": "next_action_url",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Charge ID",
+                        "name": "charge_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount received",
+                        "parse_output": "integer_conversion",
+                        "name": "amount_received",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error code",
+                        "name": "error_code",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error message",
+                        "name": "error_message",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next action type",
+                        "name": "next_action_type",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next action URL",
+                        "name": "next_action_url",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-no-url-004"
+              },
+              {
+                "number": 5,
+                "as": "has_return_url",
+                "keyword": "else",
+                "input": {},
+                "block": [
+                  {
+                    "number": 6,
+                    "provider": "stripe",
+                    "name": "__adhoc_http_action",
+                    "as": "confirm_payment_with_url",
+                    "keyword": "action",
+                    "input": {
+                      "mnemonic": "Confirm payment intent with redirect",
+                      "path": "payment_intents/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_intent_id\"]}')}/confirm",
+                      "verb": "post",
+                      "response_type": "json",
+                      "input": {
+                        "schema": "[{\"name\":\"payment_method\",\"type\":\"string\",\"optional\":false,\"label\":\"Payment method\",\"hint\":\"Payment method ID\",\"details\":{\"real_name\":\"payment_method\"},\"control_type\":\"text\"},{\"name\":\"return_url\",\"type\":\"string\",\"optional\":true,\"label\":\"Return URL\",\"hint\":\"URL for 3D Secure redirect\",\"details\":{\"real_name\":\"return_url\"},\"control_type\":\"text\"}]",
+                        "data": {
+                          "payment_method": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_method_id\"]}')}",
+                          "return_url": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"return_url\"]}')}"
+                        }
+                      },
+                      "output": "[{\"name\":\"id\",\"type\":\"string\",\"label\":\"Payment Intent ID\"},{\"name\":\"status\",\"type\":\"string\",\"label\":\"Status\"},{\"name\":\"amount_received\",\"type\":\"integer\",\"label\":\"Amount Received\"},{\"name\":\"charges\",\"type\":\"object\",\"label\":\"Charges\",\"properties\":[{\"name\":\"data\",\"type\":\"array\",\"label\":\"Data\",\"of\":\"object\",\"properties\":[{\"name\":\"id\",\"type\":\"string\",\"label\":\"Charge ID\"}]}]},{\"name\":\"last_payment_error\",\"type\":\"object\",\"label\":\"Last Payment Error\",\"properties\":[{\"name\":\"code\",\"type\":\"string\",\"label\":\"Code\"},{\"name\":\"message\",\"type\":\"string\",\"label\":\"Message\"}]},{\"name\":\"next_action\",\"type\":\"object\",\"label\":\"Next Action\",\"properties\":[{\"name\":\"type\",\"type\":\"string\",\"label\":\"Type\"},{\"name\":\"redirect_to_url\",\"type\":\"object\",\"label\":\"Redirect to URL\",\"properties\":[{\"name\":\"url\",\"type\":\"string\",\"label\":\"URL\"}]}]}]",
+                      "request_type": "urlencoded"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "control_type": "text",
+                        "label": "Payment Intent ID",
+                        "name": "id",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Amount Received",
+                        "name": "amount_received",
+                        "optional": true,
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "label": "Charges",
+                        "name": "charges",
+                        "optional": true,
+                        "properties": [
+                          {
+                            "label": "Data",
+                            "optional": true,
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Charge ID",
+                                "optional": true,
+                                "type": "string",
+                                "name": "id"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "data"
+                          }
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "label": "Last Payment Error",
+                        "name": "last_payment_error",
+                        "optional": true,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Code",
+                            "optional": true,
+                            "type": "string",
+                            "name": "code"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Message",
+                            "optional": true,
+                            "type": "string",
+                            "name": "message"
+                          }
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "label": "Next Action",
+                        "name": "next_action",
+                        "optional": true,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Type",
+                            "optional": true,
+                            "type": "string",
+                            "name": "type"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "URL",
+                                "optional": true,
+                                "type": "string",
+                                "name": "url"
+                              }
+                            ],
+                            "label": "Redirect to URL",
+                            "optional": true,
+                            "type": "object",
+                            "name": "redirect_to_url"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Base URI is <b>https://api.stripe.com/v1/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                        "label": "Path",
+                        "name": "path",
+                        "optional": false,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "select",
+                        "default": "json",
+                        "extends_schema": true,
+                        "label": "Request type",
+                        "name": "request_type",
+                        "optional": true,
+                        "pick_list": [
+                          [
+                            "JSON request body",
+                            "json"
+                          ],
+                          [
+                            "URL encoded form",
+                            "urlencoded"
+                          ],
+                          [
+                            "Multipart form",
+                            "multipart"
+                          ],
+                          [
+                            "Raw JSON request body",
+                            "raw"
+                          ],
+                          [
+                            "XML request body",
+                            "xml"
+                          ],
+                          [
+                            "Plain text",
+                            "text"
+                          ],
+                          [
+                            "Raw request body",
+                            "rawdata"
+                          ]
+                        ],
+                        "sticky": false,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "select",
+                        "default": "json",
+                        "extends_schema": true,
+                        "label": "Response type",
+                        "name": "response_type",
+                        "optional": true,
+                        "pick_list": [
+                          [
+                            "JSON response",
+                            "json"
+                          ],
+                          [
+                            "Raw JSON Response",
+                            "raw"
+                          ],
+                          [
+                            "XML Response",
+                            "xml2"
+                          ],
+                          [
+                            "Raw response",
+                            "text"
+                          ]
+                        ],
+                        "sticky": false,
+                        "type": "string"
+                      },
+                      {
+                        "label": "Input",
+                        "name": "input",
+                        "optional": true,
+                        "properties": [
+                          {
+                            "control_type": "schema-designer",
+                            "label": "Request body parameters",
+                            "extends_schema": true,
+                            "schema_neutral": true,
+                            "sample_data_type": "json_input",
+                            "sticky": false,
+                            "add_field_label": "Add request body parameter",
+                            "optional": true,
+                            "type": "string",
+                            "name": "schema"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Payment method",
+                                "optional": false,
+                                "hint": "Payment method ID",
+                                "details": {
+                                  "real_name": "payment_method"
+                                },
+                                "sticky": true,
+                                "type": "string",
+                                "name": "payment_method"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Return URL",
+                                "optional": true,
+                                "hint": "URL for 3D Secure redirect",
+                                "details": {
+                                  "real_name": "return_url"
+                                },
+                                "sticky": true,
+                                "type": "string",
+                                "name": "return_url"
+                              }
+                            ],
+                            "label": "Data",
+                            "optional": true,
+                            "type": "object",
+                            "name": "data"
+                          }
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "control_type": "key_value",
+                        "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                        "empty_list_title": "Does this HTTP request require headers?",
+                        "item_label": "Header",
+                        "label": "Request headers",
+                        "name": "request_headers",
+                        "of": "object",
+                        "optional": true,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Name",
+                            "optional": true,
+                            "type": "string",
+                            "name": "name"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "optional": true,
+                            "type": "string",
+                            "name": "value"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "extends_schema": true,
+                        "label": "Response body",
+                        "name": "output",
+                        "optional": true,
+                        "sample_data_type": "json_http",
+                        "sticky": true,
+                        "type": "string",
+                        "schema_neutral": true
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "extends_schema": true,
+                        "label": "Response headers",
+                        "name": "response_headers",
+                        "optional": true,
+                        "sample_data_type": "json_http",
+                        "sticky": false,
+                        "type": "string",
+                        "schema_neutral": true
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Inspect",
+                        "name": "inspect",
+                        "ngIf": "false",
+                        "optional": true,
+                        "parse_output": "float_conversion",
+                        "type": "number"
+                      }
+                    ],
+                    "uuid": "confirm-with-url-006"
+                  },
+                  {
+                    "number": 7,
+                    "provider": "workato_recipe_function",
+                    "name": "return_result",
+                    "as": "return_with_url",
+                    "keyword": "action",
+                    "input": {
+                      "result": {
+                        "payment_intent_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_with_url\",\"path\":[\"id\"]}')}",
+                        "status": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_with_url\",\"path\":[\"status\"]}')}",
+                        "charge_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_with_url\",\"path\":[\"charges\",\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
+                        "amount_received": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_with_url\",\"path\":[\"amount_received\"]}')}",
+                        "error_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_with_url\",\"path\":[\"last_payment_error\",\"code\"]}')}",
+                        "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_with_url\",\"path\":[\"last_payment_error\",\"message\"]}')}",
+                        "next_action_type": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_with_url\",\"path\":[\"next_action\",\"type\"]}')}",
+                        "next_action_url": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"confirm_payment_with_url\",\"path\":[\"next_action\",\"redirect_to_url\",\"url\"]}')}"
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Payment intent ID",
+                            "name": "payment_intent_id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Status",
+                            "name": "status",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Charge ID",
+                            "name": "charge_id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "integer",
+                            "label": "Amount received",
+                            "parse_output": "integer_conversion",
+                            "name": "amount_received",
+                            "type": "integer"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error code",
+                            "name": "error_code",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error message",
+                            "name": "error_message",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Next action type",
+                            "name": "next_action_type",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Next action URL",
+                            "name": "next_action_url",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Payment intent ID",
+                            "name": "payment_intent_id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Status",
+                            "name": "status",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Charge ID",
+                            "name": "charge_id",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "integer",
+                            "label": "Amount received",
+                            "parse_output": "integer_conversion",
+                            "name": "amount_received",
+                            "type": "integer"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error code",
+                            "name": "error_code",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error message",
+                            "name": "error_message",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Next action type",
+                            "name": "next_action_type",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Next action URL",
+                            "name": "next_action_url",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-with-url-007"
+                  }
+                ],
+                "uuid": "else-has-url-005"
+              }
+            ],
+            "uuid": "if-url-blank-002"
+          },
+          {
+            "number": 8,
+            "as": "catch_error",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 9,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "log_error",
+                "keyword": "action",
+                "input": {
+                  "message": "='Stripe payment confirmation error - payment_intent_id: ' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_intent_id\"]}') + ', error: ' + _dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')",
+                  "user_logs_enabled": "false"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "visible_config_fields": [
+                  "message"
+                ],
+                "uuid": "log-error-009"
+              },
+              {
+                "number": 10,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_error",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "payment_intent_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"payment_intent_id\"]}')}",
+                    "status": "=null",
+                    "charge_id": "=null",
+                    "amount_received": "0",
+                    "error_code": "stripe_error",
+                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"logger\",\"line\":\"log_error\",\"path\":[\"message\"]}')}",
+                    "next_action_type": "=null",
+                    "next_action_url": "=null"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Charge ID",
+                        "name": "charge_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount received",
+                        "parse_output": "integer_conversion",
+                        "name": "amount_received",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error code",
+                        "name": "error_code",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error message",
+                        "name": "error_message",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next action type",
+                        "name": "next_action_type",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next action URL",
+                        "name": "next_action_url",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Payment intent ID",
+                        "name": "payment_intent_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Charge ID",
+                        "name": "charge_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Amount received",
+                        "parse_output": "integer_conversion",
+                        "name": "amount_received",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error code",
+                        "name": "error_code",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error message",
+                        "name": "error_message",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next action type",
+                        "name": "next_action_type",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next action URL",
+                        "name": "next_action_url",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-error-010"
+              }
+            ],
+            "uuid": "catch-error-008"
+          }
+        ],
+        "uuid": "try-confirm-payment-001"
+      }
+    ],
+    "uuid": "trigger-confirm-payment-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "stripe",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Workspace Connections/zt_dev_stripe_account.connection.json",
+        "name": "Stripe Test",
+        "folder": "Workspace Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
