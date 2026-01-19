@@ -193,6 +193,73 @@ Workato provides built-in Salesforce connector actions (no custom HTTP needed).
 
 **Output:** Returns array of matching records
 
+### 4. Search SObjects with SOQL Query
+
+**Use when:** Finding records with complex criteria using raw SOQL.
+
+```json
+{
+  "provider": "salesforce",
+  "name": "search_sobjects",
+  "as": "search_bookings",
+  "keyword": "action",
+  "input": {
+    "sobject_name": "Booking__c",
+    "query": "Room__r.Room_Number__c = '#{_dp('{...room_number...}')}' AND Status__c NOT IN ('Cancelled', 'No Show')"
+  }
+}
+```
+
+---
+
+## SOQL Query Syntax in search_sobjects
+
+### CRITICAL: No Bind Variables
+
+Workato's Salesforce connector does **NOT** support SOQL bind variable syntax (`:variable`). Use direct string interpolation instead.
+
+**WRONG (bind variable syntax - WILL NOT WORK):**
+```json
+"query": "Email = :#{_dp('...email...')}"
+"query": "Room_Number__c = :#{_dp('...room...')}"
+```
+
+**CORRECT (string values - wrap in single quotes):**
+```json
+"query": "Email = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}'"
+"query": "Room_Number__c = '#{_dp('{...room_number...}')}'"
+```
+
+**CORRECT (dates/numbers - no quotes):**
+```json
+"query": "Check_In_Date__c <= #{_dp('{...date...}')}"
+"query": "Amount__c > #{_dp('{...amount...}')}"
+```
+
+### Query Syntax Quick Reference
+
+| Value Type | Syntax | Example |
+|------------|--------|---------|
+| String | `'#{datapill}'` | `Email = '#{_dp(...)}'` |
+| Date | `#{datapill}` | `CreatedDate >= #{_dp(...)}` |
+| Number | `#{datapill}` | `Amount > #{_dp(...)}` |
+| Boolean | `#{datapill}` | `IsActive = #{_dp(...)}` |
+| Picklist | `'#{datapill}'` | `Status = '#{_dp(...)}'` |
+
+### Complex Query Examples
+
+**Multi-condition query:**
+```json
+"query": "Room__r.Room_Number__c = '#{_dp('{...room_number...}')}' AND Status__c NOT IN ('Cancelled', 'No Show', 'Checked Out') AND Check_In_Date__c <= #{_dp('{...checkout_date...}')} AND Check_Out_Date__c >= #{_dp('{...checkin_date...}')}"
+```
+
+**Date range query:**
+```json
+"query": "CreatedDate >= #{_dp('{...start_date...}')} AND CreatedDate <= #{_dp('{...end_date...}')}"
+```
+
+See: [patterns/soql-query-syntax.md](patterns/soql-query-syntax.md)
+
 ---
 
 ## Salesforce Datapill Paths
@@ -362,6 +429,8 @@ Custom objects may have different requirements based on implementation.
 - [ ] Search results use `{"path_element_type":"current_item"}` for array access
 - [ ] Custom fields (with `__c`, `__mdt`, etc.) are documented as implementation-specific
 - [ ] **CRITICAL:** `extended_input_schema` fully defines all `input` fields (see base skill)
+- [ ] **SOQL queries use `'#{datapill}'` for strings** (NOT `:#{datapill}` bind variables)
+- [ ] **SOQL queries use `#{datapill}` (no quotes) for dates and numbers**
 
 ### Common Salesforce Errors
 
@@ -372,6 +441,7 @@ Custom objects may have different requirements based on implementation.
 | "Invalid external ID field" | Field not marked as External ID | Verify field is marked as External ID in Salesforce |
 | "Duplicate value" | Unique constraint violation | Check for existing records before creating |
 | "Invalid picklist value" | Wrong picklist value | Use exact API value from Salesforce picklist |
+| Query returns no results unexpectedly | Using SOQL bind variable syntax | Replace `:#{datapill}` with `'#{datapill}'` for strings |
 
 ---
 
