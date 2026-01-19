@@ -144,6 +144,63 @@ See: [triggers/api-endpoint.md](triggers/api-endpoint.md)
 
 See: [triggers/callable-recipe.md](triggers/callable-recipe.md)
 
+### Calling Other Recipes (workato_recipe_function)
+
+When a recipe needs to call another callable recipe, use the `workato_recipe_function` provider with action type `call`.
+
+#### CRITICAL: flow_id Requires zip_name
+
+The `flow_id` object MUST include ALL fields, including `zip_name`.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Recipe display name |
+| `folder` | Yes | Folder containing the recipe |
+| `folder_full_path` | Yes | Full path from Home |
+| `zip_name` | **YES** | Path to recipe JSON file |
+
+> **⛔ CRITICAL WARNING:** Missing `zip_name` causes **RECIPE MUTATION AT RUNTIME**. Without `zip_name`, Workato will unpredictably modify the recipe's metadata during execution. This corruption persists and breaks all future invocations. The recipe will appear valid during import/testing but will corrupt itself when actually invoked. **This is worse than a silent failure - it permanently corrupts the recipe.**
+
+**WRONG (missing zip_name - WILL CORRUPT THE RECIPE):**
+```json
+"flow_id": {
+  "name": "Search contact by email",
+  "folder": "atomic-salesforce-recipes",
+  "folder_full_path": "Home/atomic-salesforce-recipes"
+}
+```
+
+**CORRECT (includes zip_name):**
+```json
+"flow_id": {
+  "name": "Search contact by email",
+  "folder": "atomic-salesforce-recipes",
+  "folder_full_path": "Home/atomic-salesforce-recipes",
+  "zip_name": "atomic-salesforce-recipes/search_contact_by_email.recipe.json"
+}
+```
+
+**Complete call action example:**
+```json
+{
+  "provider": "workato_recipe_function",
+  "name": "call",
+  "as": "call_search_contact",
+  "keyword": "action",
+  "input": {
+    "flow_id": {
+      "name": "Search contact by email",
+      "folder": "atomic-salesforce-recipes",
+      "folder_full_path": "Home/atomic-salesforce-recipes",
+      "zip_name": "atomic-salesforce-recipes/search_contact_by_email.recipe.json"
+    },
+    "parameters": {
+      "email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"email\"]}')}"
+    }
+  }
+}
+```
+
 ### Choosing a Trigger Type
 
 | Scenario | Trigger Type |
@@ -774,6 +831,50 @@ Use `.present?` checks with ternary operator to conditionally set fields:
 ```json
 "field_name": "=null"
 ```
+
+### String Concatenation
+
+When concatenating strings from multiple datapills, use formula mode (`=` prefix) with Ruby `+` operator.
+
+**WRONG (mixing `#{}` interpolation with concatenation - INVALID):**
+```json
+"guest_name": "#{_dp('{...first_name...}')} + ' ' + _dp('{...last_name...}'}"
+```
+
+**CORRECT (use `=` prefix, no `#{}` wrapper):**
+```json
+"guest_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"first_name\"]}') + ' ' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"last_name\"]}')"
+```
+
+**Pattern:**
+```
+"field": "=_dp('{...pill1...}') + ' ' + _dp('{...pill2...}')"
+```
+
+**Key rules:**
+- Use `=` prefix (formula mode) for concatenation
+- Do NOT wrap with `#{}`
+- Use Ruby `+` operator between strings
+- Literal strings must be quoted: `' '` or `'-'`
+
+### Conditional Defaults
+
+Provide a default value when an optional parameter is missing using `.present?` with ternary operator:
+
+**Pattern:**
+```json
+"field": "=_dp('{...}').present? ? _dp('{...}') : 'default_value'"
+```
+
+**Example (default status to 'Reserved' when not provided):**
+```json
+"Status__c": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}') : 'Reserved'"
+```
+
+**Key points:**
+- `.present?` checks if value exists and is not empty
+- The datapill must appear twice (once for check, once for value)
+- Default value must be quoted if it's a string
 
 ---
 
