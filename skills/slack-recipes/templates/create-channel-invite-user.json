@@ -1,0 +1,202 @@
+{
+  "name": "Create Channel and Invite User",
+  "description": "Minimal example: create a Slack channel via API and invite the triggering user",
+  "version": 1,
+  "private": false,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "slack_bot",
+    "name": "bot_command_v2",
+    "as": "trigger_001",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "domain": "Slack"
+    },
+    "toggleCfg": {
+      "domain": true,
+      "name": true,
+      "scope": false
+    },
+    "input": {
+      "domain": "my-app",
+      "name": "create",
+      "scope": "channel",
+      "description": "Create a new project channel",
+      "allow_dialog": "true",
+      "dialog_title": "New Channel",
+      "hide_from_help": "false",
+      "slash_command": {
+        "enable": "true",
+        "name": "/newchannel",
+        "first_reply": "Creating your channel..."
+      },
+      "parameters": "[{\"name\":\"channel_name\",\"label\":\"Channel Name\",\"hint\":\"Name for the new channel\",\"optional\":\"false\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Channel Name",
+            "name": "channel_name",
+            "type": "string",
+            "optional": "false"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "visible_config_fields": [
+      "domain",
+      "name",
+      "scope",
+      "parameters",
+      "slash_command",
+      "slash_command.enable",
+      "slash_command.name",
+      "allow_dialog",
+      "description",
+      "slash_command.first_reply",
+      "dialog_title",
+      "hide_from_help"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "slack_bot",
+        "name": "__adhoc_http_action",
+        "as": "create_channel",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "Create channel",
+          "verb": "post",
+          "request_type": "json",
+          "response_type": "json",
+          "path": "conversations.create",
+          "input": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"}]",
+            "data": {
+              "name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"channel_name\"]}').downcase.gsub(/[^a-z0-9]/, '-').gsub(/-+/, '-').gsub(/^-|-$/, '')[0..79]"
+            }
+          },
+          "output": "[{\"control_type\":\"text\",\"label\":\"Ok\",\"type\":\"boolean\",\"name\":\"ok\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"id\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"}],\"label\":\"Channel\",\"type\":\"object\",\"name\":\"channel\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Body",
+            "name": "body",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Ok",
+                "optional": true,
+                "type": "boolean",
+                "name": "ok"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  }
+                ],
+                "label": "Channel",
+                "optional": true,
+                "type": "object",
+                "name": "channel"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "create-channel-001"
+      },
+      {
+        "number": 2,
+        "provider": "slack_bot",
+        "name": "__adhoc_http_action",
+        "as": "invite_user",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "Invite user to channel",
+          "verb": "post",
+          "request_type": "json",
+          "response_type": "json",
+          "path": "conversations.invite",
+          "input": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Channel\",\"type\":\"string\",\"name\":\"channel\"},{\"control_type\":\"text\",\"label\":\"Users\",\"type\":\"string\",\"name\":\"users\"}]",
+            "data": {
+              "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"create_channel\",\"path\":[\"body\",\"channel\",\"id\"]}')}",
+              "users": "=_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"context\",\"user\"]}').gsub('\"','')"
+            }
+          },
+          "output": "[]"
+        },
+        "uuid": "invite-user-001"
+      },
+      {
+        "number": 3,
+        "provider": "slack_bot",
+        "name": "post_bot_message",
+        "as": "welcome_message",
+        "keyword": "action",
+        "toggleCfg": {
+          "channel": true
+        },
+        "input": {
+          "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"create_channel\",\"path\":[\"body\",\"channel\",\"id\"]}')}",
+          "message": {
+            "title": "Welcome!",
+            "attachment_text": "This channel was created for your project. Get started by adding team members and sharing your goals."
+          }
+        },
+        "uuid": "welcome-001"
+      },
+      {
+        "number": 4,
+        "provider": "slack_bot",
+        "name": "post_bot_message",
+        "as": "confirm_dm",
+        "keyword": "action",
+        "toggleCfg": {
+          "channel": true
+        },
+        "input": {
+          "channel": "=_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"context\",\"user\"]}').gsub('\"','')",
+          "message": {
+            "title": "Channel Created",
+            "attachment_text": "Your channel **##{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"create_channel\",\"path\":[\"body\",\"channel\",\"name\"]}')}** is ready!"
+          }
+        },
+        "uuid": "confirm-dm-001"
+      }
+    ],
+    "uuid": "trigger-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "slack_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/my_workbot_account.connection.json",
+        "name": "My Workbot for Slack account",
+        "folder": "Connections"
+      }
+    }
+  ]
+}

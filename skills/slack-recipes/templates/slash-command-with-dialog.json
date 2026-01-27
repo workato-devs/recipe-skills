@@ -1,0 +1,119 @@
+{
+  "name": "Slash Command with Dialog",
+  "description": "Minimal example: slash command that collects input via dialog and posts confirmation",
+  "version": 1,
+  "private": false,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "slack_bot",
+    "name": "bot_command_v2",
+    "as": "trigger_001",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "domain": "Slack"
+    },
+    "toggleCfg": {
+      "domain": true,
+      "name": true,
+      "scope": false
+    },
+    "input": {
+      "domain": "my-app",
+      "name": "submit",
+      "scope": "request",
+      "description": "Submit a request",
+      "allow_dialog": "true",
+      "dialog_title": "Submit Request",
+      "hide_from_help": "false",
+      "slash_command": {
+        "enable": "true",
+        "name": "/myrequest",
+        "first_reply": "Opening request form..."
+      },
+      "parameters": "[{\"name\":\"title\",\"label\":\"Title\",\"hint\":\"Brief title for your request\",\"optional\":\"false\",\"control_type\":\"text\"},{\"name\":\"description\",\"label\":\"Description\",\"hint\":\"Provide details\",\"optional\":\"false\",\"control_type\":\"text-area\"},{\"name\":\"priority\",\"label\":\"Priority\",\"hint\":\"Select priority\",\"optional\":true,\"control_type\":\"select\",\"pick_list\":[[\"High\",\"high\"],[\"Medium\",\"medium\"],[\"Low\",\"low\"]],\"dialog_data_source\":\"custom\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Title",
+            "name": "title",
+            "type": "string",
+            "optional": "false"
+          },
+          {
+            "control_type": "text-area",
+            "label": "Description",
+            "name": "description",
+            "type": "string",
+            "optional": "false"
+          },
+          {
+            "label": "Priority",
+            "name": "priority",
+            "optional": true,
+            "type": "array",
+            "of": "object",
+            "properties": []
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "visible_config_fields": [
+      "domain",
+      "name",
+      "scope",
+      "parameters",
+      "slash_command",
+      "slash_command.enable",
+      "slash_command.name",
+      "allow_dialog",
+      "description",
+      "slash_command.first_reply",
+      "dialog_title",
+      "hide_from_help"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "slack_bot",
+        "name": "post_bot_message",
+        "as": "confirm_message",
+        "keyword": "action",
+        "toggleCfg": {
+          "channel": true
+        },
+        "input": {
+          "channel": "=_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"context\",\"user\"]}').gsub('\"','')",
+          "message": {
+            "title": "Request Received",
+            "attachment_text": "**Title:** #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"title\"]}')}\n\n**Description:** #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"description\"]}')}\n\n**Priority:** #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"priority\"]}')}"
+          }
+        },
+        "visible_config_fields": [
+          "channel",
+          "text"
+        ],
+        "uuid": "confirm-001"
+      }
+    ],
+    "uuid": "trigger-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "slack_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/my_workbot_account.connection.json",
+        "name": "My Workbot for Slack account",
+        "folder": "Connections"
+      }
+    }
+  ]
+}

@@ -29,18 +29,20 @@ Recipe Skills encapsulate the complexity of vendor-specific API operations and i
 | Skill | Description | Status |
 |-------|-------------|--------|
 | [salesforce-recipes](skills/salesforce-recipes/) | Salesforce CRM recipes (standard & custom objects) | v1.0.0 |
+| [slack-recipes](skills/slack-recipes/) | Slack/Workbot recipes (commands, dialogs, messages) | v1.0.0 |
 | [stripe-recipes](skills/stripe-recipes/) | Stripe payment integration recipes | v1.0.0 |
 
 ## Quick Start
 
 ### For AI Agents (Claude Code)
 
-When a user invokes a skill (`/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`), you will have full context to help them generate valid Workato recipe JSON using natural language.
+When a user invokes a skill (`/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`, `/slack-recipes`), you will have full context to help them generate valid Workato recipe JSON using natural language.
 
 Users can ask you to build recipes using requests like:
 - "Create an API endpoint recipe that accepts customer data"
 - "Create a recipe to search for a Stripe customer by email"
 - "Create a recipe to upsert a Salesforce Contact by external ID"
+- "Create a slash command recipe that opens a dialog and posts to Slack"
 
 Each skill contains documentation, templates, and patterns you can reference to generate recipes that follow Workato best practices.
 
@@ -49,7 +51,7 @@ Each skill contains documentation, templates, and patterns you can reference to 
 Skills are designed for AI agents to generate recipes. As a human developer:
 
 1. Navigate to this repo directory in Claude Code
-2. Invoke a skill: `/workato-recipes`, `/stripe-recipes`, or `/salesforce-recipes`
+2. Invoke a skill: `/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`, or `/slack-recipes`
 3. Ask the agent to generate a recipe using natural language
 4. Review and test the generated recipe JSON
 5. Deploy: `workato push`
@@ -95,14 +97,16 @@ This repo includes a `.claude/commands/` directory with slash commands:
 
 ```bash
 # In Claude Code, from this repo:
-/workato-recipes   # Learn recipe structure and triggers
-/stripe-recipes    # Generate Stripe recipes
+/workato-recipes    # Learn recipe structure and triggers
+/stripe-recipes     # Generate Stripe recipes
 /salesforce-recipes # Generate Salesforce recipes
+/slack-recipes      # Generate Slack/Workbot recipes
 
 # Examples:
 "Generate a recipe with an API endpoint trigger"
 "Create a recipe to create a Stripe PaymentIntent"
 "Create a recipe to search and update Salesforce Accounts"
+"Create a slash command that collects user input via dialog"
 ```
 
 The agent will have full context from the skill to generate valid Workato recipe JSON.
@@ -120,6 +124,7 @@ Point your agent to the skill entry points directly:
    ```
    Read skills/stripe-recipes/SKILL_INSTRUCTIONS.md
    Read skills/salesforce-recipes/SKILL_INSTRUCTIONS.md
+   Read skills/slack-recipes/SKILL_INSTRUCTIONS.md
    ```
 
 Each `skill.yaml` defines an `entry_point` field pointing to the main instruction file, plus an `extends` field for dependencies. Agents or tooling can parse this metadata to automate skill loading.
@@ -144,8 +149,9 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ### Skills
 - [workato-recipes Instructions](skills/workato-recipes/SKILL_INSTRUCTIONS.md) - Recipe fundamentals and base patterns
-- [stripe-recipes Instructions](skills/stripe-recipes/SKILL_INSTRUCTIONS.md) - Stripe payment integration patterns
 - [salesforce-recipes Instructions](skills/salesforce-recipes/SKILL_INSTRUCTIONS.md) - Salesforce CRM integration patterns
+- [slack-recipes Instructions](skills/slack-recipes/SKILL_INSTRUCTIONS.md) - Slack/Workbot integration patterns
+- [stripe-recipes Instructions](skills/stripe-recipes/SKILL_INSTRUCTIONS.md) - Stripe payment integration patterns
 
 ### Project Documentation
 - [CLI Extension Spec](docs/cli-extension-spec.md) - Proposed Workato CLI integration
@@ -156,11 +162,14 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - [x] workato-recipes base skill (triggers, control flow, fundamentals)
 - [x] stripe-recipes skill with templates and patterns
 - [x] salesforce-recipes skill with SObject operations
+- [x] slack-recipes skill (Workbot + native Slack connector)
 - [x] Claude Code slash command integration
 - [x] CLI extension specification
+- [x] Adhoc HTTP actions pattern (base skill)
+- [x] Custom connector (SDK) pattern (base skill)
 
 ### Next
-- [ ] Expand connector skill coverage
+- [ ] Expand connector skill coverage (slack-recipes gaps: threads, reactions, Block Kit)
 - [ ] Community and vendor contribution guidelines and templates
 - [ ] Workato CLI integration (pending platform support)
 - [ ] Skill validation rules

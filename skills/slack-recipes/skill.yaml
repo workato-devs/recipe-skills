@@ -1,0 +1,86 @@
+# Slack Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write production-grade
+# Slack integration recipes using Workbot for Slack in Workato's recipe JSON format.
+
+name: slack-recipes
+version: 1.0.0
+description: >
+  Slack integration recipes for Workato using Workbot for Slack. This skill enables
+  AI agents to generate valid Workato recipe JSON files for Slack operations including
+  slash commands, dialogs/modals, message posting, button interactions, and channel management.
+
+author: Workato
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Workbot command triggers with slash commands (slack_bot)
+  - Dialog/modal parameter configuration
+  - Post messages and replies to channels and DMs
+  - Button interactions and recipe chaining
+  - Open dialogs/modals with form fields
+  - Native Slack connector actions (slack)
+  - User lookup, channel management, message posting
+
+# Entry point for agent consumption
+entry_point: SKILL_INSTRUCTIONS.md
+
+# Pattern documentation
+patterns:
+  - patterns/workbot-triggers.md
+  - patterns/dialog-parameters.md
+  - patterns/posting-messages.md
+  - patterns/native-slack-actions.md
+  - patterns/slack-api-reference.md
+
+# Templates available for reference/adaptation
+templates:
+  - templates/slash-command-with-dialog.json
+  - templates/button-interaction.json
+  - templates/create-channel-invite-user.json
+
+# Target platforms
+platforms:
+  - workato
+  - slack
+
+# Tags for discovery
+tags:
+  - slack
+  - workbot
+  - chat
+  - workato
+  - integration
+  - recipes
+  - messaging
+
+# Roadmap: Patterns/templates needed to complete this skill
+# Check off items as recipes are added
+gaps:
+  - pattern: Thread replies
+    status: needed
+    description: Posting replies in message threads
+  - pattern: Message updates
+    status: needed
+    description: Updating/editing existing messages
+  - pattern: File uploads
+    status: needed
+    description: Uploading files to channels
+  - pattern: Reactions
+    status: needed
+    description: Adding emoji reactions to messages
+  - pattern: User/channel lookups
+    status: partial
+    description: Native actions documented; need more examples
+  - pattern: Scheduled messages
+    status: needed
+    description: Scheduling messages for future delivery
+  - pattern: Block Kit
+    status: needed
+    description: Rich message layouts with Block Kit components
+  - pattern: Home tab
+    status: needed
+    description: App Home tab configuration

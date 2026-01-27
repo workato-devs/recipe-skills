@@ -21,6 +21,7 @@ capabilities:
   - Datapill syntax and references
   - Config section and connection definitions
   - Return/response handling
+  - Adhoc HTTP actions (direct API calls)
   - Custom connector actions (Connector SDK)
 
 # Entry point for agent consumption
@@ -52,6 +53,7 @@ templates:
 
 # Patterns
 patterns:
+  - patterns/adhoc-http-actions.md
   - patterns/custom-connector-actions.md
 
 # Target platforms

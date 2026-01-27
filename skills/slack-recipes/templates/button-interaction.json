@@ -1,0 +1,117 @@
+{
+  "name": "Button Interaction",
+  "description": "Minimal example: post message with buttons that chain to other recipes",
+  "version": 1,
+  "private": false,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "slack_bot",
+    "name": "bot_command_v2",
+    "as": "trigger_001",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "domain": "Slack"
+    },
+    "toggleCfg": {
+      "domain": true,
+      "name": true,
+      "scope": false
+    },
+    "input": {
+      "domain": "my-app",
+      "name": "approve",
+      "scope": "request",
+      "description": "Review and approve a request",
+      "allow_dialog": "false",
+      "hide_from_help": "false",
+      "slash_command": {
+        "enable": "true",
+        "name": "/review",
+        "first_reply": "Loading review options..."
+      }
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [],
+        "type": "object"
+      }
+    ],
+    "visible_config_fields": [
+      "domain",
+      "name",
+      "scope",
+      "parameters",
+      "slash_command",
+      "slash_command.enable",
+      "slash_command.name",
+      "allow_dialog",
+      "description",
+      "slash_command.first_reply",
+      "hide_from_help"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "slack_bot",
+        "name": "post_bot_reply_v2",
+        "as": "reply_with_buttons",
+        "keyword": "action",
+        "toggleCfg": {
+          "attachment_buttons.0.bot_command": true,
+          "attachment_buttons.1.bot_command": true
+        },
+        "input": {
+          "message": {
+            "title": "Action Required",
+            "attachment_text": "Please review and select an action below."
+          },
+          "attachment_buttons": [
+            {
+              "title": "Approve",
+              "bot_command": {
+                "zip_name": "Recipes/handle_approval.recipe.json",
+                "name": "Handle Approval",
+                "folder": "Recipes"
+              },
+              "params": "action=approve"
+            },
+            {
+              "title": "Reject",
+              "bot_command": {
+                "zip_name": "Recipes/handle_rejection.recipe.json",
+                "name": "Handle Rejection",
+                "folder": "Recipes"
+              },
+              "params": "action=reject"
+            }
+          ]
+        },
+        "visible_config_fields": [
+          "message.title",
+          "message.attachment_text",
+          "attachment_buttons",
+          "attachment_buttons.title",
+          "attachment_buttons.bot_command",
+          "attachment_buttons.params"
+        ],
+        "uuid": "buttons-001"
+      }
+    ],
+    "uuid": "trigger-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "slack_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/my_workbot_account.connection.json",
+        "name": "My Workbot for Slack account",
+        "folder": "Connections"
+      }
+    }
+  ]
+}
