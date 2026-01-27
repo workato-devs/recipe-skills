@@ -34,6 +34,7 @@ triggers:
 control_flow:
   - control-flow/if-else.md
   - control-flow/try-catch.md
+  - control-flow/foreach.md
 
 # Fundamentals
 fundamentals:
@@ -44,7 +45,9 @@ fundamentals:
 # Templates
 templates:
   - templates/api-endpoint-trigger.template.json
-  - templates/callable-recipe-trigger.template.json
+  - templates/api-endpoint-complete.template.json
+  - templates/callable-recipe-complete.template.json
+  - templates/control-flow-examples.template.json
 
 # Target platforms
 platforms:

@@ -328,6 +328,44 @@ Always specify a reasonable limit:
 "limit": "1000" // Max for most operations
 ```
 
+### Input Schema for Limit Parameter
+
+When accepting `limit` as a user input parameter (not hardcoded), use **integer** type to prevent SOQL errors:
+
+```json
+{
+  "name": "limit",
+  "label": "Limit",
+  "type": "integer",
+  "control_type": "integer",
+  "optional": true,
+  "hint": "Maximum results to return",
+  "parse_output": "integer_conversion"
+}
+```
+
+**CRITICAL:** Using `"type": "number"` causes Workato to treat the value as a float, which can produce malformed SOQL LIMIT clauses (e.g., `LIMIT 50.0` instead of `LIMIT 50`). Salesforce rejects non-integer LIMIT values, causing 500 errors.
+
+**Wrong (causes SOQL errors):**
+```json
+{
+  "name": "limit",
+  "type": "number",           // Treated as float
+  "control_type": "number",
+  "parse_output": "float_conversion"
+}
+```
+
+**Correct:**
+```json
+{
+  "name": "limit",
+  "type": "integer",          // Whole numbers only
+  "control_type": "integer",
+  "parse_output": "integer_conversion"
+}
+```
+
 ### Index Fields
 
 Search performance is best on indexed fields:

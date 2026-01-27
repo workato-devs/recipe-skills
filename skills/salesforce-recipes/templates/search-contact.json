@@ -99,12 +99,13 @@
             ],
             "extended_input_schema": [
               {
-                "control_type": "text",
+                "control_type": "integer",
                 "hint": "Maximum number of records to return",
                 "label": "Limit",
                 "name": "limit",
                 "optional": true,
-                "type": "string"
+                "type": "integer",
+                "parse_output": "integer_conversion"
               },
               {
                 "control_type": "text",

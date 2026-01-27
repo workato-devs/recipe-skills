@@ -4,46 +4,29 @@ This document provides foundational knowledge for AI agents to generate valid Wo
 
 ---
 
-## Table of Contents
+## Quick Reference
 
-1. [Recipe JSON Structure](#recipe-json-structure)
-2. [Trigger Types](#trigger-types)
-3. [Config Section](#config-section)
-4. [Control Flow](#control-flow)
-5. [Datapill Syntax](#datapill-syntax)
-6. [Block Requirements](#block-requirements)
+| Topic | Documentation |
+|-------|---------------|
+| Recipe Structure | [fundamentals/recipe-structure.md](fundamentals/recipe-structure.md) |
+| Config Section | [fundamentals/config-section.md](fundamentals/config-section.md) |
+| Datapill Syntax | [fundamentals/datapill-syntax.md](fundamentals/datapill-syntax.md) |
+| If/Else | [control-flow/if-else.md](control-flow/if-else.md) |
+| Try/Catch | [control-flow/try-catch.md](control-flow/try-catch.md) |
+| Foreach Loops | [control-flow/foreach.md](control-flow/foreach.md) |
+| API Endpoint Trigger | [triggers/api-endpoint.md](triggers/api-endpoint.md) |
+| Callable Recipe Trigger | [triggers/callable-recipe.md](triggers/callable-recipe.md) |
 
 ---
 
-## Recipe JSON Structure
+## Table of Contents
 
-### Top-Level Structure
-
-Every Workato recipe has this structure:
-
-```json
-{
-  "name": "Recipe Name",
-  "version": 1,
-  "private": true,
-  "concurrency": 1,
-  "config": [
-    // Connection/provider configurations
-  ],
-  "code": {
-    // Trigger block with nested action blocks
-  }
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | string | Recipe display name |
-| `version` | integer | Recipe version number |
-| `private` | boolean | Whether recipe is private to workspace |
-| `concurrency` | integer | Max concurrent executions (typically 1) |
-| `config` | array | Provider/connection configurations |
-| `code` | object | Trigger and action blocks |
+1. [Trigger Types](#trigger-types)
+2. [Calling Other Recipes](#calling-other-recipes)
+3. [Response Actions](#response-actions)
+4. [Block Requirements](#block-requirements)
+5. [Extended Schemas](#extended-schemas)
+6. [Formula Syntax](#formula-syntax)
 
 ---
 
@@ -67,7 +50,7 @@ Workato supports multiple trigger types. Choose based on how the recipe will be 
   "input": {
     "request": {
       "content_type": "json",
-      "schema": "[{\"name\":\"email\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Email\",\"optional\":false},{\"name\":\"name\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Name\",\"optional\":false}]"
+      "schema": "[{\"name\":\"email\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Email\",\"optional\":false}]"
     },
     "response": {
       "content_type": "json",
@@ -75,51 +58,17 @@ Workato supports multiple trigger types. Choose based on how the recipe will be 
         {
           "name": "Success",
           "http_status_code": "200",
-          "body_schema": "[{\"name\":\"id\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"ID\"},{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"}]"
-        },
-        {
-          "name": "Error",
-          "http_status_code": "400",
-          "body_schema": "[{\"name\":\"error\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error message\"}]"
+          "body_schema": "[{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"}]"
         }
       ]
     }
-  },
-  "extended_output_schema": [
-    {
-      "label": "Request",
-      "name": "request",
-      "type": "object",
-      "properties": [
-        {
-          "control_type": "text",
-          "label": "Email",
-          "name": "email",
-          "type": "string",
-          "optional": false
-        },
-        {
-          "control_type": "text",
-          "label": "Name",
-          "name": "name",
-          "type": "string",
-          "optional": false
-        }
-      ]
-    }
-  ]
+  }
 }
 ```
 
 **CRITICAL: Request Schema Format**
 - Use `request.schema` (NOT `body_schema` or `path_params`)
 - Fields are accessed directly: `["request", "field_name"]` (NOT `["request", "body", "field_name"]`)
-- The `extended_output_schema` must have fields directly under `request.properties`
-
-**Datapill access example:**
-```json
-"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"email\"]}')}"
-```
 
 See: [triggers/api-endpoint.md](triggers/api-endpoint.md)
 
@@ -136,19 +85,30 @@ See: [triggers/api-endpoint.md](triggers/api-endpoint.md)
   "name": "execute",
   "keyword": "trigger",
   "input": {
-    "parameters_schema_json": "[...]",  // Input parameters
-    "result_schema_json": "[...]"       // Return values
+    "parameters_schema_json": "[...]",
+    "result_schema_json": "[...]"
   }
 }
 ```
 
 See: [triggers/callable-recipe.md](triggers/callable-recipe.md)
 
-### Calling Other Recipes (workato_recipe_function)
+### Choosing a Trigger Type
+
+| Scenario | Trigger Type |
+|----------|--------------|
+| External API access needed | API Endpoint |
+| Called by other recipes only | Callable Recipe |
+| Receive external webhooks | Webhook |
+| Time-based execution | Scheduler |
+
+---
+
+## Calling Other Recipes
 
 When a recipe needs to call another callable recipe, use the `workato_recipe_function` provider with action type `call`.
 
-#### CRITICAL: flow_id Requires zip_name
+### CRITICAL: flow_id Requires zip_name
 
 The `flow_id` object MUST include ALL fields, including `zip_name`.
 
@@ -159,7 +119,7 @@ The `flow_id` object MUST include ALL fields, including `zip_name`.
 | `folder_full_path` | Yes | Full path from Home |
 | `zip_name` | **YES** | Path to recipe JSON file |
 
-> **⛔ CRITICAL WARNING:** Missing `zip_name` causes **RECIPE MUTATION AT RUNTIME**. Without `zip_name`, Workato will unpredictably modify the recipe's metadata during execution. This corruption persists and breaks all future invocations. The recipe will appear valid during import/testing but will corrupt itself when actually invoked. **This is worse than a silent failure - it permanently corrupts the recipe.**
+> **CRITICAL WARNING:** Missing `zip_name` causes **RECIPE MUTATION AT RUNTIME**. Without `zip_name`, Workato will unpredictably modify the recipe's metadata during execution. This corruption persists and breaks all future invocations. The recipe will appear valid during import/testing but will corrupt itself when actually invoked. **This is worse than a silent failure - it permanently corrupts the recipe.**
 
 **WRONG (missing zip_name - WILL CORRUPT THE RECIPE):**
 ```json
@@ -200,15 +160,6 @@ The `flow_id` object MUST include ALL fields, including `zip_name`.
   }
 }
 ```
-
-### Choosing a Trigger Type
-
-| Scenario | Trigger Type |
-|----------|--------------|
-| External API access needed | API Endpoint |
-| Called by other recipes only | Callable Recipe |
-| Receive external webhooks | Webhook |
-| Time-based execution | Scheduler |
 
 ---
 
@@ -413,208 +364,6 @@ Workato provides different actions for returning data based on the trigger type.
 
 ---
 
-## Config Section
-
-The config section defines which providers/connections the recipe uses.
-
-### Structure
-
-```json
-"config": [
-  {
-    "keyword": "application",
-    "provider": "PROVIDER_NAME",
-    "skip_validation": false,
-    "account_id": null | { connection_reference }
-  }
-]
-```
-
-### Provider Types
-
-**Platform providers** (no connection needed):
-- `workato_api_platform` - API endpoint triggers
-- `workato_recipe_function` - Callable recipe triggers
-- `logger` - Logging actions
-
-**Connector providers** (connection required):
-- `stripe` - Stripe connector
-- `salesforce` - Salesforce connector
-- etc.
-
-### Connection Reference Format
-
-```json
-"account_id": {
-  "zip_name": "Workspace Connections/connection_name.connection.json",
-  "name": "Connection Display Name",
-  "folder": "Workspace Connections"
-}
-```
-
-### Config Rules
-
-1. Include a provider entry for EACH provider used in the recipe
-2. Platform providers use `"account_id": null`
-3. Connector providers require connection references
-4. Do NOT include `"workato"` or `"catch"` as providers in config
-
----
-
-## Control Flow
-
-### If/Else Structure
-
-**CRITICAL:** Else blocks are nested INSIDE the if block's array, NOT as a property.
-
-```json
-{
-  "number": 3,
-  "keyword": "if",
-  "as": "check_condition",
-  "input": {
-    "type": "compound",
-    "operand": "and",
-    "conditions": [
-      {
-        "operand": "present",
-        "lhs": "#{datapill}",
-        "uuid": "condition-uuid"
-      }
-    ]
-  },
-  "block": [
-    {
-      // Action if condition is TRUE
-      "number": 4,
-      "keyword": "action",
-      ...
-    },
-    {
-      // ELSE block is a sibling in the block array
-      "number": 5,
-      "keyword": "else",
-      "as": "else_branch",
-      "input": {},
-      "block": [
-        {
-          // Action if condition is FALSE
-          "number": 6,
-          "keyword": "action",
-          ...
-        }
-      ],
-      "uuid": "else-uuid"
-    }
-  ],
-  "uuid": "if-uuid"
-}
-```
-
-### Try/Catch Structure
-
-```json
-{
-  "number": 1,
-  "keyword": "try",
-  "input": {},
-  "block": [
-    {
-      // Actions that might fail
-      "number": 2,
-      "keyword": "action",
-      ...
-    },
-    {
-      // Catch block is INSIDE try block
-      "number": 3,
-      "keyword": "catch",
-      "provider": null,
-      "as": "catch_error",
-      "input": {
-        "max_retry_count": "0",
-        "retry_interval": "2"
-      },
-      "block": [
-        {
-          // Error handling actions
-        }
-      ],
-      "uuid": "catch-uuid"
-    }
-  ],
-  "uuid": "try-uuid"
-}
-```
-
-### Condition Operands
-
-| Operand | Description |
-|---------|-------------|
-| `present` | Value exists and is not empty |
-| `blank` | Value is null or empty |
-| `equals` | LHS equals RHS |
-| `not_equals` | LHS does not equal RHS |
-| `greater_than` | LHS > RHS |
-| `less_than` | LHS < RHS |
-| `contains` | LHS contains RHS |
-
----
-
-## Datapill Syntax
-
-Datapills reference data from previous steps.
-
-### Format
-
-```
-#{_dp('{JSON_OBJECT}')}
-```
-
-### JSON Object Structure
-
-```json
-{
-  "pill_type": "output",
-  "provider": "PROVIDER_NAME",
-  "line": "STEP_ALIAS",
-  "path": ["field", "nested_field"]
-}
-```
-
-### Examples
-
-**Trigger parameter (callable recipe):**
-```json
-"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}"
-```
-
-**Trigger parameter (API endpoint):**
-```json
-"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"STEP_ALIAS\",\"path\":[\"request\",\"body\",\"email\"]}')}"
-```
-
-**Action output:**
-```json
-"#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
-```
-
-**Array element access:**
-```json
-"path": ["data", {"path_element_type": "current_item"}, "id"]
-```
-
-**Catch block error:**
-```json
-{
-  "provider": "catch",
-  "line": "catch_error",
-  "path": ["message"]
-}
-```
-
----
-
 ## Block Requirements
 
 Every block in a recipe requires these fields:
@@ -622,7 +371,7 @@ Every block in a recipe requires these fields:
 | Field | Required | Description |
 |-------|----------|-------------|
 | `number` | Yes | Sequential step number |
-| `keyword` | Yes | Block type: `trigger`, `action`, `if`, `else`, `try`, `catch` |
+| `keyword` | Yes | Block type: `trigger`, `action`, `if`, `else`, `try`, `catch`, `foreach` |
 | `uuid` | Yes | Unique identifier (max 36 chars) |
 | `as` | Yes* | Step alias for datapill references |
 
@@ -880,6 +629,7 @@ Provide a default value when an optional parameter is missing using `.present?` 
 
 ## References
 
+- **Fundamentals:** See `fundamentals/` directory for recipe structure, config, and datapill syntax
 - **Triggers:** See `triggers/` directory for detailed trigger documentation
-- **Control Flow:** See `control-flow/` directory for pattern details
+- **Control Flow:** See `control-flow/` directory for if/else, try/catch, and foreach patterns
 - **Templates:** See `templates/` directory for starter templates

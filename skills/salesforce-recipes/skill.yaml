@@ -39,6 +39,7 @@ patterns:
   - patterns/upsert-with-external-id.md
   - patterns/custom-fields.md
   - patterns/search-sobjects.md
+  - patterns/soql-query-syntax.md
 
 # Target platforms
 platforms:

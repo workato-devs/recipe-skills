@@ -193,6 +193,21 @@ Workato provides built-in Salesforce connector actions (no custom HTTP needed).
 
 **Output:** Returns array of matching records
 
+**IMPORTANT - Limit Parameter Type:**
+
+When accepting `limit` as a user input parameter, use **integer** type in the schema:
+
+```json
+{
+  "name": "limit",
+  "type": "integer",
+  "control_type": "integer",
+  "parse_output": "integer_conversion"
+}
+```
+
+Do **NOT** use `"type": "number"` - this causes Workato to treat values as floats, producing malformed SOQL (e.g., `LIMIT 50.0`) which Salesforce rejects.
+
 ### 4. Search SObjects with SOQL Query
 
 **Use when:** Finding records with complex criteria using raw SOQL.
