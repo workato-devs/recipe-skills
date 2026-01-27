@@ -1,8 +1,9 @@
 # Salesforce Recipes Skill - Agent Instructions
 
-This skill provides Salesforce-specific knowledge for generating Workato recipes. It extends the **workato-recipes** base skill.
+> **⚠️ DEPENDENCY: Load `/workato-recipes` first if not already loaded.**
+> This skill requires the base Workato knowledge for triggers, control flow, datapills, formulas, and recipe structure.
 
-> **Prerequisite:** Load the `workato-recipes` skill first for foundational knowledge about recipe structure, trigger types, control flow, datapill syntax, and formula syntax.
+This skill provides Salesforce-specific knowledge for generating Workato recipes. It extends the **workato-recipes** base skill and focuses on Salesforce-specific patterns.
 
 ---
 

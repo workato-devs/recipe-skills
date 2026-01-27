@@ -87,7 +87,9 @@ skills/<skill-name>/
     └── *.md
 ```
 
-## Using with Claude Code
+## Using with AI Agents
+
+### Claude Code
 
 This repo includes a `.claude/commands/` directory with slash commands:
 
@@ -104,6 +106,23 @@ This repo includes a `.claude/commands/` directory with slash commands:
 ```
 
 The agent will have full context from the skill to generate valid Workato recipe JSON.
+
+### Other AI Agents (Codex, Cursor, Windsurf, etc.)
+
+Point your agent to the skill entry points directly:
+
+1. **Load the base skill first:**
+   ```
+   Read skills/workato-recipes/SKILL_INSTRUCTIONS.md
+   ```
+
+2. **Then load a connector skill:**
+   ```
+   Read skills/stripe-recipes/SKILL_INSTRUCTIONS.md
+   Read skills/salesforce-recipes/SKILL_INSTRUCTIONS.md
+   ```
+
+Each `skill.yaml` defines an `entry_point` field pointing to the main instruction file, plus an `extends` field for dependencies. Agents or tooling can parse this metadata to automate skill loading.
 
 ## Contributing
 

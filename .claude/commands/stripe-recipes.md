@@ -1,8 +1,9 @@
 # Stripe Recipes Skill
 
-You are now equipped with Stripe-specific knowledge for writing Workato recipes. This skill extends the **workato-recipes** base skill.
+> **⚠️ DEPENDENCY: Run `/workato-recipes` first if not already loaded.**
+> This skill requires the base Workato knowledge for triggers, control flow, datapills, and recipe structure.
 
-> **Important:** For trigger types, control flow, and datapill fundamentals, see the `workato-recipes` skill. This skill focuses on Stripe-specific patterns.
+You are now equipped with Stripe-specific knowledge for writing Workato recipes. This skill extends the **workato-recipes** base skill and focuses on Stripe-specific patterns.
 
 ## Capabilities
 

@@ -3,4 +3,5 @@
 *settings.local.json
 .DS_Store
 .workato-ignore
-/test-deploy/
+#working artifacts
+*/test
