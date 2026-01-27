@@ -1,0 +1,75 @@
+# Gmail Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write production-grade
+# Gmail integration recipes using Workato's recipe JSON format.
+
+name: gmail-recipes
+version: 1.0.0
+description: >
+  Gmail integration recipes for Workato. This skill enables AI agents to generate
+  valid Workato recipe JSON files for Gmail operations including sending emails,
+  listing/searching messages, managing labels, and message details.
+
+author: Workato
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Send emails (text and HTML) with attachments
+  - List and search messages with query filters
+  - Get message details (headers, body, attachments)
+  - Create and manage labels
+  - Apply/remove labels from messages
+  - Archive and modify messages
+  - Adhoc HTTP for Gmail REST API operations
+
+# Entry point for agent consumption
+entry_point: SKILL_INSTRUCTIONS.md
+
+# Pattern documentation
+patterns:
+  - patterns/native-gmail-actions.md
+  - patterns/gmail-api-reference.md
+
+# Templates available for reference/adaptation
+templates:
+  - templates/send-email.json
+  - templates/list-emails.json
+
+# Target platforms
+platforms:
+  - workato
+  - gmail
+
+# Tags for discovery
+tags:
+  - gmail
+  - email
+  - google
+  - workato
+  - integration
+  - recipes
+  - messaging
+
+# Roadmap: Patterns/templates needed to complete this skill
+gaps:
+  - pattern: Draft management
+    status: needed
+    description: Create, update, and send drafts
+  - pattern: Thread operations
+    status: needed
+    description: Get thread details, list threads
+  - pattern: Attachment handling
+    status: partial
+    description: Download and process attachments
+  - pattern: Watch/push notifications
+    status: needed
+    description: Gmail push notifications for real-time updates
+  - pattern: Batch operations
+    status: needed
+    description: Batch modify multiple messages
+  - pattern: Settings management
+    status: needed
+    description: Manage filters, forwarding, vacation responder

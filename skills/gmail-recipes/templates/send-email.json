@@ -1,0 +1,78 @@
+{
+  "name": "Send Email via Gmail",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "api_trigger",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[{\"name\":\"to\",\"type\":\"string\",\"optional\":false,\"label\":\"To\"},{\"name\":\"subject\",\"type\":\"string\",\"optional\":false,\"label\":\"Subject\"},{\"name\":\"body\",\"type\":\"string\",\"optional\":false,\"label\":\"Body\"},{\"name\":\"email_type\",\"type\":\"string\",\"optional\":true,\"label\":\"Email type\",\"hint\":\"text or html (default: text)\"}]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "http_status_code": "200",
+            "body_schema": "[{\"name\":\"id\",\"type\":\"string\",\"label\":\"Message ID\"},{\"name\":\"thread_id\",\"type\":\"string\",\"label\":\"Thread ID\"}]"
+          }
+        ]
+      }
+    },
+    "block": [
+      {
+        "number": 1,
+        "provider": "gmail",
+        "name": "send_mail",
+        "as": "send_email",
+        "keyword": "action",
+        "input": {
+          "email_type": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"email_type\"]}').presence || 'text'",
+          "to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"to\"]}')}",
+          "subject": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"subject\"]}')}",
+          "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"body\"]}')}"
+        },
+        "uuid": "send-email-001"
+      },
+      {
+        "number": 2,
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "as": "return_success",
+        "keyword": "action",
+        "input": {
+          "http_status_code": "200",
+          "response": {
+            "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"send_email\",\"path\":[\"id\"]}')}",
+            "thread_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"send_email\",\"path\":[\"threadId\"]}')}"
+          }
+        },
+        "uuid": "return-response-001"
+      }
+    ],
+    "uuid": "api-trigger-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "gmail",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "my_gmail_account.connection.json",
+        "name": "My Gmail account",
+        "folder": ""
+      }
+    }
+  ]
+}

@@ -49,10 +49,10 @@ Use adhoc HTTP actions when:
 |-------|----------|-------------|
 | `mnemonic` | No | Human-readable description of the action |
 | `verb` | Yes | HTTP method: `"get"`, `"post"`, `"put"`, `"patch"`, `"delete"` |
-| `request_type` | Yes | Request body format (see below) |
+| `request_type` | For POST/PUT/PATCH | Request body format (see below). Optional for GET/DELETE. |
 | `response_type` | Yes | Expected response format (see below) |
 | `path` | Yes | API endpoint path (appended to connector's base URL) |
-| `input.schema` | No | JSON schema string defining request body fields |
+| `input.schema` | No | JSON schema string defining request body/query fields |
 | `input.data` | Yes | Actual request data with field values |
 | `output` | No | JSON schema string for parsing response body |
 | `response_headers` | No | JSON schema string for parsing response headers |
@@ -163,11 +163,35 @@ For nested data:
 Most OAuth/API-based connectors support adhoc HTTP actions, including:
 - `slack_bot` (Workbot for Slack)
 - `slack` (Slack)
+- `gmail` (Gmail - base URL: `https://www.googleapis.com/gmail/v1/users/`)
 - `salesforce`
 - `stripe`
 - Custom SDK connectors
 
 The base URL and authentication are handled by the connector's connection.
+
+---
+
+## Optional Parameters Pattern
+
+For optional query parameters, use `.presence || skip` to omit blank values:
+
+```json
+"input": {
+  "data": {
+    "maxResults": "=_dp('{...}').presence || skip",
+    "pageToken": "=_dp('{...}').presence || skip",
+    "q": "=_dp('{...}').presence || skip"
+  }
+}
+```
+
+This pattern:
+- Checks if the datapill has a value (`.presence`)
+- If blank/nil, uses `skip` to exclude the parameter from the request
+- Prevents sending empty query parameters to the API
+
+**When to use:** Any optional query parameter that should only be sent if it has a value.
 
 ---
 

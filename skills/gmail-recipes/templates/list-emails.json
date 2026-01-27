@@ -1,0 +1,185 @@
+{
+  "name": "List Emails in Gmail",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "api_trigger",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[{\"name\":\"max_results\",\"type\":\"integer\",\"optional\":true,\"label\":\"Max results\",\"hint\":\"Maximum messages to return (default 100, max 500)\"},{\"name\":\"q\",\"type\":\"string\",\"optional\":true,\"label\":\"Query\",\"hint\":\"Gmail search query (e.g., from:sender@example.com is:unread)\"}]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "http_status_code": "200",
+            "body_schema": "[{\"name\":\"messages\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Messages\",\"properties\":[{\"name\":\"id\",\"type\":\"string\",\"label\":\"ID\"},{\"name\":\"threadId\",\"type\":\"string\",\"label\":\"Thread ID\"},{\"name\":\"snippet\",\"type\":\"string\",\"label\":\"Snippet\"},{\"name\":\"labelIds\",\"type\":\"array\",\"of\":\"string\",\"label\":\"Label IDs\"}]}]"
+          }
+        ]
+      }
+    },
+    "block": [
+      {
+        "number": 1,
+        "provider": "gmail",
+        "name": "__adhoc_http_action",
+        "as": "list_messages",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "List Emails",
+          "verb": "get",
+          "response_type": "json",
+          "path": "me/messages",
+          "input": {
+            "schema": "[{\"name\":\"maxResults\",\"type\":\"integer\",\"optional\":true},{\"name\":\"q\",\"type\":\"string\",\"optional\":true}]",
+            "data": {
+              "maxResults": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"max_results\"]}').presence || skip",
+              "q": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"q\"]}').presence || skip"
+            }
+          },
+          "output": "[{\"name\":\"messages\",\"type\":\"array\",\"of\":\"object\",\"properties\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"threadId\",\"type\":\"string\"}]},{\"name\":\"resultSizeEstimate\",\"type\":\"number\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Body",
+            "name": "body",
+            "type": "object",
+            "properties": [
+              {
+                "name": "messages",
+                "type": "array",
+                "of": "object",
+                "properties": [
+                  {"name": "id", "type": "string"},
+                  {"name": "threadId", "type": "string"}
+                ]
+              },
+              {"name": "resultSizeEstimate", "type": "number"}
+            ]
+          }
+        ],
+        "uuid": "list-messages-001"
+      },
+      {
+        "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "messages_list",
+        "keyword": "action",
+        "input": {
+          "name": "messages",
+          "list_item_schema_json": "[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"threadId\",\"type\":\"string\"},{\"name\":\"snippet\",\"type\":\"string\"},{\"name\":\"labelIds\",\"type\":\"array\",\"of\":\"string\"}]"
+        },
+        "uuid": "declare-list-001"
+      },
+      {
+        "number": 3,
+        "as": "foreach_message",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"list_messages\",\"path\":[\"body\",\"messages\"]}')}",
+        "block": [
+          {
+            "number": 4,
+            "provider": "gmail",
+            "name": "__adhoc_http_action",
+            "as": "get_message",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Get Message Details",
+              "verb": "get",
+              "response_type": "json",
+              "path": "me/messages/#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"foreach_message\",\"path\":[\"id\"]}')}",
+              "output": "[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"threadId\",\"type\":\"string\"},{\"name\":\"snippet\",\"type\":\"string\"},{\"name\":\"labelIds\",\"type\":\"array\",\"of\":\"string\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Body",
+                "name": "body",
+                "type": "object",
+                "properties": [
+                  {"name": "id", "type": "string"},
+                  {"name": "threadId", "type": "string"},
+                  {"name": "snippet", "type": "string"},
+                  {"name": "labelIds", "type": "array", "of": "string"}
+                ]
+              }
+            ],
+            "uuid": "get-message-001"
+          },
+          {
+            "number": 5,
+            "provider": "workato_variable",
+            "name": "insert_to_list",
+            "as": "add_to_list",
+            "keyword": "action",
+            "input": {
+              "location": "end",
+              "name": "declare-list-001:messages_list",
+              "list_item": {
+                "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"get_message\",\"path\":[\"body\",\"id\"]}')}",
+                "threadId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"get_message\",\"path\":[\"body\",\"threadId\"]}')}",
+                "snippet": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"get_message\",\"path\":[\"body\",\"snippet\"]}')}",
+                "labelIds": "=_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"get_message\",\"path\":[\"body\",\"labelIds\"]}')"
+              }
+            },
+            "uuid": "insert-to-list-001"
+          }
+        ],
+        "uuid": "foreach-001"
+      },
+      {
+        "number": 6,
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "as": "return_success",
+        "keyword": "action",
+        "input": {
+          "http_status_code": "200",
+          "response": {
+            "messages": {
+              "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"messages_list\",\"path\":[\"list_items\"]}')}",
+              "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"messages_list\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
+              "threadId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"messages_list\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"threadId\"]}')}",
+              "snippet": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"messages_list\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"snippet\"]}')}",
+              "labelIds": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"messages_list\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"labelIds\"]}')"
+            }
+          }
+        },
+        "uuid": "return-response-001"
+      }
+    ],
+    "uuid": "api-trigger-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "gmail",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "my_gmail_account.connection.json",
+        "name": "My Gmail account",
+        "folder": ""
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

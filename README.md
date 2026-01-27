@@ -28,6 +28,7 @@ Recipe Skills encapsulate the complexity of vendor-specific API operations and i
 
 | Skill | Description | Status |
 |-------|-------------|--------|
+| [gmail-recipes](skills/gmail-recipes/) | Gmail email integration recipes (send, list, search, labels) | v1.0.0 |
 | [salesforce-recipes](skills/salesforce-recipes/) | Salesforce CRM recipes (standard & custom objects) | v1.0.0 |
 | [slack-recipes](skills/slack-recipes/) | Slack/Workbot recipes (commands, dialogs, messages) | v1.0.0 |
 | [stripe-recipes](skills/stripe-recipes/) | Stripe payment integration recipes | v1.0.0 |
@@ -36,13 +37,14 @@ Recipe Skills encapsulate the complexity of vendor-specific API operations and i
 
 ### For AI Agents (Claude Code)
 
-When a user invokes a skill (`/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`, `/slack-recipes`), you will have full context to help them generate valid Workato recipe JSON using natural language.
+When a user invokes a skill (`/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`, `/slack-recipes`, `/gmail-recipes`), you will have full context to help them generate valid Workato recipe JSON using natural language.
 
 Users can ask you to build recipes using requests like:
 - "Create an API endpoint recipe that accepts customer data"
 - "Create a recipe to search for a Stripe customer by email"
 - "Create a recipe to upsert a Salesforce Contact by external ID"
 - "Create a slash command recipe that opens a dialog and posts to Slack"
+- "Create a recipe that sends an HTML email and lists unread messages"
 
 Each skill contains documentation, templates, and patterns you can reference to generate recipes that follow Workato best practices.
 
@@ -51,7 +53,7 @@ Each skill contains documentation, templates, and patterns you can reference to 
 Skills are designed for AI agents to generate recipes. As a human developer:
 
 1. Navigate to this repo directory in Claude Code
-2. Invoke a skill: `/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`, or `/slack-recipes`
+2. Invoke a skill: `/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`, `/slack-recipes`, or `/gmail-recipes`
 3. Ask the agent to generate a recipe using natural language
 4. Review and test the generated recipe JSON
 5. Deploy: `workato push`
@@ -101,12 +103,14 @@ This repo includes a `.claude/commands/` directory with slash commands:
 /stripe-recipes     # Generate Stripe recipes
 /salesforce-recipes # Generate Salesforce recipes
 /slack-recipes      # Generate Slack/Workbot recipes
+/gmail-recipes      # Generate Gmail recipes
 
 # Examples:
 "Generate a recipe with an API endpoint trigger"
 "Create a recipe to create a Stripe PaymentIntent"
 "Create a recipe to search and update Salesforce Accounts"
 "Create a slash command that collects user input via dialog"
+"Create a recipe that sends emails and searches Gmail"
 ```
 
 The agent will have full context from the skill to generate valid Workato recipe JSON.
@@ -125,6 +129,7 @@ Point your agent to the skill entry points directly:
    Read skills/stripe-recipes/SKILL_INSTRUCTIONS.md
    Read skills/salesforce-recipes/SKILL_INSTRUCTIONS.md
    Read skills/slack-recipes/SKILL_INSTRUCTIONS.md
+   Read skills/gmail-recipes/SKILL_INSTRUCTIONS.md
    ```
 
 Each `skill.yaml` defines an `entry_point` field pointing to the main instruction file, plus an `extends` field for dependencies. Agents or tooling can parse this metadata to automate skill loading.
@@ -149,6 +154,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ### Skills
 - [workato-recipes Instructions](skills/workato-recipes/SKILL_INSTRUCTIONS.md) - Recipe fundamentals and base patterns
+- [gmail-recipes Instructions](skills/gmail-recipes/SKILL_INSTRUCTIONS.md) - Gmail email integration patterns
 - [salesforce-recipes Instructions](skills/salesforce-recipes/SKILL_INSTRUCTIONS.md) - Salesforce CRM integration patterns
 - [slack-recipes Instructions](skills/slack-recipes/SKILL_INSTRUCTIONS.md) - Slack/Workbot integration patterns
 - [stripe-recipes Instructions](skills/stripe-recipes/SKILL_INSTRUCTIONS.md) - Stripe payment integration patterns
@@ -163,6 +169,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - [x] stripe-recipes skill with templates and patterns
 - [x] salesforce-recipes skill with SObject operations
 - [x] slack-recipes skill (Workbot + native Slack connector)
+- [x] gmail-recipes skill (send, list, search, labels)
 - [x] Claude Code slash command integration
 - [x] CLI extension specification
 - [x] Adhoc HTTP actions pattern (base skill)
