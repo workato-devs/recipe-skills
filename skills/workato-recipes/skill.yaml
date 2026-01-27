@@ -21,6 +21,7 @@ capabilities:
   - Datapill syntax and references
   - Config section and connection definitions
   - Return/response handling
+  - Custom connector actions (Connector SDK)
 
 # Entry point for agent consumption
 entry_point: SKILL_INSTRUCTIONS.md
@@ -48,6 +49,10 @@ templates:
   - templates/api-endpoint-complete.template.json
   - templates/callable-recipe-complete.template.json
   - templates/control-flow-examples.template.json
+
+# Patterns
+patterns:
+  - patterns/custom-connector-actions.md
 
 # Target platforms
 platforms:
