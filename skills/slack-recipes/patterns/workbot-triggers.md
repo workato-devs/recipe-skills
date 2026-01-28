@@ -4,6 +4,22 @@ This pattern covers configuring Workbot command triggers for Slack, including sl
 
 ---
 
+## Reserved Keywords
+
+### Reserved Domain/Scope Names
+
+Avoid common words in `domain` and `scope` fields as they may conflict with existing Workbot commands:
+
+**Avoid:** `feedback`, `help`, `support`, `status`, `remind`, `settings`
+
+Using reserved names like "feedback" as your domain can cause unexpected behavior - the bot may respond with default messages like "Thank you :thumbsup:" instead of triggering your dialog.
+
+**Use unique, project-specific names:**
+- `my-app-feedback` instead of `feedback`
+- `project-helpdesk` instead of `help`
+
+---
+
 ## Basic Trigger Structure
 
 ```json
@@ -195,6 +211,32 @@ The trigger provides context about the Slack environment:
 "path": ["context", "channel"]     // Channel where triggered
 "path": ["context", "trigger_id"]  // Required for dialogs
 "path": ["context", "team"]        // Workspace ID
+```
+
+---
+
+## toggleCfg Behavior
+
+The `toggleCfg` object controls whether fields use picklist selection vs custom/formula values:
+
+```json
+"toggleCfg": {
+  "domain": true,   // true = expects picklist value
+  "name": true,     // true = expects picklist value
+  "scope": false    // false = allows custom/formula value
+}
+```
+
+| Value | Behavior |
+|-------|----------|
+| `true` | Field expects a value from a predefined picklist |
+| `false` | Field allows custom text or formula values |
+
+**Example:** When using a custom action name like "submit" (not from a picklist), set:
+```json
+"toggleCfg": {
+  "name": false
+}
 ```
 
 ---

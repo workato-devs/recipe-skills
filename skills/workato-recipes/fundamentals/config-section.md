@@ -36,6 +36,7 @@ These are built-in Workato providers that don't require external connections:
 |----------|-------------|
 | `workato_api_platform` | API endpoint triggers |
 | `workato_recipe_function` | Callable recipe triggers |
+| `workato_variable` | Variables and lists (see [patterns/variables-and-lists.md](../patterns/variables-and-lists.md)) |
 | `logger` | Logging/debugging actions |
 
 **Config entry for platform providers:**
@@ -47,6 +48,8 @@ These are built-in Workato providers that don't require external connections:
   "account_id": null
 }
 ```
+
+> **Note:** The built-in `workato` provider (for `set_variable` action) does NOT require a config entry, but its datapill references often fail to resolve. Use `workato_variable` instead.
 
 ### Connector Providers (Connection Required)
 
@@ -90,6 +93,20 @@ When a provider requires a connection, the `account_id` object specifies the con
 | `zip_name` | Path to connection JSON file in the export package |
 | `name` | Human-readable connection name |
 | `folder` | Folder containing the connection |
+
+### Same-Folder References
+
+When connections are stored in the **same folder as recipes** (not in a subfolder), use empty string for `folder`:
+
+```json
+"account_id": {
+  "zip_name": "stripe_connection.connection.json",
+  "name": "Stripe Connection",
+  "folder": ""
+}
+```
+
+> **Important:** Use `folder: ""` (empty string) for ALL same-folder references - this applies to connections, recipe function `zip_name` references, and any other file references at the same level.
 
 ## Common Patterns
 
@@ -183,10 +200,11 @@ Adding the logger provider for debugging:
 
 1. **Include all providers**: Every provider used anywhere in the recipe must have a config entry. Missing entries cause import failures.
 
-2. **Platform providers use null**: `workato_api_platform`, `workato_recipe_function`, and `logger` always use `"account_id": null`.
+2. **Platform providers use null**: `workato_api_platform`, `workato_recipe_function`, `workato_variable`, and `logger` always use `"account_id": null`.
 
-3. **Do NOT include these as providers**:
-   - `workato` - Not a valid provider
+3. **Do NOT include `workato` in config**: The built-in `workato` provider (used for `set_variable`) should NOT be added to the config array. Adding it causes "invalid custom adapter" errors. However, avoid using `workato` provider entirely - use `workato_variable` instead.
+
+4. **Do NOT include these as providers**:
    - `catch` - Control flow keyword, not a provider
 
 4. **Connection path consistency**: The `zip_name` path must match the actual location in the export package.

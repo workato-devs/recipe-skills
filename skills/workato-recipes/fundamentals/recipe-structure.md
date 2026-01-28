@@ -159,13 +159,34 @@ Nested blocks within control flow (if/else, try/catch, foreach) continue the seq
 
 1. **UUID length limit**: Keep UUIDs under 36 characters or the recipe will fail to import.
 
-2. **Sequential numbering**: Always maintain sequential step numbers. Gaps in numbering can cause unexpected behavior.
+2. **Sequential numbering**: Always maintain sequential step numbers (0, 1, 2, 3...). Gaps in the `number` field cause "out of sequence" errors that block recipe activation. When adding or removing actions, renumber all blocks sequentially.
 
 3. **Provider in config**: Every provider used in the recipe must have a corresponding entry in the `config` array.
 
 4. **Alias uniqueness**: The `as` field must be unique across all blocks since it's used for datapill references.
 
 5. **Version field**: Always use `1` for new recipes. Workato manages version increments internally.
+
+6. **Required return fields in ALL paths**: All required fields in `result_schema_json` must have mapped values in EVERY return path, including error handlers. An empty string `""` fails validation. Use appropriate values based on your use case:
+   - `"=null"` - Formula returning null when no value is available
+   - `"N/A"` or `"error"` - Explicit placeholder string
+   - A default value appropriate for the field type
+
+   **WRONG (empty string fails validation):**
+   ```json
+   "result": {
+     "contact_id": "",
+     "status": "error"
+   }
+   ```
+
+   **CORRECT (formula returning null):**
+   ```json
+   "result": {
+     "contact_id": "=null",
+     "status": "error"
+   }
+   ```
 
 ## Related Documentation
 

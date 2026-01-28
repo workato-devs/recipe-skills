@@ -4,6 +4,18 @@ This document provides foundational knowledge for AI agents to generate valid Wo
 
 ---
 
+## Filename Convention
+
+**Recipe filenames must match the recipe's `name` field**, converted to lowercase with spaces replaced by underscores. Workato normalizes filenames on pull, so mismatches cause filename changes.
+
+| Recipe Name | Correct Filename |
+|-------------|------------------|
+| `"name": "Search Contact By Email"` | `search_contact_by_email.recipe.json` |
+| `"name": "Create Stripe Customer"` | `create_stripe_customer.recipe.json` |
+| `"name": "Handle Dialog Submit"` | `handle_dialog_submit.recipe.json` |
+
+---
+
 ## Quick Reference
 
 | Topic | Documentation |
@@ -11,6 +23,7 @@ This document provides foundational knowledge for AI agents to generate valid Wo
 | Recipe Structure | [fundamentals/recipe-structure.md](fundamentals/recipe-structure.md) |
 | Config Section | [fundamentals/config-section.md](fundamentals/config-section.md) |
 | Datapill Syntax | [fundamentals/datapill-syntax.md](fundamentals/datapill-syntax.md) |
+| Variables & Lists | [patterns/variables-and-lists.md](patterns/variables-and-lists.md) |
 | If/Else | [control-flow/if-else.md](control-flow/if-else.md) |
 | Try/Catch | [control-flow/try-catch.md](control-flow/try-catch.md) |
 | Foreach Loops | [control-flow/foreach.md](control-flow/foreach.md) |

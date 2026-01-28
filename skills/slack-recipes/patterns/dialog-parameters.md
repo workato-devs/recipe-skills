@@ -54,7 +54,7 @@ Multi-line text field (max 3000 characters):
 
 ### Select Dropdown
 
-Dropdown with predefined options:
+Dropdown with predefined options. **All fields shown below are required for select parameters to work correctly:**
 
 ```json
 {
@@ -68,9 +68,27 @@ Dropdown with predefined options:
     ["Medium - Normal", "medium"],
     ["Low - When possible", "low"]
   ],
-  "dialog_data_source": "custom"
+  "dialog_data_source": "custom",
+  "type": "array",
+  "prompt": "true",
+  "options": "High - Urgent,Medium - Normal,Low - When possible",
+  "properties": []
 }
 ```
+
+#### Required Fields for Select Parameters
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `control_type` | Yes | Must be `"select"` |
+| `pick_list` | Yes | Array of `[display, value]` pairs |
+| `type` | **Yes** | Must be `"array"` |
+| `prompt` | **Yes** | Must be `"true"` |
+| `options` | **Yes** | Comma-separated display values |
+| `properties` | **Yes** | Must be `[]` (empty array) |
+| `dialog_data_source` | Yes | Set to `"custom"` for static options |
+
+> **Missing these fields causes dialogs to not display.** Always include all required fields.
 
 #### Pick List Format
 
@@ -164,6 +182,28 @@ For select fields (returns the value, not display text):
 
 ```json
 "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"priority\"]}')}"
+```
+
+### Important: Select Parameters Return Strings
+
+Although select parameters are defined with `type: "array"` in the schema, the **runtime output returns the selected value as a string**, not an array:
+
+```json
+// Runtime output - values are strings:
+"parameters": {
+    "priority": "high",
+    "category": "bug"
+}
+```
+
+**Use simple datapill paths - do NOT use `current_index`:**
+
+```json
+// CORRECT - simple path, value is already a string
+["parameters", "priority"]
+
+// WRONG - causes "non array value" error
+["parameters", "priority", {"path_element_type": "current_index"}]
 ```
 
 ---

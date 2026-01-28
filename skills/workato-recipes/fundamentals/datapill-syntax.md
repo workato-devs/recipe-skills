@@ -139,6 +139,35 @@ Use `.present?` checks with ternary operator to conditionally use datapills:
 - `present?` - Checks if value exists and is not empty
 - `skip` - Special keyword to exclude field from the action
 
+---
+
+## Ternary Syntax for Multiple Sources
+
+When a value could come from **2 possible sources** (e.g., a search result OR a create result), use Ruby ternary syntax directly in the datapill mapping.
+
+### Pattern
+
+```
+=(_dp('{...source1...}').present? ? _dp('{...source1...}') : _dp('{...source2...}'))
+```
+
+### Example: Search Result or Create Result
+
+```json
+"customer_id": "=(_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}') : _dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}'))"
+```
+
+### Advantages Over Variables
+
+- No intermediate variables or config entries needed
+- Works reliably across multi-connector recipes
+- Cleaner recipe structure with fewer actions
+- No datapill resolution issues
+
+### When to Use Variables Instead
+
+For **3 or more sources**, or when accumulating values in a loop, use the `workato_variable` provider instead. See [patterns/variables-and-lists.md](../patterns/variables-and-lists.md)
+
 ## Gotchas and Best Practices
 
 1. **JSON escaping**: The JSON inside `_dp()` must have escaped quotes (`\"`). This is because the entire datapill string is itself inside a JSON value.

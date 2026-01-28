@@ -4,7 +4,59 @@ This pattern covers posting messages to Slack channels and DMs using Workbot for
 
 ---
 
-## Post Bot Message
+## Choosing the Right Action
+
+| Action | Channel Required | Use Case |
+|--------|------------------|----------|
+| `post_bot_reply_v2` | **No** | Reply directly to the triggering user/context |
+| `post_bot_message` | **Yes** | Post to a specific channel or DM |
+
+### post_bot_reply_v2 (Recommended for Simple Responses)
+
+Use when you want to respond directly to the user who triggered the command. No channel ID needed:
+
+```json
+{
+  "number": 1,
+  "provider": "slack_bot",
+  "name": "post_bot_reply_v2",
+  "as": "reply_to_user",
+  "keyword": "action",
+  "input": {
+    "message": {
+      "title": "Success!",
+      "attachment_text": "Your request has been processed."
+    }
+  },
+  "uuid": "reply-to-user-001"
+}
+```
+
+### post_bot_message (For Specific Channels)
+
+Use when you need to post to a specific channel or send a DM to someone other than the triggering user:
+
+```json
+{
+  "number": 1,
+  "provider": "slack_bot",
+  "name": "post_bot_message",
+  "as": "send_to_channel",
+  "keyword": "action",
+  "input": {
+    "channel": "C1234567890",
+    "message": {
+      "title": "Notification",
+      "attachment_text": "Something happened."
+    }
+  },
+  "uuid": "send-to-channel-001"
+}
+```
+
+---
+
+## Post Bot Message (Detailed)
 
 Send a message to a specific channel or user DM:
 

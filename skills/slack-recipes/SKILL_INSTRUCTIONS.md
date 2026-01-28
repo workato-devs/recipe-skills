@@ -3,6 +3,39 @@
 > **DEPENDENCY: Load `/workato-recipes` first if not already loaded.**
 > This skill requires the base Workato knowledge for triggers, control flow, datapills, and recipe structure.
 
+---
+
+## CRITICAL: Environment Configuration Required
+
+Before testing Workbot recipes, verify your Slack app is configured for your Workato environment:
+
+1. Go to your Workbot connection in Workato
+2. Open the OAuth profile settings
+3. Follow the "Configuring your app manually" instructions
+4. Update ALL URLs in your Slack app to match the environment-specific URLs shown
+5. Ensure the `coak_id` parameter matches your OAuth profile ID
+
+**When switching environments (e.g., trial → production), ALL Slack app URLs must be updated.**
+
+Example URLs (trial environment):
+```
+Redirect URL: https://app.trial.workato.com/oauth/callback
+Events URL: https://app.trial.workato.com/slack_webhooks/event?coak_id=XXX
+Actions URL: https://app.trial.workato.com/slack_webhooks/actions?coak_id=XXX
+Data Source URL: https://app.trial.workato.com/slack_webhooks/data_source?coak_id=XXX
+```
+
+**Required Slack Bot Token Scopes:**
+- `app_mentions:read`, `channels:read`, `chat:write`, `commands`
+- `files:read`, `files:write`, `groups.read`
+- `im:history`, `im:write`, `mpim:read`
+- `users:read`, `users:read.email`
+
+**Required User Token Scopes:**
+- `users:read`, `users:read.email`
+
+---
+
 This skill provides Slack-specific knowledge for generating Workato recipes. It covers **two Slack connectors**:
 
 | Connector | Provider | Use Case |
@@ -40,6 +73,16 @@ Use this skill when building Workato recipes that:
 **Prerequisites:**
 - `workato-recipes` base skill loaded
 - Workato workspace with Slack connection(s) configured
+
+---
+
+## Reserved Slack Command Names
+
+**Always ask the user what slash command name to use.** Slack reserves certain command names that cannot be used:
+
+`/feedback`, `/remind`, `/call`, `/dnd`, `/help`, `/invite`, `/leave`, `/me`, `/msg`, `/mute`, `/prefs`, `/search`, `/shortcuts`, `/status`, `/topic`, `/who`
+
+Before generating a recipe with a slash command, verify the name is available in the user's workspace or explicitly ask for their preferred command name.
 
 ---
 
