@@ -1,6 +1,7 @@
 {
-  "name": "Upsert Salesforce contact",
-  "version": 1,
+  "name": "Upsert Contact By Email",
+  "description": "Callable recipe: upsert Contact by email - creates new or updates existing",
+  "version": 2,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -10,8 +11,8 @@
     "as": "trigger",
     "keyword": "trigger",
     "input": {
-      "parameters_schema_json": "[{\"name\":\"email\",\"label\":\"Email\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Contact email address\"},{\"name\":\"first_name\",\"label\":\"First name\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true,\"hint\":\"Contact first name\"},{\"name\":\"last_name\",\"label\":\"Last name\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Contact last name (Salesforce required)\"},{\"name\":\"phone\",\"label\":\"Phone\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true,\"hint\":\"Contact phone number\"},{\"name\":\"account_id\",\"label\":\"Account ID\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true,\"hint\":\"Salesforce Account ID\"}]",
-      "result_schema_json": "[{\"name\":\"id\",\"label\":\"Contact ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"email\",\"label\":\"Email\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"created\",\"label\":\"Created\",\"type\":\"boolean\",\"control_type\":\"checkbox\"}]"
+      "parameters_schema_json": "[{\"name\":\"email\",\"label\":\"Email\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Contact email address\"},{\"name\":\"first_name\",\"label\":\"First name\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":true,\"hint\":\"Contact first name\"},{\"name\":\"last_name\",\"label\":\"Last name\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Contact last name (Salesforce required)\"}]",
+      "result_schema_json": "[{\"name\":\"contact_id\",\"label\":\"Contact ID\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"status\",\"label\":\"Status\",\"type\":\"string\",\"control_type\":\"text\"}]"
     },
     "extended_output_schema": [
       {
@@ -41,22 +42,6 @@
             "type": "string",
             "optional": false,
             "hint": "Contact last name (Salesforce required)"
-          },
-          {
-            "control_type": "text",
-            "label": "Phone",
-            "name": "phone",
-            "type": "string",
-            "optional": true,
-            "hint": "Contact phone number"
-          },
-          {
-            "control_type": "text",
-            "label": "Account ID",
-            "name": "account_id",
-            "type": "string",
-            "optional": true,
-            "hint": "Salesforce Account ID"
           }
         ],
         "type": "object"
@@ -66,7 +51,8 @@
       {
         "number": 1,
         "keyword": "try",
-        "input": {},
+        "input": {
+        },
         "block": [
           {
             "number": 2,
@@ -90,9 +76,7 @@
               },
               "Email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}",
               "FirstName": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"first_name\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"first_name\"]}') : skip",
-              "LastName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"last_name\"]}')}",
-              "Phone": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"phone\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"phone\"]}') : skip",
-              "AccountId": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"account_id\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"account_id\"]}') : skip"
+              "LastName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"last_name\"]}')}"
             },
             "extended_input_schema": [
               {
@@ -119,28 +103,8 @@
               {
                 "control_type": "text",
                 "custom": false,
-                "label": "Account ID",
-                "name": "AccountId",
-                "optional": true,
-                "type": "string",
-                "sfdc_createable": true,
-                "sfdc_updateable": true
-              },
-              {
-                "control_type": "text",
-                "custom": false,
                 "label": "First Name",
                 "name": "FirstName",
-                "optional": true,
-                "type": "string",
-                "sfdc_createable": true,
-                "sfdc_updateable": true
-              },
-              {
-                "control_type": "phone",
-                "custom": false,
-                "label": "Business Phone",
-                "name": "Phone",
                 "optional": true,
                 "type": "string",
                 "sfdc_createable": true,
@@ -153,16 +117,12 @@
             "number": 3,
             "provider": "workato_recipe_function",
             "name": "return_result",
-            "as": "return_result",
+            "as": "return_success",
             "keyword": "action",
-            "toggleCfg": {
-              "result.created": true
-            },
             "input": {
               "result": {
-                "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"upsert_contact\",\"path\":[\"id\"]}')}",
-                "email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"email\"]}')}",
-                "created": "true"
+                "contact_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"upsert_contact\",\"path\":[\"id\"]}')}",
+                "status": "success"
               }
             },
             "extended_output_schema": [
@@ -173,30 +133,14 @@
                   {
                     "control_type": "text",
                     "label": "Contact ID",
-                    "name": "id",
+                    "name": "contact_id",
                     "type": "string"
                   },
                   {
                     "control_type": "text",
-                    "label": "Email",
-                    "name": "email",
+                    "label": "Status",
+                    "name": "status",
                     "type": "string"
-                  },
-                  {
-                    "control_type": "checkbox",
-                    "label": "Created",
-                    "render_input": "boolean_conversion",
-                    "parse_output": "boolean_conversion",
-                    "name": "created",
-                    "type": "boolean",
-                    "toggle_hint": "Select from option list",
-                    "toggle_field": {
-                      "label": "Created",
-                      "control_type": "text",
-                      "toggle_hint": "Use custom value",
-                      "name": "created",
-                      "type": "boolean"
-                    }
                   }
                 ],
                 "type": "object"
@@ -210,41 +154,26 @@
                   {
                     "control_type": "text",
                     "label": "Contact ID",
-                    "name": "id",
+                    "name": "contact_id",
                     "type": "string"
                   },
                   {
                     "control_type": "text",
-                    "label": "Email",
-                    "name": "email",
+                    "label": "Status",
+                    "name": "status",
                     "type": "string"
-                  },
-                  {
-                    "control_type": "checkbox",
-                    "label": "Created",
-                    "render_input": "boolean_conversion",
-                    "parse_output": "boolean_conversion",
-                    "name": "created",
-                    "type": "boolean",
-                    "toggle_hint": "Select from option list",
-                    "toggle_field": {
-                      "label": "Created",
-                      "control_type": "text",
-                      "toggle_hint": "Use custom value",
-                      "name": "created",
-                      "type": "boolean"
-                    }
                   }
                 ],
                 "type": "object"
               }
             ],
-            "uuid": "return-result-003"
+            "uuid": "return-success-003"
           },
           {
             "number": 4,
             "as": "catch_error",
             "keyword": "catch",
+            "provider": null,
             "input": {
               "max_retry_count": "0",
               "retry_interval": "2"
@@ -266,7 +195,7 @@
                     "default": false,
                     "disable_formula": true,
                     "extends_schema": true,
-                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "hint": "Send a copy of the message to Workato logs.",
                     "label": "Send to Workato log service",
                     "name": "user_logs_enabled",
                     "optional": true,
@@ -274,6 +203,62 @@
                   }
                 ],
                 "uuid": "log-error-005"
+              },
+              {
+                "number": 6,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "return_error",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "contact_id": "=null",
+                    "status": "=('error: ' + _dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}'))"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Contact ID",
+                        "name": "contact_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Contact ID",
+                        "name": "contact_id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-error-006"
               }
             ],
             "uuid": "catch-error-004"
@@ -297,9 +282,9 @@
       "provider": "salesforce",
       "skip_validation": false,
       "account_id": {
-        "zip_name": "Workspace Connections/salesforce_connection.connection.json",
-        "name": "Salesforce Production",
-        "folder": "Workspace Connections"
+        "zip_name": "Salesforce/de_org.connection.json",
+        "name": "DE Org",
+        "folder": "Salesforce"
       }
     },
     {

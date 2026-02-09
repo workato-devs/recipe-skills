@@ -4,6 +4,117 @@ This document provides foundational knowledge for AI agents to generate valid Wo
 
 ---
 
+## CRITICAL: Pre-Generation Checklist
+
+### For EXISTING projects (recipes already exist):
+
+1. **Read 1-2 existing `.recipe.json` files** to understand project structure and patterns
+2. **Verify connection names** - ask user for exact connection names in their workspace
+3. **Follow established folder structure** - match where recipes and connections are organized
+
+### For GREENFIELD projects (no existing recipes):
+
+1. **Use skill templates as reference** - see `templates/` directory in each skill
+2. **Use standard file naming** - `{recipe_name}.recipe.json` (lowercase, underscores for spaces)
+3. **Start recipe names with action verbs** - "Create...", "Search...", "Update...", "Process..."
+4. **Ask user for connection names** - exact names from their Workato workspace
+
+### ALWAYS (both scenarios):
+
+1. **Use descriptive UUIDs** - `{action}-{number}` format (e.g., `search-contact-001`, `return-success-005`)
+2. **Use API endpoint triggers** for testability (unless callable recipe is specifically needed)
+3. **Define all response codes** upfront in the trigger (200, 400, 500 at minimum)
+
+---
+
+## UUID Format (MANDATORY)
+
+**ALWAYS use descriptive UUIDs**, regardless of what existing recipes in a project use:
+
+```
+search-contact-001
+create-customer-002
+if-found-003
+return-success-004
+return-error-005
+```
+
+**NEVER use random hex UUIDs:**
+```
+a1b2c3d4-e5f6-7890-abcd-ef1234567890  ← ANTI-PATTERN
+11111111-1111-1111-1111-111111111111  ← ANTI-PATTERN
+```
+
+> **NOTE:** Recipes created in Workato's declarative UI have random hash UUIDs. This is a platform limitation, NOT a pattern to follow. When you see random UUIDs in existing recipes, do NOT copy them. Always use descriptive UUIDs for new recipes and actions.
+
+---
+
+## Recipe JSON Structure (CRITICAL)
+
+The `code` field is an **OBJECT** (the trigger itself), **NOT** an array wrapped in a `recipe` object.
+
+**Key points:**
+- `code` is the trigger object directly, not wrapped in `recipe`
+- `code` is NOT an array - actions go inside `code.block`
+- Trigger `number` starts at **0**, not 1
+- Trigger `as` should be `"trigger"` for callable recipes
+
+See: [fundamentals/recipe-structure.md](fundamentals/recipe-structure.md) for full structure with examples.
+
+---
+
+## Action Numbering (CRITICAL)
+
+Every block must have a sequential `number` field:
+
+| Block | Number |
+|-------|--------|
+| Trigger | 0 |
+| First action | 1 |
+| Second action | 2 |
+| ... | ... |
+
+**Non-sequential numbers cause "out of sequence" errors that block recipe activation.** When modifying recipes, always renumber all actions sequentially.
+
+---
+
+## Built-in Providers
+
+The `workato` provider is **built-in** and should **NOT** be in the recipe's `config` array. Only include config entries for external connectors requiring authentication (e.g., `salesforce`, `stripe`, `gmail`).
+
+---
+
+## Connection Configuration (CRITICAL)
+
+**DO NOT put `config` blocks inside actions.** Connections are defined ONLY in the top-level `config` array. Actions reference connections implicitly through the `provider` field.
+
+### WRONG (config inside action):
+```json
+{
+  "provider": "gmail",
+  "name": "adhoc_http",
+  "config": {
+    "account_id": {"name": "My Gmail"}
+  }
+}
+```
+
+### CORRECT (top-level only):
+```json
+{
+  "code": { ... },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "gmail",
+      "account_id": {"name": "My Gmail"}
+    }
+  ]
+}
+```
+
+---
+
 ## Filename Convention
 
 **Recipe filenames must match the recipe's `name` field**, converted to lowercase with spaces replaced by underscores. Workato normalizes filenames on pull, so mismatches cause filename changes.
@@ -47,41 +158,156 @@ This document provides foundational knowledge for AI agents to generate valid Wo
 
 Workato supports multiple trigger types. Choose based on how the recipe will be invoked.
 
-### API Endpoint Trigger
+### API Endpoint Trigger (Recommended for Testing)
 
-**Use when:** Recipe should be callable via external HTTP request.
+**Use when:** Recipe should be callable via external HTTP request (curl, webhooks, third-party systems).
 
 **Provider:** `workato_api_platform`
 **Action:** `receive_request`
 
+> **RECOMMENDATION:** Use API endpoint triggers for most recipes. They're easier to test via curl and more practical for real integrations than callable recipes.
+
+#### Complete API Endpoint Example
+
 ```json
 {
+  "number": 0,
   "provider": "workato_api_platform",
   "name": "receive_request",
-  "as": "api_trigger",
+  "as": "trigger",
   "keyword": "trigger",
   "input": {
     "request": {
       "content_type": "json",
-      "schema": "[{\"name\":\"email\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Email\",\"optional\":false}]"
+      "schema": [
+        {
+          "name": "email",
+          "label": "Email",
+          "type": "string",
+          "control_type": "text",
+          "optional": false,
+          "hint": "Customer email address"
+        },
+        {
+          "name": "name",
+          "label": "Name",
+          "type": "string",
+          "control_type": "text",
+          "optional": false
+        },
+        {
+          "name": "company",
+          "label": "Company",
+          "type": "string",
+          "control_type": "text",
+          "optional": true,
+          "hint": "Optional company name"
+        }
+      ]
     },
     "response": {
       "content_type": "json",
       "responses": [
         {
           "name": "Success",
-          "http_status_code": "200",
-          "body_schema": "[{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"}]"
+          "http_status_code": "200"
+        },
+        {
+          "name": "Created",
+          "http_status_code": "201"
+        },
+        {
+          "name": "Bad Request",
+          "http_status_code": "400"
+        },
+        {
+          "name": "Server Error",
+          "http_status_code": "500"
         }
       ]
     }
-  }
+  },
+  "extended_output_schema": [
+    {
+      "label": "Request",
+      "name": "request",
+      "type": "object",
+      "properties": [
+        {
+          "name": "email",
+          "label": "Email",
+          "type": "string",
+          "control_type": "text"
+        },
+        {
+          "name": "name",
+          "label": "Name",
+          "type": "string",
+          "control_type": "text"
+        },
+        {
+          "name": "company",
+          "label": "Company",
+          "type": "string",
+          "control_type": "text"
+        }
+      ]
+    }
+  ],
+  "block": [
+    // Actions go here
+  ]
 }
 ```
 
-**CRITICAL: Request Schema Format**
-- Use `request.schema` (NOT `body_schema` or `path_params`)
-- Fields are accessed directly: `["request", "field_name"]` (NOT `["request", "body", "field_name"]`)
+#### Request Schema Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Field identifier (used in datapills) |
+| `label` | Yes | Display label in UI |
+| `type` | Yes | Data type: `string`, `integer`, `boolean`, `date`, `date_time` |
+| `control_type` | Yes | UI control: `text`, `number`, `checkbox`, `date`, `select` |
+| `optional` | Yes | `true` for optional, `false` for required |
+| `hint` | No | Help text for the field |
+
+#### Multiple Response Codes
+
+Define all possible HTTP responses in the trigger. The `return_response` action references these by name:
+
+```json
+"responses": [
+  { "name": "Success", "http_status_code": "200" },
+  { "name": "Created", "http_status_code": "201" },
+  { "name": "Bad Request", "http_status_code": "400" },
+  { "name": "Conflict", "http_status_code": "409" },
+  { "name": "Server Error", "http_status_code": "500" }
+]
+```
+
+#### Datapill Paths for Request Fields
+
+Access request fields directly (no `body` wrapper):
+
+```json
+"path": ["request", "email"]
+"path": ["request", "name"]
+"path": ["request", "company"]
+```
+
+**WRONG:**
+```json
+"path": ["request", "body", "email"]
+```
+
+#### Testing with curl
+
+```bash
+curl -X POST "https://apim.workato.com/your-workspace/your-endpoint" \
+  -H "API-TOKEN: your-api-token" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "name": "Test User"}'
+```
 
 See: [triggers/api-endpoint.md](triggers/api-endpoint.md)
 
@@ -180,12 +406,148 @@ The `flow_id` object MUST include ALL fields, including `zip_name`.
 
 Workato provides different actions for returning data based on the trigger type.
 
-### API Endpoint Response Action
+### API Endpoint Response Action (return_response)
 
 **Use when:** Recipe uses `workato_api_platform` trigger and needs to return HTTP response.
 
 **Provider:** `workato_api_platform`
 **Action:** `return_response`
+
+#### How pick_list Maps Response Names to HTTP Codes
+
+The `pick_list` in `extended_input_schema` maps the response names (defined in trigger) to HTTP status codes:
+
+```json
+"pick_list": [
+  ["Success", "200"],      // "Success" from trigger → HTTP 200
+  ["Created", "201"],      // "Created" from trigger → HTTP 201
+  ["Bad Request", "400"],  // "Bad Request" from trigger → HTTP 400
+  ["Server Error", "500"]  // "Server Error" from trigger → HTTP 500
+]
+```
+
+**CRITICAL:** The first element (e.g., "Success") must match exactly the `name` field from the trigger's `responses` array.
+
+#### Complete return_response Example
+
+```json
+{
+  "number": 5,
+  "provider": "workato_api_platform",
+  "name": "return_response",
+  "as": "return_success",
+  "keyword": "action",
+  "uuid": "return-success-005",
+  "input": {
+    "http_status_code": "200",
+    "response": {
+      "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"body\",\"id\"]}')}",
+      "success": "true",
+      "error_message": "=null"
+    }
+  },
+  "extended_input_schema": [
+    {
+      "change_on_blur": true,
+      "control_type": "select",
+      "extends_schema": true,
+      "label": "Response",
+      "name": "http_status_code",
+      "pick_list": [
+        ["Success", "200"],
+        ["Created", "201"],
+        ["Bad Request", "400"],
+        ["Server Error", "500"]
+      ],
+      "type": "string"
+    },
+    {
+      "label": "Response body",
+      "name": "response",
+      "type": "object",
+      "properties": [
+        {
+          "control_type": "text",
+          "label": "Customer ID",
+          "name": "customer_id",
+          "type": "string"
+        },
+        {
+          "control_type": "checkbox",
+          "label": "Success",
+          "name": "success",
+          "type": "boolean"
+        },
+        {
+          "control_type": "text",
+          "label": "Error Message",
+          "name": "error_message",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "extended_output_schema": [
+    {
+      "change_on_blur": true,
+      "control_type": "select",
+      "extends_schema": true,
+      "label": "Response",
+      "name": "http_status_code",
+      "pick_list": [
+        ["Success", "200"],
+        ["Created", "201"],
+        ["Bad Request", "400"],
+        ["Server Error", "500"]
+      ],
+      "type": "string"
+    },
+    {
+      "label": "Response body",
+      "name": "response",
+      "type": "object",
+      "properties": [
+        {
+          "control_type": "text",
+          "label": "Customer ID",
+          "name": "customer_id",
+          "type": "string"
+        },
+        {
+          "control_type": "checkbox",
+          "label": "Success",
+          "name": "success",
+          "type": "boolean"
+        },
+        {
+          "control_type": "text",
+          "label": "Error Message",
+          "name": "error_message",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### Multiple Return Actions Pattern
+
+Use separate `return_response` actions for different scenarios:
+
+```
+return_success (200)     → Happy path
+return_created (201)     → New record created
+return_not_found (200)   → Search found nothing (still success)
+return_bad_request (400) → Invalid input
+return_error (500)       → Caught exception
+```
+
+Each action has the same `extended_input_schema` (with all response codes in pick_list) but different `input.http_status_code` values.
+
+#### Legacy Format Reference
+
+Older recipes may use this more verbose format with `toggleCfg` and `toggle_field`:
 
 ```json
 {
@@ -427,6 +789,8 @@ This is a Workato platform behavior that affects ALL connectors. Complex connect
 
 **Agent requirement:** When generating recipes with custom actions or complex inputs, ALWAYS verify that `extended_input_schema` mirrors the complete `input` structure.
 
+> **EXCEPTION — Native connector internal parameters:** Some native connector actions (e.g., Salesforce `search_sobjects`, `search_sobjects_soql`) have parameters like `sobject_name` and `limit` that are handled internally by the connector. These must **NOT** appear in `extended_input_schema` — if included, Workato treats them as user-facing field filters/inputs and generates incorrect queries. Only user-facing filter fields (e.g., `Id`, `AccountId`, `Email` for Salesforce search) should be in EIS for these actions. See the connector-specific skill files for details on which parameters are connector internals.
+
 ### extended_output_schema
 
 Defines the output fields available from an action:
@@ -637,6 +1001,73 @@ Provide a default value when an optional parameter is missing using `.present?` 
 - `.present?` checks if value exists and is not empty
 - The datapill must appear twice (once for check, once for value)
 - Default value must be quoted if it's a string
+
+### Error Handling Return Values (CRITICAL)
+
+When recipes have required return parameters, ALL code paths (success AND catch blocks) must provide values. In catch blocks where data isn't available, use `=null`:
+
+**WRONG:** `"customer_id": ""`
+**CORRECT:** `"customer_id": "=null"`
+
+### Selecting Between Multiple Sources (Ternary)
+
+When you need to return a value from one of multiple possible sources (e.g., search result OR create result), use ternary syntax:
+
+```json
+"customer_id": "=_dp('{...search_result...}').present? ? _dp('{...search_result...}') : _dp('{...create_result...}')"
+```
+
+This avoids the need for intermediate variables and works at both validation and runtime.
+
+---
+
+## Connection Configuration
+
+### Same-Folder References
+
+When connections are in the same folder as recipes, use empty string for `folder`:
+
+```json
+"account_id": {
+  "zip_name": "my_connection.connection.json",
+  "name": "My Connection Name",
+  "folder": ""
+}
+```
+
+### Different-Folder References
+
+When connections are in a different folder:
+
+```json
+"account_id": {
+  "zip_name": "Connections/my_connection.connection.json",
+  "name": "My Connection Name",
+  "folder": "Connections"
+}
+```
+
+---
+
+## Common Mistakes
+
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| `recipe.code[]` wrapper | Recipe doesn't render | Use `code` as object directly |
+| Non-sequential action numbers | Activation error | Renumber sequentially from 0 |
+| `workato` provider in config | Push error | Remove - it's built-in |
+| Empty string for required params | Activation error | Use `=null` |
+| `+` concat with datapills at import | Validation error | Use ternary or single datapill |
+| Random hex UUIDs | Poor maintainability | **Always** use descriptive UUIDs (don't copy existing random UUIDs) |
+| Copying patterns from declarative UI recipes | Various errors | Use skill templates, not UI-generated recipes as reference |
+
+---
+
+---
+
+## Validation
+
+See [validation-checklist.md](validation-checklist.md) for the consolidated recipe validation checklist.
 
 ---
 

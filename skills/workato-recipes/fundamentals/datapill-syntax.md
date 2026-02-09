@@ -182,6 +182,10 @@ For **3 or more sources**, or when accumulating values in a loop, use the `worka
 
 6. **Path array order**: The path array represents the traversal order through the object. `["request", "body", "email"]` means `request.body.email`.
 
+## Validation
+
+See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+
 ## Related Documentation
 
 - [Recipe Structure](recipe-structure.md)

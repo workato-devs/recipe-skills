@@ -33,10 +33,15 @@ patterns:
   - patterns/native-gmail-actions.md
   - patterns/gmail-api-reference.md
 
+# Validation checklist
+validation:
+  - validation-checklist.md
+
 # Templates available for reference/adaptation
 templates:
   - templates/send-email.json
   - templates/list-emails.json
+  - templates/gmail-salesforce-integration.json
 
 # Target platforms
 platforms:

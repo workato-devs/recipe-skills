@@ -56,6 +56,10 @@ patterns:
   - patterns/adhoc-http-actions.md
   - patterns/custom-connector-actions.md
 
+# Validation checklist
+validation:
+  - validation-checklist.md
+
 # Target platforms
 platforms:
   - workato

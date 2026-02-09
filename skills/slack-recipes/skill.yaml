@@ -36,11 +36,16 @@ patterns:
   - patterns/native-slack-actions.md
   - patterns/slack-api-reference.md
 
+# Validation checklist
+validation:
+  - validation-checklist.md
+
 # Templates available for reference/adaptation
 templates:
   - templates/slash-command-with-dialog.json
   - templates/button-interaction.json
   - templates/create-channel-invite-user.json
+  - templates/feedback-collection.json
 
 # Target platforms
 platforms:

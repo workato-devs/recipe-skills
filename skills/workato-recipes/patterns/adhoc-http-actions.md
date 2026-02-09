@@ -249,6 +249,10 @@ This pattern:
 
 ---
 
+## Validation
+
+See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+
 ## Tips
 
 1. **Copy schemas from working recipes** - Building schemas by hand is error-prone; copy from Workato UI exports

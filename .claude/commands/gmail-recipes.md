@@ -80,6 +80,8 @@ For optional query parameters, use `.presence || skip`:
 - `skills/gmail-recipes/SKILL_INSTRUCTIONS.md` - Gmail-specific knowledge
 - `skills/gmail-recipes/patterns/` - Pattern documentation
 - `skills/gmail-recipes/templates/` - Validated recipe templates
+- `skills/gmail-recipes/validation-checklist.md` - Gmail validation checklist
+- `skills/workato-recipes/validation-checklist.md` - Base validation checklist
 
 ## Usage
 

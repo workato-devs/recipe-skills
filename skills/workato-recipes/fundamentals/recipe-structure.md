@@ -188,6 +188,10 @@ Nested blocks within control flow (if/else, try/catch, foreach) continue the seq
    }
    ```
 
+## Validation
+
+See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+
 ## Related Documentation
 
 - [Config Section](config-section.md)

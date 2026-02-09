@@ -216,6 +216,10 @@ Processes multiple items in parallel. Use for:
 
 5. **Variable scope**: With `clear_scope: "true"`, variables from previous iterations are cleared. Use `"false"` if you need to accumulate values.
 
+## Validation
+
+See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+
 ## Related Documentation
 
 - [Datapill Syntax](../fundamentals/datapill-syntax.md)

@@ -41,6 +41,10 @@ patterns:
   - patterns/search-sobjects.md
   - patterns/soql-query-syntax.md
 
+# Validation checklist
+validation:
+  - validation-checklist.md
+
 # Target platforms
 platforms:
   - workato

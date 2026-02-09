@@ -80,6 +80,7 @@ Use `return_result` to return values.
 - `skills/workato-recipes/SKILL_INSTRUCTIONS.md` - Full documentation
 - `skills/workato-recipes/triggers/` - Trigger type details
 - `skills/workato-recipes/templates/` - Starter templates
+- `skills/workato-recipes/validation-checklist.md` - Base validation checklist
 
 ## Usage
 

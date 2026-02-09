@@ -1,0 +1,187 @@
+{
+  "name": "Feedback Collection",
+  "description": "Slash command that collects feedback via dialog, posts to channel, and DMs confirmation",
+  "version": 22,
+  "private": false,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "slack_bot",
+    "name": "bot_command_v2",
+    "as": "trigger_001",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "domain": "Slack"
+    },
+    "toggleCfg": {
+      "domain": true,
+      "name": false,
+      "scope": false
+    },
+    "input": {
+      "allow_dialog": "true",
+      "slash_command": {
+        "enable": "true",
+        "name": "/shoes",
+        "first_reply": "Opening feedback form..."
+      },
+      "scope": "shoe-request",
+      "description": "Submit feedback with rating and comments",
+      "dialog_title": "Submit Feedback",
+      "parameters": "[\n  {\n    \"name\": \"rating\",\n    \"label\": \"Rating\",\n    \"hint\": \"Rate from 1 (poor) to 5 (excellent)\",\n    \"optional\": true,\n    \"control_type\": \"select\",\n    \"pick_list\": [\n      [\n        \"1 - Poor\",\n        \"1\"\n      ],\n      [\n        \"2 - Fair\",\n        \"2\"\n      ],\n      [\n        \"3 - Good\",\n        \"3\"\n      ],\n      [\n        \"4 - Very Good\",\n        \"4\"\n      ],\n      [\n        \"5 - Excellent\",\n        \"5\"\n      ]\n    ],\n    \"type\": \"array\",\n    \"prompt\": \"true\",\n    \"dialog_data_source\": \"custom\",\n    \"options\": \"1 - Poor,2 - Fair,3 - Good,4 - Very Good,5 - Excellent\",\n    \"properties\": [\n\n    ]\n  },\n  {\n    \"name\": \"category\",\n    \"label\": \"Category\",\n    \"hint\": \"Select feedback category\",\n    \"optional\": true,\n    \"control_type\": \"select\",\n    \"pick_list\": [\n      [\n        \"Product\",\n        \"product\"\n      ],\n      [\n        \"Support\",\n        \"support\"\n      ],\n      [\n        \"Documentation\",\n        \"documentation\"\n      ],\n      [\n        \"Other\",\n        \"other\"\n      ]\n    ],\n    \"type\": \"array\",\n    \"prompt\": \"true\",\n    \"dialog_data_source\": \"custom\",\n    \"options\": \"Product,Support,Documentation,Other\",\n    \"properties\": [\n\n    ]\n  },\n  {\n    \"name\": \"comments\",\n    \"label\": \"Comments\",\n    \"hint\": \"Provide detailed feedback\",\n    \"optional\": \"false\",\n    \"control_type\": \"text-area\"\n  }\n]",
+      "hide_from_help": "false",
+      "name": "submit",
+      "domain": "shoe-request"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "label": "Rating",
+            "name": "rating",
+            "hint": "Rate from 1 (poor) to 5 (excellent)",
+            "optional": "false",
+            "pick_list": [
+              [
+                "1 - Poor",
+                "1"
+              ],
+              [
+                "2 - Fair",
+                "2"
+              ],
+              [
+                "3 - Good",
+                "3"
+              ],
+              [
+                "4 - Very Good",
+                "4"
+              ],
+              [
+                "5 - Excellent",
+                "5"
+              ]
+            ],
+            "type": "array",
+            "prompt": "true",
+            "dialog_data_source": "custom",
+            "options": "1 - Poor,2 - Fair,3 - Good,4 - Very Good,5 - Excellent",
+            "of": "object",
+            "properties": [
+
+            ]
+          },
+          {
+            "label": "Category",
+            "name": "category",
+            "hint": "Select feedback category",
+            "optional": "false",
+            "pick_list": [
+              [
+                "Product",
+                "product"
+              ],
+              [
+                "Support",
+                "support"
+              ],
+              [
+                "Documentation",
+                "documentation"
+              ],
+              [
+                "Other",
+                "other"
+              ]
+            ],
+            "type": "array",
+            "prompt": "true",
+            "dialog_data_source": "custom",
+            "options": "Product,Support,Documentation,Other",
+            "of": "object",
+            "properties": [
+
+            ]
+          },
+          {
+            "control_type": "text-area",
+            "label": "Comments",
+            "name": "comments",
+            "hint": "Provide detailed feedback",
+            "optional": "false",
+            "type": "string"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "visible_config_fields": [
+      "domain",
+      "name",
+      "scope",
+      "parameters",
+      "slash_command",
+      "slash_command.enable",
+      "slash_command.name",
+      "allow_dialog",
+      "description",
+      "slash_command.first_reply",
+      "dialog_title",
+      "hide_from_help"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "slack_bot",
+        "name": "post_bot_reply_v2",
+        "as": "860a8920",
+        "keyword": "action",
+        "input": {
+          "message": {
+            "title": "Feedback Sumbitted",
+            "attachment_text": "Thank you for your feedback!\n\n**Your submission:**\n- Rating: #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"rating\"]}')}\n- Category: #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"category\"]}')}\n- Comments: #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"comments\"]}')}"
+          }
+        },
+        "uuid": "568a757c-dd28-4702-9a32-1f1c10191e04"
+      },
+      {
+        "number": 2,
+        "provider": "slack_bot",
+        "name": "post_bot_message",
+        "as": "dm_confirmation",
+        "keyword": "action",
+        "toggleCfg": {
+          "channel": true
+        },
+        "input": {
+          "channel": "=_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"context\",\"user\"]}').gsub('\"','')",
+          "message": {
+            "title": "Feedback Submitted",
+            "attachment_text": "Thank you for your feedback!\n\n**Your submission:**\n- Rating: #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"rating\"]}')}\n- Category: #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"category\"]}')}\n- Comments: #{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"parameters\",\"comments\"]}')}"
+          }
+        },
+        "visible_config_fields": [
+          "channel",
+          "text"
+        ],
+        "uuid": "dm-confirm-001"
+      }
+    ],
+    "uuid": "trigger-feedback-001"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "slack_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Ministry of Silly Algorithms/internbot_for_slack_account.connection.json",
+        "name": "Internbot for Slack account",
+        "folder": "Ministry of Silly Algorithms"
+      }
+    }
+  ]
+}

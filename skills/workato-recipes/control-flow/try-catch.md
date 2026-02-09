@@ -337,6 +337,10 @@ Handle errors during iteration:
 
 8. **Return placement**: When using with API endpoints, place the success return inside the try block before the catch, not after.
 
+## Validation
+
+See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+
 ## Related Documentation
 
 - [Datapill Syntax](../fundamentals/datapill-syntax.md)

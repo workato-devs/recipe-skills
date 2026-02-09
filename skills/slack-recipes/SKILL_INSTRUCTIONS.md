@@ -5,6 +5,24 @@
 
 ---
 
+## CRITICAL: Pre-Generation Checklist
+
+### For EXISTING projects:
+1. **Read existing Slack `.recipe.json` files** to understand local patterns
+2. **Check for established domain/scope naming** conventions
+
+### For GREENFIELD projects:
+1. **Use skill templates** - see `templates/feedback-collection.json` as reference
+2. **Use descriptive UUIDs** - e.g., `trigger-001`, `post-reply-002`
+
+### ALWAYS:
+1. **Ask for connection name** - exact name of Workbot/Slack connection in Workato
+2. **Ask for slash command name** - verify it's not reserved (see list below)
+3. **Ask for domain/scope** - avoid reserved words like "feedback", "help"
+4. **Use descriptive UUIDs** - never copy random hex UUIDs from existing recipes
+
+---
+
 ## CRITICAL: Environment Configuration Required
 
 Before testing Workbot recipes, verify your Slack app is configured for your Workato environment:
@@ -86,6 +104,17 @@ Before generating a recipe with a slash command, verify the name is available in
 
 ---
 
+## Reserved Domain and Scope Names
+
+**Avoid common words as `domain` or `scope` values** - they may conflict with existing Workbot functionality:
+
+- `feedback`, `help`, `support`, `status`, `settings`, `admin`, `config`
+
+**Use unique, project-specific names instead:**
+- `shoe-request`, `myapp-feedback`, `project-onboarding`
+
+---
+
 ## Choosing a Connector
 
 ### Use Workbot for Slack (`slack_bot`) when:
@@ -131,22 +160,66 @@ The primary trigger for Slack recipes is `bot_command_v2`:
   "name": "bot_command_v2",
   "as": "trigger_001",
   "keyword": "trigger",
+  "dynamicPickListSelection": {
+    "domain": "Slack"
+  },
+  "toggleCfg": {
+    "domain": true,
+    "name": false,
+    "scope": false
+  },
   "input": {
-    "domain": "my-app",
-    "name": "create",
-    "scope": "project",
-    "description": "Create a new project",
     "allow_dialog": "true",
-    "dialog_title": "New Project",
-    "hide_from_help": "false",
     "slash_command": {
       "enable": "true",
       "name": "/mycommand",
       "first_reply": "Processing your request..."
     },
-    "parameters": "[...]"
+    "scope": "project",
+    "description": "Create a new project",
+    "dialog_title": "New Project",
+    "parameters": "[...]",
+    "hide_from_help": "false",
+    "name": "create",
+    "domain": "my-app"
   }
 }
+```
+
+### toggleCfg for Custom Values (CRITICAL)
+
+The `toggleCfg` object controls whether fields use picklist selections or custom values:
+
+| Field | `true` | `false` |
+|-------|--------|---------|
+| `domain` | Use picklist domain | Use custom domain value |
+| `name` | Use picklist action name | Use custom action name |
+| `scope` | Use picklist scope | Use custom scope value |
+
+**For most custom Workbot commands, use:**
+```json
+"toggleCfg": {
+  "domain": true,
+  "name": false,
+  "scope": false
+}
+```
+
+### Input Attribute Ordering (CRITICAL)
+
+**Attribute order matters for Workbot triggers.** Use this exact order:
+
+1. `allow_dialog`
+2. `slash_command`
+3. `scope`
+4. `description`
+5. `dialog_title`
+6. `parameters`
+7. `hide_from_help`
+8. `name`
+9. `domain`
+
+Incorrect ordering can cause the recipe to fail validation or behave unexpectedly
 ```
 
 ### Trigger Input Fields
@@ -167,54 +240,133 @@ The primary trigger for Slack recipes is `bot_command_v2`:
 
 ### Parameters Format
 
-Parameters define the dialog form fields as a JSON string:
+Parameters define the dialog form fields as a JSON string.
+
+#### Text Parameters (Simple)
+
+```json
+{
+  "name": "project_name",
+  "label": "Project Name",
+  "hint": "Enter the project name",
+  "optional": "false",
+  "control_type": "text"
+}
+```
+
+#### Text-Area Parameters
+
+```json
+{
+  "name": "comments",
+  "label": "Comments",
+  "hint": "Provide detailed feedback",
+  "optional": "false",
+  "control_type": "text-area"
+}
+```
+
+#### Select Parameters (CRITICAL - Complete Structure Required)
+
+**Select parameters require ALL these fields or the dialog won't display correctly:**
+
+```json
+{
+  "name": "rating",
+  "label": "Rating",
+  "hint": "Rate from 1 to 5",
+  "optional": true,
+  "control_type": "select",
+  "pick_list": [
+    ["1 - Poor", "1"],
+    ["2 - Fair", "2"],
+    ["3 - Good", "3"],
+    ["4 - Very Good", "4"],
+    ["5 - Excellent", "5"]
+  ],
+  "type": "array",
+  "prompt": "true",
+  "dialog_data_source": "custom",
+  "options": "1 - Poor,2 - Fair,3 - Good,4 - Very Good,5 - Excellent",
+  "properties": []
+}
+```
+
+**Required fields for select parameters:**
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Field identifier |
+| `label` | Yes | Display label |
+| `control_type` | Yes | Must be `"select"` |
+| `pick_list` | Yes | Array of `[display, value]` pairs |
+| `type` | **Yes** | Must be `"array"` |
+| `prompt` | **Yes** | Must be `"true"` (as string) |
+| `dialog_data_source` | Yes | Must be `"custom"` |
+| `options` | **Yes** | Comma-separated display values |
+| `properties` | **Yes** | Must be `[]` (empty array) |
+
+**Missing any of these fields will cause the dialog to fail silently.**
+
+#### Complete Parameters Example
 
 ```json
 "parameters": "[
   {
-    \"name\": \"project_name\",
-    \"label\": \"Project Name\",
-    \"hint\": \"Enter the project name\",
-    \"optional\": \"false\",
-    \"control_type\": \"text\"
-  },
-  {
-    \"name\": \"description\",
-    \"label\": \"Description\",
-    \"hint\": \"Describe the project\",
-    \"optional\": \"true\",
-    \"control_type\": \"text-area\"
-  },
-  {
-    \"name\": \"priority\",
-    \"label\": \"Priority\",
-    \"hint\": \"Select priority level\",
+    \"name\": \"rating\",
+    \"label\": \"Rating\",
+    \"hint\": \"Rate from 1 to 5\",
     \"optional\": true,
     \"control_type\": \"select\",
-    \"pick_list\": [
-      [\"High\", \"high\"],
-      [\"Medium\", \"medium\"],
-      [\"Low\", \"low\"]
-    ]
+    \"pick_list\": [[\"1 - Poor\",\"1\"],[\"2 - Fair\",\"2\"],[\"3 - Good\",\"3\"]],
+    \"type\": \"array\",
+    \"prompt\": \"true\",
+    \"dialog_data_source\": \"custom\",
+    \"options\": \"1 - Poor,2 - Fair,3 - Good\",
+    \"properties\": []
+  },
+  {
+    \"name\": \"comments\",
+    \"label\": \"Comments\",
+    \"hint\": \"Provide details\",
+    \"optional\": \"false\",
+    \"control_type\": \"text-area\"
   }
 ]"
 ```
 
-#### Control Types
+#### Control Types Summary
 
-| Control Type | Description |
-|--------------|-------------|
-| `text` | Single-line text input |
-| `text-area` | Multi-line text input |
-| `select` | Dropdown with `pick_list` options |
+| Control Type | Description | Extra Fields Required |
+|--------------|-------------|----------------------|
+| `text` | Single-line text input | None |
+| `text-area` | Multi-line text input | None |
+| `select` | Dropdown | `type`, `prompt`, `options`, `properties`, `pick_list` |
 
 ---
 
 ## Slack Actions
 
+### Choosing Between Message Actions
+
+| Action | Use When | Channel Required? |
+|--------|----------|-------------------|
+| `post_bot_reply_v2` | Simple response to triggering user | **No** - replies to trigger context |
+| `post_bot_message` | Post anywhere, including DMs | **Yes** - requires channel ID |
+
+**Use `post_bot_reply_v2` for:**
+- Confirming a slash command was received
+- Showing results after dialog submission
+- Any response back to the user who triggered the command
+
+**Use `post_bot_message` for:**
+- Posting to a specific channel
+- Sending DMs (using user ID as channel)
+- Notifications to channels other than where command was invoked
+
 ### Post Bot Message
 
-Send a message to a channel or DM:
+Send a message to a channel or DM (requires channel ID):
 
 ```json
 {
@@ -382,6 +534,22 @@ See `patterns/native-slack-actions.md` for complete documentation.
 "path": ["parameters", "project_name"]
 ```
 
+### Select Parameter Datapills (CRITICAL)
+
+**Although select parameters are defined with `type: array`, the runtime output is a STRING.**
+
+**CORRECT - simple path:**
+```json
+"path": ["parameters", "rating"]
+```
+
+**WRONG - causes "non array value" error:**
+```json
+"path": ["parameters", "rating", {"path_element_type": "current_index"}]
+```
+
+Do NOT use `current_index` or array iteration patterns with select parameter values. They return the selected value directly as a string
+
 ### Native Slack Actions (no body wrapper)
 
 ```json
@@ -458,23 +626,20 @@ Use the user context as the channel:
 
 ---
 
-## Pre-Push Checklist
+## Validation
 
-### For Workbot (`slack_bot`) recipes:
+See [validation-checklist.md](validation-checklist.md) for Slack-specific validation, which references the base checklist in `workato-recipes/validation-checklist.md`.
 
-- [ ] `slack_bot` provider in config section
-- [ ] Connection name matches your Workbot connection
-- [ ] Slash command name is unique in your workspace
-- [ ] Dialog parameters have valid `control_type` values
-- [ ] `trigger_id` passed when opening dialogs
-- [ ] Button `bot_command` references point to valid recipes
-- [ ] Channel names sanitized for Slack requirements
-- [ ] Datapill paths for context don't include `["body"]` wrapper
+---
 
-### For Native Slack (`slack`) recipes:
+## Common Mistakes
 
-- [ ] `slack` provider in config section
-- [ ] Connection name matches your Slack connection
-- [ ] Datapill paths don't include `["body"]` wrapper
-- [ ] Channel IDs use correct format (C... for public, G... for private)
-- [ ] User IDs use correct format (U...)
+| Mistake | Symptom | Fix |
+|---------|---------|-----|
+| Missing `toggleCfg` | Custom action names ignored | Add `toggleCfg` with `name: false` |
+| Wrong input attribute order | Validation/runtime errors | Follow exact order documented above |
+| Incomplete select params | Dialog doesn't display | Add ALL required fields: `type`, `prompt`, `options`, `properties` |
+| `current_index` on select | "non array value" error | Use simple path: `["parameters", "field"]` |
+| Reserved domain name | Conflicts with Workbot | Use unique names like `myapp-feedback` |
+| Using `post_bot_message` for replies | Requires channel lookup | Use `post_bot_reply_v2` instead |
+| Missing `dynamicPickListSelection` | Provider lookup fails | Add `{ "domain": "Slack" }` |

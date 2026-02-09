@@ -1,0 +1,287 @@
+{
+  "name": "Gmail Follow-up Label to Salesforce Contact Update",
+  "description": "Checks Gmail for emails with Follow-up label and updates the related Salesforce Contact's Description field",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[]",
+      "result_schema_json": "[{\"name\":\"status\",\"label\":\"Status\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"processed_count\",\"label\":\"Processed count\",\"type\":\"string\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "action",
+        "provider": "gmail",
+        "name": "adhoc_http",
+        "as": "list_emails",
+        "uuid": "list-emails-001",
+        "extended_input_schema": [
+          {
+            "name": "method",
+            "type": "string",
+            "control_type": "text",
+            "optional": false
+          },
+          {
+            "name": "path",
+            "type": "string",
+            "control_type": "text",
+            "optional": false
+          },
+          {
+            "name": "data",
+            "type": "object",
+            "optional": true,
+            "properties": [
+              {
+                "name": "q",
+                "type": "string",
+                "control_type": "text",
+                "optional": true
+              },
+              {
+                "name": "maxResults",
+                "type": "string",
+                "control_type": "text",
+                "optional": true
+              }
+            ]
+          }
+        ],
+        "input": {
+          "method": "GET",
+          "path": "me/messages",
+          "data": {
+            "q": "label:Follow-up",
+            "maxResults": "10"
+          }
+        }
+      },
+      {
+        "number": 2,
+        "keyword": "foreach",
+        "provider": null,
+        "as": "email_loop",
+        "uuid": "foreach-email-002",
+        "extended_input_schema": [
+          {
+            "name": "items",
+            "type": "array",
+            "control_type": "array",
+            "optional": false
+          }
+        ],
+        "input": {
+          "items": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"list_emails\",\"path\":[\"body\",\"messages\"]}')}"
+        },
+        "block": [
+          {
+            "number": 3,
+            "keyword": "action",
+            "provider": "gmail",
+            "name": "adhoc_http",
+            "as": "get_email_detail",
+            "uuid": "get-email-detail-003",
+            "extended_input_schema": [
+              {
+                "name": "method",
+                "type": "string",
+                "control_type": "text",
+                "optional": false
+              },
+              {
+                "name": "path",
+                "type": "string",
+                "control_type": "text",
+                "optional": false
+              }
+            ],
+            "input": {
+              "method": "GET",
+              "path": "me/messages/#{_dp('{\"pill_type\":\"output\",\"provider\":null,\"line\":\"email_loop\",\"path\":[\"id\"]}')}"
+            }
+          },
+          {
+            "number": 4,
+            "keyword": "action",
+            "provider": "salesforce",
+            "name": "search_sobjects",
+            "as": "find_contact",
+            "uuid": "search-contact-004",
+            "dynamicPickListSelection": {
+              "sobject_name": "Contact"
+            },
+            "extended_input_schema": [
+              {
+                "name": "Email",
+                "label": "Email",
+                "type": "string",
+                "control_type": "text",
+                "optional": true
+              }
+            ],
+            "input": {
+              "Email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"get_email_detail\",\"path\":[\"body\",\"snippet\"]}')}"
+            }
+          },
+          {
+            "number": 5,
+            "keyword": "if",
+            "as": "check_contact_found",
+            "uuid": "if-contact-found-005",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"find_contact\",\"path\":[\"Id\"]}')}",
+                  "rhs": "",
+                  "uuid": "cond-contact-present"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 6,
+                "keyword": "action",
+                "provider": "salesforce",
+                "name": "update_sobject",
+                "as": "update_contact",
+                "uuid": "update-contact-006",
+                "dynamicPickListSelection": {
+                  "sobject_name": "Contact"
+                },
+                "extended_input_schema": [
+                  {
+                    "name": "Id",
+                    "label": "Contact ID",
+                    "type": "string",
+                    "control_type": "text",
+                    "optional": false
+                  },
+                  {
+                    "name": "Description",
+                    "label": "Description",
+                    "type": "string",
+                    "control_type": "text-area",
+                    "optional": true
+                  }
+                ],
+                "input": {
+                  "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"find_contact\",\"path\":[\"Id\"]}')}",
+                  "Description": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"get_email_detail\",\"path\":[\"body\",\"snippet\"]}')}"
+                }
+              },
+              {
+                "number": 7,
+                "keyword": "else",
+                "uuid": "else-no-contact-007",
+                "as": "else_no_contact",
+                "input": {},
+                "block": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "number": 8,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "return_result",
+        "keyword": "action",
+        "input": {
+          "result": {
+            "status": "completed",
+            "processed_count": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"gmail\",\"line\":\"list_emails\",\"path\":[\"body\",\"resultSizeEstimate\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Status",
+                "name": "status",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Processed count",
+                "name": "processed_count",
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Status",
+                "name": "status",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Processed count",
+                "name": "processed_count",
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "return-result-008"
+      }
+    ],
+    "uuid": "trigger-gmail-sf-000",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "gmail",
+      "skip_validation": false,
+      "account_id": {
+        "name": "My Gmail"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "name": "SF Dev Account"
+      }
+    }
+  ]
+}

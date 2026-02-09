@@ -69,6 +69,8 @@ When upserting, always specify the external ID field in `query_field.primary_key
 - `skills/salesforce-recipes/SKILL_INSTRUCTIONS.md` - Salesforce-specific knowledge
 - `skills/salesforce-recipes/templates/` - Validated recipe templates
 - `skills/salesforce-recipes/patterns/` - Pattern documentation
+- `skills/salesforce-recipes/validation-checklist.md` - Salesforce validation checklist
+- `skills/workato-recipes/validation-checklist.md` - Base validation checklist
 
 ## Usage
 

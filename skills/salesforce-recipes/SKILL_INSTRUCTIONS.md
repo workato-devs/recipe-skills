@@ -7,6 +7,27 @@ This skill provides Salesforce-specific knowledge for generating Workato recipes
 
 ---
 
+## CRITICAL: Pre-Generation Checklist
+
+### For EXISTING projects:
+1. **Read existing Salesforce `.recipe.json` files** to understand local patterns
+
+### For GREENFIELD projects:
+1. **Use skill templates** - see `templates/upsert-contact.json` as reference
+2. **Use descriptive UUIDs** - e.g., `upsert-contact-001`, `search-account-002`
+
+### ALWAYS:
+1. **Ask for connection name** - exact name of Salesforce connection in Workato
+2. **Confirm object type** - standard (Contact, Account) vs custom (ends in `__c`)
+3. **Verify external ID field** - for upsert operations, which field is the external ID?
+4. **Use API endpoint trigger** for testability via curl
+5. **Use descriptive UUIDs** - never copy random hex UUIDs from existing recipes
+6. **Remember datapill paths** - Salesforce does NOT use `["body"]` wrapper
+
+> **WARNING:** Never assume custom objects/fields exist. Always ask if uncertain whether an object or field is custom. Custom objects are org-specific and NOT portable.
+
+---
+
 ## Table of Contents
 
 1. [When to Use This Skill](#when-to-use-this-skill)
@@ -113,6 +134,32 @@ For callable recipe trigger:
 
 Workato provides built-in Salesforce connector actions (no custom HTTP needed).
 
+### dynamicPickListSelection (CRITICAL)
+
+**All Salesforce actions require `dynamicPickListSelection` in addition to the `input` block.** This is used by the Workato UI for field discovery.
+
+```json
+{
+  "provider": "salesforce",
+  "name": "upsert_sobject",
+  "as": "upsert_contact",
+  "keyword": "action",
+  "dynamicPickListSelection": {
+    "sobject_name": "Contact",
+    "query_field.primary_key": [
+      { "label": "Email", "value": "Email" }
+    ]
+  },
+  "input": {
+    "sobject_name": "Contact",
+    "query_field": { "primary_key": "Email" },
+    ...
+  }
+}
+```
+
+**Note:** Both `dynamicPickListSelection.sobject_name` AND `input.sobject_name` are required. They should have the same value.
+
 ### 1. Upsert SObject
 
 **Use when:** Creating or updating records based on an external ID field.
@@ -123,6 +170,12 @@ Workato provides built-in Salesforce connector actions (no custom HTTP needed).
   "name": "upsert_sobject",
   "as": "upsert_contact",
   "keyword": "action",
+  "dynamicPickListSelection": {
+    "sobject_name": "Contact",
+    "query_field.primary_key": [
+      { "label": "Email", "value": "Email" }
+    ]
+  },
   "input": {
     "sobject_name": "Contact",
     "query_field": {
@@ -169,9 +222,9 @@ Workato provides built-in Salesforce connector actions (no custom HTTP needed).
 - `id` - Salesforce 18-character record ID (required)
 - Other fields - Field values to update
 
-### 3. Search SObjects
+### 3. Search SObjects (Field Filters)
 
-**Use when:** Finding records by field criteria.
+**Use when:** Finding records by exact field match (equality only, no LIKE/IN/OR).
 
 ```json
 {
@@ -179,20 +232,37 @@ Workato provides built-in Salesforce connector actions (no custom HTTP needed).
   "name": "search_sobjects",
   "as": "search_contact",
   "keyword": "action",
+  "dynamicPickListSelection": {
+    "sobject_name": "Contact"
+  },
   "input": {
     "sobject_name": "Contact",
     "limit": "150",
     "Email": "#{email_datapill}"
-  }
+  },
+  "extended_input_schema": [
+    {
+      "control_type": "text",
+      "label": "Email",
+      "name": "Email",
+      "type": "string"
+    }
+  ]
 }
 ```
 
 **Key fields:**
 - `sobject_name` - SObject API name
 - `limit` - Max records to return (default 150)
-- Search criteria fields - Field names with values to match
+- Search criteria fields - Field names with values to match (exact equality)
 
 **Output:** Returns array of matching records
+
+**CRITICAL - EIS Rules for `search_sobjects`:**
+
+- `sobject_name` and `limit` are **connector internals** — do NOT include them in `extended_input_schema`. Including them causes Workato to treat them as WHERE clause field filters, producing malformed SOQL.
+- Search filter fields (e.g., `Email`, `Id`, `AccountId`) **MUST** be in `extended_input_schema` or Workato silently drops them.
+- Only include actual Salesforce field names in EIS, never connector parameters.
 
 **IMPORTANT - Limit Parameter Type:**
 
@@ -211,14 +281,19 @@ Do **NOT** use `"type": "number"` - this causes Workato to treat values as float
 
 ### 4. Search SObjects with SOQL Query
 
-**Use when:** Finding records with complex criteria using raw SOQL.
+**Use when:** Finding records with complex criteria (LIKE, IN, OR, ORDER BY, relationship fields) using raw SOQL.
+
+**CRITICAL:** Use action name `search_sobjects_soql`, NOT `search_sobjects` with a `query` parameter. The `query` parameter is not recognized by `search_sobjects` via CLI push — it gets treated as a field name.
 
 ```json
 {
   "provider": "salesforce",
-  "name": "search_sobjects",
+  "name": "search_sobjects_soql",
   "as": "search_bookings",
   "keyword": "action",
+  "dynamicPickListSelection": {
+    "sobject_name": "Booking"
+  },
   "input": {
     "sobject_name": "Booking__c",
     "query": "Room__r.Room_Number__c = '#{_dp('{...room_number...}')}' AND Status__c NOT IN ('Cancelled', 'No Show')"
@@ -432,21 +507,9 @@ Custom objects may have different requirements based on implementation.
 
 ---
 
-## Pre-Push Checklist (Salesforce)
+## Validation
 
-### Salesforce-Specific Checks
-
-- [ ] Config includes `salesforce` provider with connection reference
-- [ ] Action uses correct `name`: `upsert_sobject`, `update_sobject`, or `search_sobjects`
-- [ ] `sobject_name` matches target SObject API name exactly
-- [ ] Upsert operations specify `query_field.primary_key` (user-provided)
-- [ ] Update operations include required `id` field
-- [ ] Datapill paths do NOT include `["body"]` wrapper
-- [ ] Search results use `{"path_element_type":"current_item"}` for array access
-- [ ] Custom fields (with `__c`, `__mdt`, etc.) are documented as implementation-specific
-- [ ] **CRITICAL:** `extended_input_schema` fully defines all `input` fields (see base skill)
-- [ ] **SOQL queries use `'#{datapill}'` for strings** (NOT `:#{datapill}` bind variables)
-- [ ] **SOQL queries use `#{datapill}` (no quotes) for dates and numbers**
+See [validation-checklist.md](validation-checklist.md) for Salesforce-specific validation, which references the base checklist in `workato-recipes/validation-checklist.md`.
 
 ### Common Salesforce Errors
 

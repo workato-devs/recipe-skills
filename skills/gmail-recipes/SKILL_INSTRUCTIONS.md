@@ -7,6 +7,26 @@ You are now equipped with Gmail-specific knowledge for writing Workato recipes u
 
 ---
 
+## CRITICAL: Pre-Generation Checklist
+
+### For EXISTING projects:
+1. **Read existing Gmail `.recipe.json` files** to understand local patterns
+
+### For GREENFIELD projects:
+1. **Use skill templates** - see `templates/` directory for validated examples
+2. **Use descriptive UUIDs** - e.g., `list-emails-001`, `get-details-002`
+
+### ALWAYS:
+1. **Ask for connection name** - exact name of Gmail connection in Workato
+2. **Confirm operation type** - send, list, search, or label management
+3. **Use API endpoint trigger** for testability via curl
+4. **Use descriptive UUIDs** - never copy random hex UUIDs from existing recipes
+5. **Remember datapill paths** - adhoc HTTP uses `["body", ...]` wrapper
+
+> **WARNING:** Gmail adhoc HTTP responses wrap data in `body`. Always use paths like `["body", "messages"]` for list/search results.
+
+---
+
 ## Capabilities
 
 With this skill loaded, you can:
@@ -247,6 +267,12 @@ Wrap Gmail operations in try/catch for robust error handling:
   ]
 }
 ```
+
+---
+
+## Validation
+
+See [validation-checklist.md](validation-checklist.md) for Gmail-specific validation, which references the base checklist in `workato-recipes/validation-checklist.md`.
 
 ---
 

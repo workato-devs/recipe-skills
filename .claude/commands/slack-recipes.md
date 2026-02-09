@@ -79,6 +79,8 @@ Slack channel names must be lowercase, alphanumeric with hyphens:
 - `skills/slack-recipes/SKILL_INSTRUCTIONS.md` - Slack-specific knowledge
 - `skills/slack-recipes/patterns/` - Pattern documentation
 - `skills/slack-recipes/templates/` - Validated recipe templates
+- `skills/slack-recipes/validation-checklist.md` - Slack validation checklist
+- `skills/workato-recipes/validation-checklist.md` - Base validation checklist
 
 ## Usage
 

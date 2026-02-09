@@ -277,6 +277,10 @@ Access fields directly from the request object:
 }
 ```
 
+## Validation
+
+See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+
 ## Complete Example
 
 See: [templates/api-endpoint-trigger.template.json](../templates/api-endpoint-trigger.template.json)
