@@ -161,7 +161,17 @@ Nested blocks within control flow (if/else, try/catch, foreach) continue the seq
 
 2. **Sequential numbering**: Always maintain sequential step numbers (0, 1, 2, 3...). Gaps in the `number` field cause "out of sequence" errors that block recipe activation. When adding or removing actions, renumber all blocks sequentially.
 
-3. **Provider in config**: Every provider used in the recipe must have a corresponding entry in the `config` array.
+3. **Provider in config**: Every provider used in the recipe must have a corresponding entry in the `config` array, **except** the built-in `workato` provider (which should NOT be used — see below). Common providers and their config needs:
+
+   | Provider | Config Required | `account_id` |
+   |----------|-----------------|--------------|
+   | `workato_api_platform` | Yes | `null` |
+   | `workato_recipe_function` | Yes | `null` |
+   | `workato_variable` | Yes | `null` |
+   | `salesforce`, `snowflake`, etc. | Yes | Connection reference object |
+   | `workato` (built-in) | **Do not use** | N/A — use `workato_variable` instead |
+
+   > **WARNING:** The `workato` provider's `set_variable` action is not recognized by the Workato UI and causes "select app and action" errors. Always use `workato_variable`/`declare_variable` for variables. See [variables-and-lists.md](../patterns/variables-and-lists.md).
 
 4. **Alias uniqueness**: The `as` field must be unique across all blocks since it's used for datapill references.
 

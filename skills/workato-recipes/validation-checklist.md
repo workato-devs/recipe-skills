@@ -1,10 +1,21 @@
 # Base Recipe Validation Checklist
 
-Use this checklist to validate any Workato recipe JSON before pushing. Run through each section sequentially.
+Use this checklist to validate any Workato recipe JSON before pushing. Run the cross-cutting checks below first, then run the pattern-specific checklist in each skill file your recipe uses.
+
+## Adding New Checklist Items
+
+Each skill file owns its own `## Validation Checklist` with rules specific to that construct. This file holds only cross-cutting rules that apply to every recipe.
+
+- **New rule specific to one pattern** (e.g., "no `elsif` keyword") → add to that skill file's `## Validation Checklist`
+- **New rule that applies to all recipes** (e.g., "UUIDs max 36 chars") → add to this file under Cross-Cutting Checks
+
+Never duplicate items between this file and the inline checklists.
 
 ---
 
-## Recipe Structure
+## Cross-Cutting Checks
+
+### Recipe Structure
 
 - [ ] Top-level keys present: `name`, `version`, `private`, `concurrency`, `code`, `config`
 - [ ] `code` is an object (the trigger), NOT an array
@@ -13,21 +24,21 @@ Use this checklist to validate any Workato recipe JSON before pushing. Run throu
 - [ ] All action `number` fields are sequential with no gaps (0, 1, 2, 3...)
 - [ ] Filename matches `name` field (lowercase, underscores for spaces)
 
-## UUIDs
+### UUIDs
 
 - [ ] All `uuid` values are unique within the recipe
 - [ ] All `uuid` values are max 36 characters
 - [ ] All `uuid` values use descriptive format — e.g., `search-contact-001`, `return-success-005`
 - [ ] No random hex UUIDs (do NOT copy hex UUIDs from existing UI-created recipes)
 
-## Config & Connections
+### Config & Connections
 
 - [ ] Every provider used in actions has a matching entry in `config`
-- [ ] `workato` provider is NOT in `config` (it's built-in)
+- [ ] `workato` provider is NOT used — use `workato_variable` instead (see [variables-and-lists.md](patterns/variables-and-lists.md))
 - [ ] Connection config is ONLY at top-level `config` array, NOT inside action blocks
 - [ ] `account_id` references use correct `zip_name`, `name`, and `folder` fields
 
-## Datapills
+### Datapills
 
 - [ ] All `_dp()` JSON is valid (parseable after unescaping)
 - [ ] `provider` in `_dp()` matches the source action's actual provider
@@ -38,7 +49,7 @@ Use this checklist to validate any Workato recipe JSON before pushing. Run throu
 - [ ] Formula mode (`=` prefix) used for concatenation and `.present?` checks — no `#{}` wrapper
 - [ ] Single datapills use `#{}` interpolation syntax
 
-## Extended Schemas
+### Extended Schemas
 
 - [ ] Every field in `input` has a corresponding entry in `extended_input_schema`
 - [ ] Nested objects in `input` have matching nested `properties` in the schema
@@ -46,48 +57,7 @@ Use this checklist to validate any Workato recipe JSON before pushing. Run throu
 - [ ] For adhoc HTTP actions, the nested `input.data` object is fully defined in EIS
 - [ ] **Exception:** Native connector internal parameters (e.g., Salesforce `sobject_name`, `limit`) must NOT be in EIS — see connector-specific checklist
 
-## Triggers — API Endpoint
-
-- [ ] Trigger has `format_version: 2`
-- [ ] `request.schema` is a stringified JSON array defining all input fields
-- [ ] `response.responses` array defines at least a 200 and one error status code
-- [ ] Every `return_response` action's `http_status_code` matches a defined response
-- [ ] ALL `return_response` actions share IDENTICAL `extended_input_schema`
-- [ ] ALL `return_response` actions share IDENTICAL `extended_output_schema`
-- [ ] `extended_input_schema` fully defines ALL fields referenced in `input.response`
-- [ ] Fields that can't always have a value are `"optional": true` in EIS/EOS
-- [ ] `pick_list` in EIS/EOS `http_status_code` field lists ALL response codes from trigger
-
-## Triggers — Callable Recipe
-
-- [ ] `result_schema_json` defines all expected return fields
-- [ ] Every `return_result` action provides values for all fields in `result_schema_json`
-
-## Control Flow — Try/Catch
-
-- [ ] Catch block is the LAST element in its parent try block's `block` array
-- [ ] Catch has `"provider": null` (explicit null, not omitted)
-- [ ] Catch has an `as` alias
-- [ ] Catch `input` has `max_retry_count` and `retry_interval`
-- [ ] Step numbering continues sequentially from try block through catch block
-
-## Control Flow — Foreach
-
-- [ ] Foreach has `as`, `repeat_mode`, `source`, `block`, `input`
-- [ ] When mapping arrays in return_response, uses `____source` pattern (NOT flat string datapill)
-- [ ] `____source` value points to the array datapill
-- [ ] Individual field mappings use `{"path_element_type":"current_item"}` in path
-- [ ] List counts use `{"path_element_type":"size"}` — NOT `current_item.list_size`
-
-## Adhoc HTTP Actions
-
-- [ ] Response datapill paths include `["body"]` wrapper
-- [ ] `input.input.schema` is a stringified JSON array
-- [ ] `input.output` is a stringified JSON array for response schema
-- [ ] `verb`, `request_type` (for POST/PUT/PATCH), `response_type` are present
-- [ ] `mnemonic` describes the API call
-
-## Error Handling
+### Error Handling
 
 - [ ] ALL code paths (success AND catch) provide values for required return fields
 - [ ] Catch blocks use `"=null"` for unavailable fields, NOT empty string `""`
@@ -95,9 +65,24 @@ Use this checklist to validate any Workato recipe JSON before pushing. Run throu
 
 ---
 
+## Pattern-Specific Checklists
+
+Run the inline checklist in each pattern your recipe uses:
+
+- [If/Else](control-flow/if-else.md#validation-checklist)
+- [Try/Catch](control-flow/try-catch.md#validation-checklist)
+- [Foreach](control-flow/foreach.md#validation-checklist)
+- [Variables & Lists](patterns/variables-and-lists.md#validation-checklist)
+- [Adhoc HTTP Actions](patterns/adhoc-http-actions.md#validation-checklist)
+- [Custom Connector Actions](patterns/custom-connector-actions.md#validation-checklist)
+- [API Endpoint Trigger](triggers/api-endpoint.md#validation-checklist)
+- [Callable Recipe Trigger](triggers/callable-recipe.md#validation-checklist)
+
+---
+
 ## Connector-Specific Validation
 
-After completing the base checklist above, run the connector-specific checklist for your target connector:
+After completing the checks above, run the connector-specific checklist for your target connector:
 
 - **Salesforce:** See [salesforce-recipes/validation-checklist.md](../salesforce-recipes/validation-checklist.md)
 - **Slack:** See [slack-recipes/validation-checklist.md](../slack-recipes/validation-checklist.md)

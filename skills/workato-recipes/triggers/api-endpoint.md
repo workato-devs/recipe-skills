@@ -277,9 +277,19 @@ Access fields directly from the request object:
 }
 ```
 
-## Validation
+## Validation Checklist
 
-See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+- [ ] Trigger has `format_version: 2`
+- [ ] `request.schema` is a stringified JSON array defining all input fields
+- [ ] `response.responses` array defines at least a 200 and one error status code
+- [ ] Every `return_response` action's `http_status_code` matches a defined response
+- [ ] ALL `return_response` actions share IDENTICAL `extended_input_schema`
+- [ ] ALL `return_response` actions share IDENTICAL `extended_output_schema`
+- [ ] `extended_input_schema` fully defines ALL fields referenced in `input.response`
+- [ ] `pick_list` in EIS/EOS `http_status_code` field lists ALL response codes from trigger
+- [ ] Request field datapills use `["request", "field_name"]` path (NOT `["request", "body", "field_name"]`)
+
+For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 
 ## Complete Example
 

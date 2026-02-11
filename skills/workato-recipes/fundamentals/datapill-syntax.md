@@ -182,6 +182,10 @@ For **3 or more sources**, or when accumulating values in a loop, use the `worka
 
 6. **Path array order**: The path array represents the traversal order through the object. `["request", "body", "email"]` means `request.body.email`.
 
+7. **Formula mode: NO outer parentheses**: When using `=` formula mode, do NOT wrap the entire expression in parentheses. Use `=' ' + expr + ' '` not `=(' ' + expr + ' ')`. Outer parentheses break the Workato parser — child actions lose app recognition and display "select app and action" in the UI. The only valid use of outer `()` is in ternary expressions: `=(expr.present? ? a : b)`.
+
+8. **Condition LHS: NO formula mode**: The `lhs` field in if/else conditions does NOT support `=` formula mode — only `#{_dp(...)}` interpolation. See [if-else.md](../control-flow/if-else.md) for details and workarounds.
+
 ## Validation
 
 See [validation-checklist.md](../validation-checklist.md) for consolidated validation.

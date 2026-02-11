@@ -56,7 +56,7 @@ The `workato_variable` provider requires a config entry:
 
 ### Declare Variable
 
-Initialize a variable with a starting value:
+Initialize a variable with a starting value. Uses `variables.schema` (stringified JSON defining the field) and `variables.data.{field_name}` for the value:
 
 ```json
 {
@@ -66,24 +66,89 @@ Initialize a variable with a starting value:
   "as": "declare_customer_id",
   "keyword": "action",
   "input": {
-    "variable_name": "customer_id",
-    "variable_type": "string",
-    "variable_value": ""
+    "variables": {
+      "schema": "[{\"name\":\"customer_id\",\"type\":\"string\",\"optional\":true,\"label\":\"customer_id\",\"details\":{\"real_name\":\"customer_id\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+      "data": {
+        "customer_id": ""
+      }
+    }
   },
+  "extended_output_schema": [
+    {
+      "control_type": "text",
+      "label": "customer_id",
+      "name": "customer_id",
+      "optional": true,
+      "type": "string",
+      "details": { "real_name": "customer_id" }
+    }
+  ],
+  "extended_input_schema": [
+    {
+      "add_field_label": "Add a variable",
+      "control_type": "form-schema-builder",
+      "empty_schema_title": "Add variables by giving them a name, type and default value",
+      "exclude_fields": ["hint"],
+      "item_label": "variable",
+      "label": "Variables",
+      "mark_as_required": true,
+      "name": "variables",
+      "ngIf": "!input.name",
+      "optional": true,
+      "properties": [
+        {
+          "control_type": "text",
+          "label": "Schema",
+          "extends_schema": true,
+          "broadcast_change_event": true,
+          "type": "string",
+          "name": "schema"
+        },
+        {
+          "properties": [
+            {
+              "control_type": "text",
+              "label": "customer_id",
+              "name": "customer_id",
+              "type": "string",
+              "optional": true,
+              "details": { "real_name": "customer_id" },
+              "parent": ["variables", "data"],
+              "hint": "Defaults to nil if not supplied.",
+              "sticky": true
+            }
+          ],
+          "label": "Data",
+          "type": "object",
+          "name": "data"
+        }
+      ],
+      "type": "object"
+    }
+  ],
+  "visible_config_fields": ["variables.data.customer_id"],
   "uuid": "declare-customer-id-001"
 }
 ```
 
+#### Key structural rules for `declare_variable`:
+
+- **Input**: `variables.schema` is a stringified JSON array. Each field entry must have `"parent": ["variables", "data"]`
+- **Input**: `variables.data.{field_name}` holds the default value (string, datapill, or formula)
+- **EIS**: Uses `"control_type": "form-schema-builder"` with a `schema` property and a `data` property containing the field definitions
+- **EOS**: Defines the output field using the **field name** (e.g., `"name": "customer_id"`), NOT `"value"`
+- **`visible_config_fields`**: Array of `"variables.data.{field_name}"` entries
+
 #### Variable Types
 
-| Type | Description |
-|------|-------------|
-| `string` | Text value |
-| `integer` | Whole number |
-| `number` | Decimal number |
-| `boolean` | true/false |
-| `date` | Date value |
-| `datetime` | Date and time |
+| Type | `control_type` | Description |
+|------|----------------|-------------|
+| `string` | `text` | Text value |
+| `integer` | `number` | Whole number |
+| `number` | `number` | Decimal number |
+| `boolean` | `checkbox` | true/false |
+| `date` | `date` | Date value |
+| `datetime` | `date_time` | Date and time |
 
 ### Update Variable
 
@@ -110,10 +175,10 @@ Set or update a variable's value:
 
 ### Reference Variable in Datapill
 
-Reference format: `{uuid}:{as}:{variable_name}`
+Datapill path uses the **field name**, NOT `["value"]`:
 
 ```json
-"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"declare_customer_id\",\"path\":[\"value\"]}')}"
+"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"declare_customer_id\",\"path\":[\"customer_id\"]}')}"
 ```
 
 ---
@@ -122,7 +187,7 @@ Reference format: `{uuid}:{as}:{variable_name}`
 
 ### Declare List
 
-Initialize an empty list:
+Initialize a named list with a schema defining each item's structure. Uses `name` for the list name and `list_item_schema_json` for the stringified item schema:
 
 ```json
 {
@@ -132,9 +197,36 @@ Initialize an empty list:
   "as": "declare_results_list",
   "keyword": "action",
   "input": {
-    "list_name": "results",
-    "list_schema": "[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"status\",\"type\":\"string\"}]"
+    "name": "results",
+    "list_item_schema_json": "[{\"control_type\":\"text\",\"label\":\"Id\",\"type\":\"string\",\"name\":\"id\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Status\",\"type\":\"string\",\"name\":\"status\",\"optional\":true}]"
   },
+  "extended_output_schema": [
+    {
+      "label": "results",
+      "name": "list_items",
+      "of": "object",
+      "optional": false,
+      "properties": [
+        { "control_type": "text", "label": "Id", "type": "string", "name": "id", "optional": true },
+        { "control_type": "text", "label": "Status", "type": "string", "name": "status", "optional": true }
+      ],
+      "type": "array"
+    }
+  ],
+  "extended_input_schema": [
+    {
+      "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+      "label": "Items",
+      "name": "list_items",
+      "of": "object",
+      "optional": true,
+      "properties": [
+        { "control_type": "text", "label": "Id", "type": "string", "name": "id", "optional": true },
+        { "control_type": "text", "label": "Status", "type": "string", "name": "status", "optional": true }
+      ],
+      "type": "array"
+    }
+  ],
   "uuid": "declare-results-list-001"
 }
 ```
@@ -182,10 +274,10 @@ Add multiple items at once:
 
 ### Reference List in Datapill
 
-Reference format: `{uuid}:{as}` (no variable name for lists)
+Lists output via the `list_items` path:
 
 ```json
-"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"declare_results_list\",\"path\":[\"list\"]}')}"
+"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"declare_results_list\",\"path\":[\"list_items\"]}')}"
 ```
 
 ---
@@ -239,10 +331,67 @@ This example shows using a variable to capture a customer ID from either a searc
         "as": "declare_customer_id",
         "keyword": "action",
         "input": {
-          "variable_name": "customer_id",
-          "variable_type": "string",
-          "variable_value": ""
+          "variables": {
+            "schema": "[{\"name\":\"customer_id\",\"type\":\"string\",\"optional\":true,\"label\":\"customer_id\",\"details\":{\"real_name\":\"customer_id\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "customer_id": ""
+            }
+          }
         },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "customer_id",
+            "name": "customer_id",
+            "optional": true,
+            "type": "string",
+            "details": { "real_name": "customer_id" }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": ["hint"],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "customer_id",
+                    "name": "customer_id",
+                    "type": "string",
+                    "optional": true,
+                    "details": { "real_name": "customer_id" },
+                    "parent": ["variables", "data"],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": ["variables.data.customer_id"],
         "uuid": "declare-customer-id-001"
       },
       {
@@ -257,6 +406,7 @@ This example shows using a variable to capture a customer ID from either a searc
       {
         "number": 3,
         "keyword": "if",
+        "as": "check_customer_found",
         "input": {
           "type": "compound",
           "operand": "and",
@@ -264,7 +414,7 @@ This example shows using a variable to capture a customer ID from either a searc
             {
               "operand": "present",
               "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
-              "rhs": ""
+              "uuid": "cond-customer-present"
             }
           ]
         },
@@ -288,6 +438,8 @@ This example shows using a variable to capture a customer ID from either a searc
           {
             "number": 5,
             "keyword": "else",
+            "as": "else_create_customer",
+            "input": {},
             "block": [
               {
                 "number": 6,
@@ -328,7 +480,7 @@ This example shows using a variable to capture a customer ID from either a searc
         "keyword": "action",
         "input": {
           "result": {
-            "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"declare_customer_id\",\"path\":[\"value\"]}')}"
+            "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"declare_customer_id\",\"path\":[\"customer_id\"]}')}"
           }
         },
         "uuid": "return-result-001"
@@ -343,15 +495,33 @@ This example shows using a variable to capture a customer ID from either a searc
 
 ## Gotchas and Best Practices
 
-1. **Avoid `workato` provider**: The built-in `workato` provider's `set_variable` action has unreliable datapill resolution. Always use `workato_variable` instead.
+1. **`workato`/`set_variable` is NOT recognized**: The built-in `workato` provider's `set_variable` action causes "select app and action" in the Workato UI. Always use `workato_variable`/`declare_variable` instead.
 
-2. **Prefer ternary for 2 sources**: When choosing between just 2 possible values, ternary syntax is simpler and doesn't require config entries.
+2. **Datapill path uses field name, NOT `["value"]`**: When referencing a variable's output, the `path` in the datapill uses the field name (e.g., `["customer_id"]`), not `["value"]`.
 
-3. **Declare before use**: Always declare variables/lists before any action that might update them.
+3. **Prefer ternary for 2 sources**: When choosing between just 2 possible values, ternary syntax is simpler and doesn't require config entries.
 
-4. **Variable scope**: Variables are scoped to the recipe execution. They persist across all actions within a single run.
+4. **Declare before use**: Always declare variables/lists before any action that might update them.
 
-5. **List schema**: When declaring lists, the `list_schema` must define the structure of items that will be inserted.
+5. **Variable scope**: Variables are scoped to the recipe execution. They persist across all actions within a single run.
+
+6. **EIS is required**: Without the `extended_input_schema` (with `form-schema-builder` control type), the variable action will not render correctly in the Workato UI.
+
+7. **Schema field needs `parent`**: Each field in `variables.schema` must include `"parent": ["variables", "data"]` or the field won't bind to the data input.
+
+## Validation Checklist
+
+- [ ] Variable actions use `workato_variable` provider (NOT `workato`)
+- [ ] Variable actions use `declare_variable` (NOT `set_variable`)
+- [ ] Input uses `variables.schema` (stringified JSON) + `variables.data.{field}` structure
+- [ ] Schema entries have `"parent": ["variables", "data"]`
+- [ ] EIS has `"control_type": "form-schema-builder"` with `schema` and `data` properties
+- [ ] EOS field name matches the variable field name (NOT `"value"`)
+- [ ] Datapill references use `"provider": "workato_variable"` and path uses the field name
+- [ ] Config includes `workato_variable` entry with `"account_id": null`
+- [ ] List actions use `name` + `list_item_schema_json` input (NOT `list_name` + `list_schema`)
+
+For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 
 ---
 

@@ -163,6 +163,17 @@ Every `return_result` action needs matching extended schemas:
 ]
 ```
 
+## Validation Checklist
+
+- [ ] `result_schema_json` defines all expected return fields
+- [ ] Every `return_result` action provides values for ALL fields in `result_schema_json`
+- [ ] Catch blocks use `"=null"` for unavailable return fields (NOT empty string `""`)
+- [ ] `parameters_schema_json` defines all expected input fields
+- [ ] `extended_output_schema` wraps parameters under a `"parameters"` object
+- [ ] Trigger `as` is `"trigger"` and input parameter datapills use `["parameters", "field_name"]` path
+
+For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
+
 ## Complete Example
 
 See: [templates/callable-recipe-trigger.template.json](../templates/callable-recipe-trigger.template.json)

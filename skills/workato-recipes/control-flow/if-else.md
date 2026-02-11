@@ -314,6 +314,66 @@ The else block is optional:
 }
 ```
 
+### Multi-Way Branching (else-if chains)
+
+Workato does **NOT** support `elsif` as a keyword. To implement multi-way branching (if/else-if/else), nest a new `if` block inside the `else` block:
+
+```json
+{
+  "number": 2,
+  "keyword": "if",
+  "as": "check_first",
+  "input": {
+    "type": "compound",
+    "operand": "and",
+    "conditions": [
+      { "operand": "equals", "lhs": "#{_dp('{...status...}')}", "rhs": "active", "uuid": "cond-active" }
+    ]
+  },
+  "block": [
+    { "number": 3, "keyword": "action", "provider": "logger", "name": "log_message", "as": "log_active", "input": { "message": "Active" }, "uuid": "log-active" },
+    {
+      "number": 4,
+      "keyword": "else",
+      "as": "else_not_active",
+      "input": {},
+      "block": [
+        {
+          "number": 5,
+          "keyword": "if",
+          "as": "check_second",
+          "input": {
+            "type": "compound",
+            "operand": "and",
+            "conditions": [
+              { "operand": "equals", "lhs": "#{_dp('{...status...}')}", "rhs": "pending", "uuid": "cond-pending" }
+            ]
+          },
+          "block": [
+            { "number": 6, "keyword": "action", "provider": "logger", "name": "log_message", "as": "log_pending", "input": { "message": "Pending" }, "uuid": "log-pending" },
+            {
+              "number": 7,
+              "keyword": "else",
+              "as": "else_default",
+              "input": {},
+              "block": [
+                { "number": 8, "keyword": "action", "provider": "logger", "name": "log_message", "as": "log_other", "input": { "message": "Other" }, "uuid": "log-other" }
+              ],
+              "uuid": "else-default"
+            }
+          ],
+          "uuid": "if-pending"
+        }
+      ],
+      "uuid": "else-not-active"
+    }
+  ],
+  "uuid": "if-active"
+}
+```
+
+Each additional branch adds one nesting level: `else` > `if` > (actions + `else` > `if` > ...).
+
 ## Gotchas and Best Practices
 
 1. **Else placement**: The else block is the LAST item in the if block's `block` array. It is NOT a sibling of the if block or a property on it.
@@ -329,6 +389,22 @@ The else block is optional:
 6. **Present vs blank**: Use `present` to check for existence, `blank` for the opposite. These don't require an `rhs` value.
 
 7. **String comparison**: The `equals` operand performs string comparison. Ensure both sides are the same type.
+
+8. **`elsif` is NOT a valid keyword**: Workato does not support `elsif`. Using it causes the block to render as "misconfigured" in the UI. For multi-way branching, nest a new `if` inside the `else` block (see Multi-Way Branching pattern above).
+
+9. **Condition LHS: NO formula mode**: The `lhs` field in conditions does **NOT** support formula mode (`=` prefix). It only supports `#{_dp(...)}` interpolation. Using formula mode (e.g., `"lhs": "=' ' + _dp('...').upcase + ' '"`) strips app recognition from child actions, causing them to display "select app and action" in the UI. To transform data before comparing, use a `declare_variable` step (see [variables-and-lists.md](../patterns/variables-and-lists.md)) to pre-compute the value, then reference it with `#{_dp(...)}` in the condition LHS.
+
+## Validation Checklist
+
+- [ ] No `elsif` keyword anywhere — use nested `else` > `if` instead
+- [ ] Condition `lhs` values use `#{_dp(...)}` interpolation only (no `=` formula mode prefix)
+- [ ] Every `if` block has `keyword: "if"` with NO `provider` field
+- [ ] Every `else` block has `keyword: "else"` with NO `provider` field and `input: {}`
+- [ ] `else` is always the LAST item in the parent `if` block's `block` array
+- [ ] Each condition has its own unique `uuid`
+- [ ] Compound conditions have `type: "compound"` and an `operand` of `"and"` or `"or"`
+
+For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 
 ## Related Documentation
 

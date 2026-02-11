@@ -603,9 +603,28 @@ The base URL and authentication are handled by the connector's connection.
 
 ---
 
-## Validation
+## Validation Checklist
 
-See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+### `__adhoc_http_action`
+- [ ] Response datapill paths include `["body"]` wrapper
+- [ ] `input.input.schema` is a stringified JSON array
+- [ ] `input.output` is a stringified JSON array for response schema
+- [ ] `verb`, `request_type` (for POST/PUT/PATCH), `response_type` are present
+- [ ] Action name is `__adhoc_http_action` (NOT `make_request_v2`) for native/http providers
+
+### `make_request_v2`
+- [ ] Action name is `make_request_v2` (NOT `__adhoc_http_action`) for `rest` provider
+- [ ] EIS has `override: true` on both `request` and `response` sections
+- [ ] `request.method` is UPPERCASE (`"POST"`, not `"post"`)
+- [ ] `wizardFinished: true` is set on the action block
+- [ ] Binary responses use `.encode_base64.gsub("\n", '')` when returned as JSON strings
+
+### Both action types
+- [ ] Path format matches connector base URL (leading `/` vs no leading `/`)
+- [ ] Formula mode URLs use `=` prefix with bare `_dp()` (no `#{}` wrapper)
+- [ ] No outer `()` wrapping formula expressions
+
+For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 
 ## Tips
 

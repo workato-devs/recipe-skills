@@ -225,12 +225,12 @@ When deploying to a different workspace:
 
 ---
 
-## Checklist
-
-Before pushing a recipe with SDK connector actions:
+## Validation Checklist
 
 - [ ] Provider ID matches target workspace's connector installation
-- [ ] `"custom": true` is set in config
+- [ ] `"custom": true` is set in `account_id` config
 - [ ] Connection name matches target workspace
 - [ ] All `extended_input_schema` fields are complete
-- [ ] Datapill references use correct provider ID
+- [ ] Datapill references use the full SDK provider ID
+
+For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).

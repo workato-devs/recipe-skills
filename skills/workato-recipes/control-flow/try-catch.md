@@ -337,9 +337,18 @@ Handle errors during iteration:
 
 8. **Return placement**: When using with API endpoints, place the success return inside the try block before the catch, not after.
 
-## Validation
+## Validation Checklist
 
-See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+- [ ] Catch block is the LAST element in the try block's `block` array
+- [ ] Catch has `"provider": null` (explicit null, not omitted)
+- [ ] Catch has an `as` alias (try block does NOT)
+- [ ] Catch `input` has `max_retry_count` and `retry_interval`
+- [ ] Try block has NO `provider` or `as` field
+- [ ] Step numbering continues sequentially from try block through catch block
+- [ ] Success return is inside the try block BEFORE the catch (for API endpoint recipes)
+- [ ] Catch block provides values for ALL required return fields (use `"=null"` for unavailable data)
+
+For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 
 ## Related Documentation
 

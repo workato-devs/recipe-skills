@@ -216,9 +216,17 @@ Processes multiple items in parallel. Use for:
 
 5. **Variable scope**: With `clear_scope: "true"`, variables from previous iterations are cleared. Use `"false"` if you need to accumulate values.
 
-## Validation
+## Validation Checklist
 
-See [validation-checklist.md](../validation-checklist.md) for consolidated validation.
+- [ ] Foreach has `as`, `repeat_mode`, `source`, `block`, `input`
+- [ ] Foreach has NO `provider` field
+- [ ] `source` is a datapill reference to an array
+- [ ] When mapping arrays in return_response, uses `____source` pattern (NOT flat string datapill)
+- [ ] `____source` value points to the array datapill
+- [ ] Individual field mappings use `{"path_element_type":"current_item"}` in path
+- [ ] List counts use `{"path_element_type":"size"}` — NOT `current_item.list_size`
+
+For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 
 ## Related Documentation
 
