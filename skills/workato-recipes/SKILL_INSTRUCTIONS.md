@@ -789,7 +789,12 @@ This is a Workato platform behavior that affects ALL connectors. Complex connect
 
 **Agent requirement:** When generating recipes with custom actions or complex inputs, ALWAYS verify that `extended_input_schema` mirrors the complete `input` structure.
 
-> **EXCEPTION — Native connector internal parameters:** Some native connector actions (e.g., Salesforce `search_sobjects`, `search_sobjects_soql`) have parameters like `sobject_name` and `limit` that are handled internally by the connector. These must **NOT** appear in `extended_input_schema` — if included, Workato treats them as user-facing field filters/inputs and generates incorrect queries. Only user-facing filter fields (e.g., `Id`, `AccountId`, `Email` for Salesforce search) should be in EIS for these actions. See the connector-specific skill files for details on which parameters are connector internals.
+> **EXCEPTION — Native connector internal parameters:** Native connector actions have built-in parameters handled internally by the connector. These must **NEVER** appear in `extended_input_schema` — if included, Workato creates duplicate fields in the UI, with the `input` value routing to the EIS copy (leaving the native field blank). This applies to ALL native connectors, not just Salesforce. Examples:
+> - **Salesforce** `search_sobjects`: `sobject_name`, `limit` are internals. Only user-facing filter fields (`Id`, `AccountId`, `Email`) go in EIS.
+> - **Salesforce** `search_sobjects_soql`: `query` is an internal. Empty EIS is correct.
+> - **Jira** `search_issues_by_JQL`: `jql` is the internal field name (NOT `query`). Empty EIS is correct. Note: action name is case-sensitive — must be uppercase `JQL`.
+> - **General rule:** If an action has a built-in required field visible in the UI, do NOT redeclare it in EIS. Use `input.{field_name}` to set its value; the field name must match the connector's internal name (pull a blank action from the UI to discover it).
+> See the connector-specific skill files for details on which parameters are connector internals.
 
 ### extended_output_schema
 
@@ -940,6 +945,14 @@ Use `.present?` checks with ternary operator to conditionally set fields:
 | `upcase` | Convert to uppercase | `=field.upcase` |
 | `downcase` | Convert to lowercase | `=field.downcase` |
 | `strip` | Remove whitespace | `=field.strip` |
+| `.first` | First element of array | `=array_dp.first` |
+| `.last` | Last element of array | `=array_dp.last` |
+| `.to_json` | Convert hash/array to JSON string | `=hash_dp.to_json` |
+| `['key']` | Hash key access (on parsed hashes) | `=hash_dp['field_name']` |
+
+**Array access:** Always use `.first` / `.last` — NEVER `[0]` or `[n]`. Integer index notation causes parsing issues in Workato formula mode.
+
+**No `parse_json` formula method:** Workato has no formula for parsing JSON strings. To convert a JSON string into a navigable hash, use the `json_parser` connector's `parse_json_v2` action. See [adhoc-http-actions.md](patterns/adhoc-http-actions.md#json-response-handling-nested-data-extraction) for the pattern.
 
 ### Formula Examples
 

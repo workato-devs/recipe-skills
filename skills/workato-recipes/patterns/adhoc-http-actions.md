@@ -298,6 +298,46 @@ Why `.gsub("\n", '')`: Ruby's `encode_base64` inserts newlines every 76 characte
 
 Without `.encode_base64`: raw binary in a JSON string field causes Workato to return 500 (internal server error) because binary bytes can't be serialized as UTF-8 JSON.
 
+### JSON Response Handling (Nested Data Extraction)
+
+**CRITICAL:** `make_request_v2` with `output_type: "json"` returns the response body as a **raw JSON string**, NOT a parsed hash. You cannot use `['key']` hash access directly on the body datapill — it will fail at runtime with `no method '[]' for nil`.
+
+To extract nested data from a JSON API response, you MUST add an intermediate **`json_parser` / `parse_json_v2`** action step:
+
+```json
+{
+  "provider": "json_parser",
+  "name": "parse_json_v2",
+  "as": "parse_response",
+  "keyword": "action",
+  "input": {
+    "sample_document": "{\"candidates\":[{\"content\":{\"parts\":[{\"inlineData\":{\"data\":\"AAAA\"}}]}}]}",
+    "document": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"api_call\",\"path\":[\"body\"]}')}"}
+  },
+  "uuid": "parse-json-step-004"
+}
+```
+
+**Key rules for `parse_json_v2`:**
+- `sample_document`: a sample JSON string defining the expected response structure (for schema generation)
+- `document`: the raw JSON string to parse (body datapill using `#{}` interpolation, NOT formula mode)
+- Output datapills are wrapped in a `["document"]` path prefix — e.g. `path:["document","candidates"]` not `path:["candidates"]`
+- Requires `json_parser` config entry: `{"keyword":"application","provider":"json_parser","skip_validation":false,"account_id":null}`
+
+**Accessing parsed array data in formulas:**
+Use `.first` / `.last` for array elements — NEVER `[0]` (causes parsing issues in Workato formula mode):
+
+```json
+"audio_base64": "=_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"parse_response\",\"path\":[\"document\",\"candidates\"]}').first['content']['parts'].first['inlineData']['data']"
+```
+
+**When to use which pattern:**
+| Response Type | `output_type` | Extraction Method |
+|---|---|---|
+| Binary (audio, images) | `"rawdata"` | `.encode_base64.gsub("\n", '')` |
+| JSON with nested data | `"json"` | `parse_json_v2` step + `.first` for arrays |
+| JSON with flat fields | `"json"` | Direct datapill path (if no arrays) |
+
 ### Extended Input Schema
 
 `make_request_v2` requires EIS with `override: true` on both `request` and `response` sections to render the form UI correctly. Include the standard form field definitions:
@@ -618,6 +658,9 @@ The base URL and authentication are handled by the connector's connection.
 - [ ] `request.method` is UPPERCASE (`"POST"`, not `"post"`)
 - [ ] `wizardFinished: true` is set on the action block
 - [ ] Binary responses use `.encode_base64.gsub("\n", '')` when returned as JSON strings
+- [ ] JSON responses with nested/array data use `parse_json_v2` intermediate step (NOT direct `['key']` on body)
+- [ ] `parse_json_v2` output paths include `["document"]` prefix
+- [ ] Array traversal in formulas uses `.first`/`.last` (NOT `[0]`)
 
 ### Both action types
 - [ ] Path format matches connector base URL (leading `/` vs no leading `/`)

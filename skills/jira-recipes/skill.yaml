@@ -1,0 +1,55 @@
+# Jira Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write production-grade
+# Jira integration recipes in Workato's recipe JSON format.
+
+name: jira-recipes
+version: 1.0.0
+description: >
+  Jira integration recipes for Workato. This skill enables AI agents
+  to generate valid Workato recipe JSON files for Jira operations including
+  searching issues by JQL, creating and updating issues, and querying
+  sprint data.
+
+author: Workato
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Search Jira issues by JQL query
+  - Query sprint status and issue breakdowns
+  - Create issues (documented, not yet tested via CLI push)
+  - Update issues (documented, not yet tested via CLI push)
+  - Get issue by ID (documented, not yet tested via CLI push)
+
+# Entry point for agent consumption
+entry_point: SKILL_INSTRUCTIONS.md
+
+# Templates available for reference/adaptation
+templates:
+  - templates/search-issues-by-jql.json
+
+# Pattern documentation
+patterns:
+  - patterns/jql-query-syntax.md
+
+# Validation checklist
+validation:
+  - validation-checklist.md
+
+# Target platforms
+platforms:
+  - workato
+  - jira
+
+# Tags for discovery
+tags:
+  - jira
+  - project-management
+  - workato
+  - integration
+  - recipes
+  - sprints
+  - issues

@@ -1,0 +1,525 @@
+{
+  "name": "Search Jira issues by JQL",
+  "description": "Search Jira issues via JQL query. Required: project_key (string). Optional: sprint_name (string, defaults to open sprints). Response (200): project_key, issues_json (JSON array), total_issues (count), error_message (null). (400: missing project_key) (500: Jira API error)",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "api_trigger",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[{\"name\":\"project_key\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Project Key\",\"optional\":false,\"hint\":\"Jira project key (e.g. ENG, MOB)\"},{\"name\":\"sprint_name\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Sprint Name\",\"optional\":true,\"hint\":\"Sprint name filter. If omitted, returns issues from open sprints.\"}]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "name": "Success",
+            "http_status_code": "200",
+            "body_schema": "[{\"name\":\"project_key\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Project Key\"},{\"name\":\"issues_json\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Issues JSON\"},{\"name\":\"total_issues\",\"type\":\"number\",\"control_type\":\"number\",\"label\":\"Total Issues\"},{\"name\":\"error_message\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error Message\"}]"
+          },
+          {
+            "name": "Bad Request",
+            "http_status_code": "400",
+            "body_schema": "[{\"name\":\"project_key\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Project Key\"},{\"name\":\"issues_json\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Issues JSON\"},{\"name\":\"total_issues\",\"type\":\"number\",\"control_type\":\"number\",\"label\":\"Total Issues\"},{\"name\":\"error_message\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error Message\"}]"
+          },
+          {
+            "name": "Server Error",
+            "http_status_code": "500",
+            "body_schema": "[{\"name\":\"project_key\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Project Key\"},{\"name\":\"issues_json\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Issues JSON\"},{\"name\":\"total_issues\",\"type\":\"number\",\"control_type\":\"number\",\"label\":\"Total Issues\"},{\"name\":\"error_message\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error Message\"}]"
+          }
+        ]
+      }
+    },
+    "extended_output_schema": [
+      {
+        "label": "Request",
+        "name": "request",
+        "type": "object",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Project Key",
+            "name": "project_key",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Sprint Name",
+            "name": "sprint_name",
+            "type": "string",
+            "optional": true
+          }
+        ]
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "number": 2,
+            "keyword": "if",
+            "as": "check_project_key",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"project_key\"]}')}",
+                  "uuid": "cond-project-key-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 3,
+                "provider": "jira",
+                "name": "search_issues_by_JQL",
+                "as": "jira_search",
+                "keyword": "action",
+                "input": {
+                  "jql": "='project = \"' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"project_key\"]}') + '\"' + (_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"sprint_name\"]}').present? ? ' AND sprint = \"' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"sprint_name\"]}') + '\"' : ' AND sprint in openSprints()')"
+                },
+                "extended_input_schema": [],
+                "extended_output_schema": [
+                  {
+                    "label": "Issues",
+                    "name": "issues",
+                    "type": "array",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "name": "key",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Summary",
+                        "name": "summary",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Assignee",
+                        "name": "assignee",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Story Points",
+                        "name": "story_points",
+                        "type": "number"
+                      }
+                    ]
+                  }
+                ],
+                "uuid": "jira-search-issues-003"
+              },
+              {
+                "number": 4,
+                "provider": "workato_api_platform",
+                "name": "return_response",
+                "as": "return_success",
+                "keyword": "action",
+                "input": {
+                  "http_status_code": "200",
+                  "response": {
+                    "project_key": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"project_key\"]}')}",
+                    "issues_json": "=_dp('{\"pill_type\":\"output\",\"provider\":\"jira\",\"line\":\"jira_search\",\"path\":[\"issues\"]}').to_json",
+                    "total_issues": "=_dp('{\"pill_type\":\"output\",\"provider\":\"jira\",\"line\":\"jira_search\",\"path\":[\"issues\",{\"path_element_type\":\"size\"}]}')",
+                    "error_message": "=null"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      ["Success", "200"],
+                      ["Bad Request", "400"],
+                      ["Server Error", "500"]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "type": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Project Key",
+                        "name": "project_key",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Issues JSON",
+                        "name": "issues_json",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Total Issues",
+                        "name": "total_issues",
+                        "type": "number",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error Message",
+                        "name": "error_message",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ],
+                "extended_output_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      ["Success", "200"],
+                      ["Bad Request", "400"],
+                      ["Server Error", "500"]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "type": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Project Key",
+                        "name": "project_key",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Issues JSON",
+                        "name": "issues_json",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Total Issues",
+                        "name": "total_issues",
+                        "type": "number",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error Message",
+                        "name": "error_message",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ],
+                "uuid": "return-success-jira-004"
+              },
+              {
+                "number": 5,
+                "keyword": "else",
+                "as": "else_missing_key",
+                "input": {},
+                "block": [
+                  {
+                    "number": 6,
+                    "provider": "workato_api_platform",
+                    "name": "return_response",
+                    "as": "return_bad_request",
+                    "keyword": "action",
+                    "input": {
+                      "http_status_code": "400",
+                      "response": {
+                        "project_key": "=null",
+                        "issues_json": "=null",
+                        "total_issues": "=null",
+                        "error_message": "The 'project_key' field is required. Provide a Jira project key (e.g. ENG, MOB)."
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "change_on_blur": true,
+                        "control_type": "select",
+                        "extends_schema": true,
+                        "label": "Response",
+                        "name": "http_status_code",
+                        "pick_list": [
+                          ["Success", "200"],
+                          ["Bad Request", "400"],
+                          ["Server Error", "500"]
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "label": "Response body",
+                        "name": "response",
+                        "type": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Project Key",
+                            "name": "project_key",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Issues JSON",
+                            "name": "issues_json",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "Total Issues",
+                            "name": "total_issues",
+                            "type": "number",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error Message",
+                            "name": "error_message",
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    ],
+                    "extended_output_schema": [
+                      {
+                        "change_on_blur": true,
+                        "control_type": "select",
+                        "extends_schema": true,
+                        "label": "Response",
+                        "name": "http_status_code",
+                        "pick_list": [
+                          ["Success", "200"],
+                          ["Bad Request", "400"],
+                          ["Server Error", "500"]
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "label": "Response body",
+                        "name": "response",
+                        "type": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Project Key",
+                            "name": "project_key",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Issues JSON",
+                            "name": "issues_json",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "Total Issues",
+                            "name": "total_issues",
+                            "type": "number",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error Message",
+                            "name": "error_message",
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    ],
+                    "uuid": "return-bad-req-jira-006"
+                  }
+                ],
+                "uuid": "else-missing-key-005"
+              }
+            ],
+            "uuid": "if-project-key-002"
+          },
+          {
+            "number": 7,
+            "keyword": "catch",
+            "provider": null,
+            "as": "catch_jira_error",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 8,
+                "provider": "workato_api_platform",
+                "name": "return_response",
+                "as": "return_error",
+                "keyword": "action",
+                "input": {
+                  "http_status_code": "500",
+                  "response": {
+                    "project_key": "=null",
+                    "issues_json": "=null",
+                    "total_issues": "=null",
+                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_jira_error\",\"path\":[\"message\"]}')}"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      ["Success", "200"],
+                      ["Bad Request", "400"],
+                      ["Server Error", "500"]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "type": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Project Key",
+                        "name": "project_key",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Issues JSON",
+                        "name": "issues_json",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Total Issues",
+                        "name": "total_issues",
+                        "type": "number",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error Message",
+                        "name": "error_message",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ],
+                "extended_output_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      ["Success", "200"],
+                      ["Bad Request", "400"],
+                      ["Server Error", "500"]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "type": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Project Key",
+                        "name": "project_key",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Issues JSON",
+                        "name": "issues_json",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Total Issues",
+                        "name": "total_issues",
+                        "type": "number",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error Message",
+                        "name": "error_message",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ],
+                "uuid": "return-error-jira-008"
+              }
+            ],
+            "uuid": "catch-jira-error-007"
+          }
+        ],
+        "uuid": "try-jira-search-001"
+      }
+    ],
+    "uuid": "trigger-jira-search-000",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "jira",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "connectors/jira.connection.json",
+        "name": "My Jira Connection",
+        "folder": "connectors"
+      }
+    }
+  ]
+}
