@@ -1,0 +1,423 @@
+{
+  "name": "Search tasks in a workspace",
+  "description": "Search tasks in a workspace",
+  "version": 1,
+  "private": false,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "comment": "Define the request and response parameters for this API endpoint",
+    "as": "receive_request",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "path_params": "[]",
+        "content_type": "json",
+        "headers": "[]",
+        "schema": "[{\"of\":\"string\",\"hint\":\"This endpoint returns a resource which excludes some properties by default. To include those optional properties, set this query parameter to a comma-separated list of the properties you wish to include.\",\"name\":\"opt_fields\",\"type\":\"array\",\"label\":\"Opt fields\",\"optional\":true,\"control_type\":\"object\"}]"
+      },
+      "response": {
+        "content_type": "json",
+        "headers": "[]",
+        "responses": [
+          {
+            "name": "200",
+            "http_status_code": "200",
+            "body_schema": "[{\"of\":\"object\",\"name\":\"data\",\"type\":\"array\",\"label\":\"Data\",\"properties\":[{\"hint\":\"Globally unique identifier of the resource, as a string.\",\"name\":\"gid\",\"type\":\"string\",\"label\":\"Gid\",\"example\":\"12345\",\"readOnly\":true,\"control_type\":\"text\",\"x_insert_after\":false},{\"hint\":\"The base type of this resource.\",\"name\":\"resource_type\",\"type\":\"string\",\"label\":\"Resource type\",\"example\":\"task\",\"readOnly\":true,\"control_type\":\"text\",\"x_insert_after\":\"gid\"},{\"hint\":\"The name of the task.\",\"name\":\"name\",\"type\":\"string\",\"label\":\"Name\",\"example\":\"Bug Task\",\"control_type\":\"text\"},{\"hint\":\"The subtype of this resource. Different subtypes retain many of the same fields and behavior, but may render differently in Asana or represent resources with different semantic meaning.\\nThe resource_subtype `milestone` represent a single moment in time. This means tasks with this subtype cannot have a start_date.\",\"name\":\"resource_subtype\",\"type\":\"string\",\"label\":\"Resource subtype\",\"example\":\"default_task\",\"pick_list\":[[\"default_task\",\"default_task\"],[\"milestone\",\"milestone\"],[\"approval\",\"approval\"]],\"toggle_hint\":\"Select value\",\"control_type\":\"select\",\"toggle_field\":{\"name\":\"resource_subtype\",\"type\":\"string\",\"label\":\"Resource_subtype\",\"toggle_hint\":\"Enter manual value\",\"control_type\":\"text\",\"toggle_to_primary_hint\":\"Select value\",\"toggle_to_secondary_hint\":\"Enter manual value\"},\"extends_schema\":true},{\"hint\":\"[Opt In](/docs/inputoutput-options). A *user* object represents an account in Asana that can be given access to various workspaces, projects, and tasks.\",\"name\":\"created_by\",\"type\":\"object\",\"label\":\"Created by\",\"readOnly\":true,\"properties\":[{\"hint\":\"Globally unique identifier of the resource.\",\"name\":\"gid\",\"type\":\"string\",\"label\":\"Gid\",\"example\":\"1111\",\"control_type\":\"text\"},{\"hint\":\"The type of resource.\",\"name\":\"resource_type\",\"type\":\"string\",\"label\":\"Resource type\",\"example\":\"user\",\"control_type\":\"text\"}]}]}]"
+          },
+          {
+            "name": "400",
+            "http_status_code": "400",
+            "body_schema": "[{\"of\":\"object\",\"name\":\"errors\",\"type\":\"array\",\"label\":\"Errors\",\"properties\":[{\"hint\":\"Message providing more detail about the error that occurred, if available.\",\"name\":\"message\",\"type\":\"string\",\"label\":\"Message\",\"example\":\"project: Missing input\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"Additional information directing developers to resources on how to address and fix the problem, if available.\",\"name\":\"help\",\"type\":\"string\",\"label\":\"Help\",\"example\":\"For more information on API status codes and how to handle them, read the docs on errors: https://asana.github.io/developer-docs/#errors'\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"*500 errors only*. A unique error phrase which can be used when contacting developer support to help identify the exact occurrence of the problem in Asana's logs.\",\"name\":\"phrase\",\"type\":\"string\",\"label\":\"Phrase\",\"example\":\"6 sad squid snuggle softly\",\"readOnly\":true,\"control_type\":\"text\"}]}]"
+          },
+          {
+            "name": "401",
+            "http_status_code": "401",
+            "body_schema": "[{\"of\":\"object\",\"name\":\"errors\",\"type\":\"array\",\"label\":\"Errors\",\"properties\":[{\"hint\":\"Message providing more detail about the error that occurred, if available.\",\"name\":\"message\",\"type\":\"string\",\"label\":\"Message\",\"example\":\"project: Missing input\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"Additional information directing developers to resources on how to address and fix the problem, if available.\",\"name\":\"help\",\"type\":\"string\",\"label\":\"Help\",\"example\":\"For more information on API status codes and how to handle them, read the docs on errors: https://asana.github.io/developer-docs/#errors'\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"*500 errors only*. A unique error phrase which can be used when contacting developer support to help identify the exact occurrence of the problem in Asana's logs.\",\"name\":\"phrase\",\"type\":\"string\",\"label\":\"Phrase\",\"example\":\"6 sad squid snuggle softly\",\"readOnly\":true,\"control_type\":\"text\"}]}]"
+          },
+          {
+            "name": "403",
+            "http_status_code": "403",
+            "body_schema": "[{\"of\":\"object\",\"name\":\"errors\",\"type\":\"array\",\"label\":\"Errors\",\"properties\":[{\"hint\":\"Message providing more detail about the error that occurred, if available.\",\"name\":\"message\",\"type\":\"string\",\"label\":\"Message\",\"example\":\"project: Missing input\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"Additional information directing developers to resources on how to address and fix the problem, if available.\",\"name\":\"help\",\"type\":\"string\",\"label\":\"Help\",\"example\":\"For more information on API status codes and how to handle them, read the docs on errors: https://asana.github.io/developer-docs/#errors'\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"*500 errors only*. A unique error phrase which can be used when contacting developer support to help identify the exact occurrence of the problem in Asana's logs.\",\"name\":\"phrase\",\"type\":\"string\",\"label\":\"Phrase\",\"example\":\"6 sad squid snuggle softly\",\"readOnly\":true,\"control_type\":\"text\"}]}]"
+          },
+          {
+            "name": "404",
+            "http_status_code": "404",
+            "body_schema": "[{\"of\":\"object\",\"name\":\"errors\",\"type\":\"array\",\"label\":\"Errors\",\"properties\":[{\"hint\":\"Message providing more detail about the error that occurred, if available.\",\"name\":\"message\",\"type\":\"string\",\"label\":\"Message\",\"example\":\"project: Missing input\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"Additional information directing developers to resources on how to address and fix the problem, if available.\",\"name\":\"help\",\"type\":\"string\",\"label\":\"Help\",\"example\":\"For more information on API status codes and how to handle them, read the docs on errors: https://asana.github.io/developer-docs/#errors'\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"*500 errors only*. A unique error phrase which can be used when contacting developer support to help identify the exact occurrence of the problem in Asana's logs.\",\"name\":\"phrase\",\"type\":\"string\",\"label\":\"Phrase\",\"example\":\"6 sad squid snuggle softly\",\"readOnly\":true,\"control_type\":\"text\"}]}]"
+          },
+          {
+            "name": "500",
+            "http_status_code": "500",
+            "body_schema": "[{\"of\":\"object\",\"name\":\"errors\",\"type\":\"array\",\"label\":\"Errors\",\"properties\":[{\"hint\":\"Message providing more detail about the error that occurred, if available.\",\"name\":\"message\",\"type\":\"string\",\"label\":\"Message\",\"example\":\"project: Missing input\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"Additional information directing developers to resources on how to address and fix the problem, if available.\",\"name\":\"help\",\"type\":\"string\",\"label\":\"Help\",\"example\":\"For more information on API status codes and how to handle them, read the docs on errors: https://asana.github.io/developer-docs/#errors'\",\"readOnly\":true,\"control_type\":\"text\"},{\"hint\":\"*500 errors only*. A unique error phrase which can be used when contacting developer support to help identify the exact occurrence of the problem in Asana's logs.\",\"name\":\"phrase\",\"type\":\"string\",\"label\":\"Phrase\",\"example\":\"6 sad squid snuggle softly\",\"readOnly\":true,\"control_type\":\"text\"}]}]"
+          }
+        ]
+      }
+    },
+    "extended_output_schema": [
+      {
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Calling IP address",
+            "optional": true,
+            "type": "string",
+            "name": "calling_ip"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "Access profile ID",
+                "parse_output": "integer_conversion",
+                "optional": true,
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "Access profile name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Access profile authentication type",
+                "optional": true,
+                "type": "string",
+                "name": "type"
+              }
+            ],
+            "label": "Access profile",
+            "type": "object",
+            "name": "access_profile"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "API client ID",
+                "optional": true,
+                "type": "string",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "API client name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              }
+            ],
+            "label": "API client",
+            "type": "object",
+            "name": "client"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "Issued At",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "iat"
+              },
+              {
+                "control_type": "integer",
+                "label": "Not Before",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "nbf"
+              },
+              {
+                "control_type": "integer",
+                "label": "Expiration Time",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "exp"
+              },
+              {
+                "control_type": "text",
+                "label": "Audience",
+                "optional": true,
+                "type": "string",
+                "name": "aud"
+              },
+              {
+                "control_type": "text",
+                "label": "JWT ID",
+                "optional": true,
+                "type": "string",
+                "name": "jti"
+              },
+              {
+                "control_type": "text",
+                "label": "Issuer",
+                "optional": true,
+                "type": "string",
+                "name": "iss"
+              }
+            ],
+            "label": "JWT claims",
+            "type": "object",
+            "name": "jwt_payload"
+          },
+          {
+            "properties": [
+              {
+                "properties": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Active",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Active",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "optional": true,
+                      "type": "boolean",
+                      "name": "active"
+                    },
+                    "type": "boolean",
+                    "name": "active"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Scope",
+                    "optional": true,
+                    "type": "string",
+                    "name": "scope"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Client ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "client_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Username",
+                    "optional": true,
+                    "type": "string",
+                    "name": "username"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Token type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "token_type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Exp",
+                    "optional": true,
+                    "type": "string",
+                    "name": "exp"
+                  }
+                ],
+                "label": "Response Body",
+                "type": "object",
+                "name": "payload"
+              }
+            ],
+            "label": "Token introspection",
+            "type": "object",
+            "name": "introspect"
+          }
+        ],
+        "label": "Context",
+        "type": "object",
+        "name": "context"
+      },
+      {
+        "properties": [
+          {
+            "control_type": "object",
+            "label": "Opt fields",
+            "hint": "This endpoint returns a resource which excludes some properties by default. To include those optional properties, set this query parameter to a comma-separated list of the properties you wish to include.",
+            "name": "opt_fields",
+            "type": "array",
+            "optional": true,
+            "of": "string"
+          }
+        ],
+        "label": "Request parameters",
+        "type": "object",
+        "name": "request"
+      }
+    ],
+    "block": [
+      {
+        "keyword": "action",
+        "number": 1,
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "as": "return_response",
+        "input": {
+          "http_status_code": "200",
+          "response": {
+          }
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "label": "Response",
+            "pick_list": [
+              [
+                "200",
+                "200"
+              ],
+              [
+                "400",
+                "400"
+              ],
+              [
+                "401",
+                "401"
+              ],
+              [
+                "403",
+                "403"
+              ],
+              [
+                "404",
+                "404"
+              ],
+              [
+                "500",
+                "500"
+              ]
+            ],
+            "extends_schema": true,
+            "change_on_blur": true,
+            "type": "string",
+            "name": "http_status_code"
+          },
+          {
+            "properties": [
+              {
+                "label": "Data",
+                "name": "data",
+                "type": "array",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Gid",
+                    "hint": "Globally unique identifier of the resource, as a string.",
+                    "name": "gid",
+                    "type": "string",
+                    "example": "12345",
+                    "readOnly": true,
+                    "x_insert_after": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Resource type",
+                    "hint": "The base type of this resource.",
+                    "name": "resource_type",
+                    "type": "string",
+                    "example": "task",
+                    "readOnly": true,
+                    "x_insert_after": "gid"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "hint": "The name of the task.",
+                    "name": "name",
+                    "type": "string",
+                    "example": "Bug Task"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Resource subtype",
+                    "hint": "The subtype of this resource. Different subtypes retain many of the same fields and behavior, but may render differently in Asana or represent resources with different semantic meaning.\nThe resource_subtype `milestone` represent a single moment in time. This means tasks with this subtype cannot have a start_date.",
+                    "name": "resource_subtype",
+                    "type": "string",
+                    "example": "default_task",
+                    "pick_list": [
+                      [
+                        "default_task",
+                        "default_task"
+                      ],
+                      [
+                        "milestone",
+                        "milestone"
+                      ],
+                      [
+                        "approval",
+                        "approval"
+                      ]
+                    ],
+                    "toggle_hint": "Select value",
+                    "toggle_field": {
+                      "name": "resource_subtype",
+                      "type": "string",
+                      "label": "Resource_subtype",
+                      "toggle_hint": "Enter manual value",
+                      "control_type": "text",
+                      "toggle_to_primary_hint": "Select value",
+                      "toggle_to_secondary_hint": "Enter manual value"
+                    },
+                    "extends_schema": true
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Gid",
+                        "hint": "Globally unique identifier of the resource.",
+                        "name": "gid",
+                        "type": "string",
+                        "example": "1111"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Resource type",
+                        "hint": "The type of resource.",
+                        "name": "resource_type",
+                        "type": "string",
+                        "example": "user"
+                      }
+                    ],
+                    "label": "Created by",
+                    "hint": "[Opt In](/docs/inputoutput-options). A *user* object represents an account in Asana that can be given access to various workspaces, projects, and tasks.",
+                    "name": "created_by",
+                    "type": "object",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "label": "Response body",
+            "type": "object",
+            "name": "response"
+          }
+        ],
+        "uuid": "0848f08d-fc3e-41fe-8d19-acd847fe7eb3"
+      }
+    ],
+    "uuid": "7c2dbfb9-03e9-47f4-ae56-fc9e7c967a00"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "account_id": null
+    }
+  ]
+}

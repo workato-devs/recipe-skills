@@ -1,0 +1,65 @@
+# Asana Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write production-grade
+# Asana integration recipes in Workato's recipe JSON format.
+
+name: asana-recipes
+version: 1.0.0
+description: >
+  Asana integration recipes for Workato. This skill enables AI agents
+  to generate valid Workato recipe JSON files for Asana operations including
+  task management, project organization, portfolio tracking, goal setting,
+  team management, and workspace administration via the Asana REST API
+  exposed through Workato's API Platform.
+
+author: Workato
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Create, read, update, and delete tasks with full field support
+  - Search tasks in a workspace with filters
+  - Manage projects (create, update, duplicate, get task counts)
+  - Organize portfolios with items and custom fields
+  - Track goals with metrics and relationships
+  - Manage teams, memberships, and user assignments
+  - Handle sections, tags, and custom fields
+  - Create and manage webhooks for event subscriptions
+  - Track time entries and manage budgets/allocations
+  - Work with attachments, stories, and status updates
+
+# Entry point for agent consumption
+entry_point: SKILL_INSTRUCTIONS.md
+
+# Templates available for reference/adaptation
+templates:
+  - templates/create-task.json
+  - templates/get-task.json
+  - templates/search-tasks.json
+
+# Pattern documentation
+patterns:
+  - patterns/api-endpoint-recipes.md
+
+# Validation checklist
+validation:
+  - validation-checklist.md
+
+# Target platforms
+platforms:
+  - workato
+  - asana
+
+# Tags for discovery
+tags:
+  - asana
+  - project-management
+  - workato
+  - integration
+  - recipes
+  - tasks
+  - projects
+  - portfolios
+  - goals
