@@ -38,6 +38,14 @@ Never duplicate items between this file and the inline checklists.
 - [ ] Connection config is ONLY at top-level `config` array, NOT inside action blocks
 - [ ] `account_id` references use correct `zip_name`, `name`, and `folder` fields
 
+### Formulas
+
+- [ ] All formula methods used are in the [Supported Formula Methods allowlist](SKILL_INSTRUCTIONS.md#supported-formula-methods-complete-allowlist)
+- [ ] No `.utc` — use `in_time_zone("UTC")` or `strftime('%Y-%m-%dT%H:%M:%SZ')`
+- [ ] No `.parse_json` — use `json_parser` connector's `parse_json_v2` action
+- [ ] No integer array index (`[0]`, `[n]`) — use `.first` / `.last`
+- [ ] No Ruby-only methods (`.each`, `.map`, `.select`, `.chomp`, `.merge`, etc.)
+
 ### Datapills
 
 - [ ] All `_dp()` JSON is valid (parseable after unescaping)

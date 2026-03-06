@@ -915,7 +915,7 @@ Before finalizing any action block, verify:
 
 ## Formula Syntax
 
-Workato supports Ruby-based formulas for dynamic values and conditional logic.
+Workato formulas use a **restricted subset of Ruby methods** — not all Ruby methods are supported. Using an unsupported method will block recipe activation with no clear error message. **Only use methods from the allowlist below.**
 
 ### Formula Prefix
 
@@ -944,23 +944,151 @@ Use `.present?` checks with ternary operator to conditionally set fields:
 - `? value : skip` - If present, use value; otherwise, skip the field
 - `skip` - Special keyword to exclude field from the action
 
-### Common Formula Methods
+### Supported Formula Methods (COMPLETE ALLOWLIST)
 
-| Method | Description | Example |
-|--------|-------------|---------|
-| `present?` | Value exists and not empty | `=field.present?` |
-| `blank?` | Value is null or empty | `=field.blank?` |
-| `upcase` | Convert to uppercase | `=field.upcase` |
-| `downcase` | Convert to lowercase | `=field.downcase` |
-| `strip` | Remove whitespace | `=field.strip` |
-| `.first` | First element of array | `=array_dp.first` |
-| `.last` | Last element of array | `=array_dp.last` |
-| `.to_json` | Convert hash/array to JSON string | `=hash_dp.to_json` |
-| `['key']` | Hash key access (on parsed hashes) | `=hash_dp['field_name']` |
+Workato formulas are an allowlist of Ruby methods. **If a method is not listed here, do not use it** — it will block recipe activation. This list is sourced from the [Workato formula documentation](https://docs.workato.com/en/formulas.html).
 
-**Array access:** Always use `.first` / `.last` — NEVER `[0]` or `[n]`. Integer index notation causes parsing issues in Workato formula mode.
+#### String Methods
 
-**No `parse_json` formula method:** Workato has no formula for parsing JSON strings. To convert a JSON string into a navigable hash, use the `json_parser` connector's `parse_json_v2` action. See [adhoc-http-actions.md](patterns/adhoc-http-actions.md#json-response-handling-nested-data-extraction) for the pattern.
+| Method | Description |
+|--------|-------------|
+| `blank?` | True if nil, empty, or whitespace only |
+| `present?` | True if not blank |
+| `presence` | Returns value if present, nil otherwise |
+| `include?` | True if string contains substring |
+| `exclude?` | True if string does not contain substring |
+| `match?` | True if string matches regex pattern |
+| `starts_with?` | True if string starts with prefix |
+| `ends_with?` | True if string ends with suffix |
+| `is_true?` | True if value is truthy |
+| `is_not_true?` | True if value is falsy |
+| `strip` | Remove leading/trailing whitespace |
+| `lstrip` | Remove leading whitespace |
+| `rstrip` | Remove trailing whitespace |
+| `upcase` | Convert to uppercase |
+| `downcase` | Convert to lowercase |
+| `capitalize` | Capitalize first letter |
+| `titleize` | Capitalize first letter of each word |
+| `reverse` | Reverse the string |
+| `gsub` | Replace all occurrences of pattern |
+| `sub` | Replace first occurrence of pattern |
+| `strip_tags` | Remove HTML tags |
+| `scrub` | Replace invalid byte sequences |
+| `parameterize` | Convert to URL-safe slug |
+| `quote` | Wrap in quotes |
+| `length` | Number of characters |
+| `slice` | Extract substring by position |
+| `scan` | Find all matches of pattern |
+| `split` | Split into array by delimiter |
+| `ljust` | Left-justify with padding |
+| `rjust` | Right-justify with padding |
+| `encode` | Encode to specified encoding |
+| `transliterate` | Transliterate to ASCII |
+| `bytes` | Convert to byte array |
+| `bytesize` | Size in bytes |
+| `byteslice` | Extract bytes by position |
+| `to_s` | Convert to string |
+| `to_i` | Convert to integer |
+| `to_f` | Convert to float |
+| `ordinalize` | Convert number to ordinal string (1st, 2nd, 3rd) |
+| `to_country_alpha2` | Convert country name to ISO alpha-2 code |
+| `to_country_alpha3` | Convert country name to ISO alpha-3 code |
+| `to_country_name` | Convert country code to name |
+| `to_currency` | Format as currency string |
+| `to_currency_code` | Convert to currency code |
+| `to_currency_name` | Convert to currency name |
+| `to_currency_symbol` | Convert to currency symbol |
+| `to_phone` | Format as phone number |
+| `to_state_code` | Convert state name to code |
+| `to_state_name` | Convert state code to name |
+
+#### Number Methods
+
+| Method | Description |
+|--------|-------------|
+| `abs` | Absolute value |
+| `round` | Round to specified precision |
+| `ceil` | Round up |
+| `floor` | Round down |
+| `even?` | True if even |
+| `odd?` | True if odd |
+| `blank?` | True if nil |
+| `present?` | True if not nil |
+| `presence` | Returns value if present, nil otherwise |
+| `to_i` | Convert to integer |
+| `to_f` | Convert to float |
+| `to_s` | Convert to string |
+| `to_currency` | Format as currency |
+| `to_phone` | Format as phone number |
+
+#### Date/Time Methods
+
+| Method | Description |
+|--------|-------------|
+| `now` | Current timestamp |
+| `today` | Current date |
+| `from_now` | Duration from now (e.g., `30.days.from_now`) |
+| `ago` | Duration ago (e.g., `1.hour.ago`) |
+| `strftime` | Format with pattern (e.g., `strftime('%Y-%m-%dT%H:%M:%SZ')`) |
+| `in_time_zone` | Convert to timezone (e.g., `in_time_zone("UTC")`) |
+| `beginning_of_hour` | Start of current hour |
+| `beginning_of_day` | Start of current day |
+| `beginning_of_week` | Start of current week |
+| `beginning_of_month` | Start of current month |
+| `beginning_of_year` | Start of current year |
+| `end_of_month` | End of current month |
+| `wday` | Day of week (0=Sunday) |
+| `yday` | Day of year |
+| `yweek` | Week of year |
+| `dst?` | True if daylight saving time |
+| `to_date` | Convert to date |
+| `to_time` | Convert to time |
+| `to_i` | Convert to Unix epoch integer |
+
+#### Array/List Methods
+
+| Method | Description |
+|--------|-------------|
+| `first` | First element |
+| `last` | Last element |
+| `index` | Position of element |
+| `count` | Number of elements |
+| `length` | Number of elements |
+| `where` | Filter by condition |
+| `except` | Exclude by condition |
+| `pluck` | Extract field values |
+| `format_map` | Format each element |
+| `join` | Combine into string with separator |
+| `smart_join` | Join, skipping blank values |
+| `concat` | Append another array |
+| `reverse` | Reverse order |
+| `sum` | Sum of elements |
+| `uniq` | Remove duplicates |
+| `flatten` | Flatten nested arrays |
+| `max` | Maximum value |
+| `min` | Minimum value |
+| `compact` | Remove nil values |
+| `blank?` | True if empty |
+| `include?` | True if contains element |
+| `exclude?` | True if does not contain element |
+| `present?` | True if not empty |
+| `presence` | Returns array if present, nil otherwise |
+| `to_csv` | Convert to CSV string |
+| `to_json` | Convert to JSON string |
+| `to_xml` | Convert to XML string |
+| `from_xml` | Parse XML string |
+| `encode_www_form` | URL-encode as form data |
+| `to_param` | Convert to URL parameter string |
+| `keys` | Hash keys as array |
+| `values` | Hash values as array |
+
+**Any method not listed above will block recipe activation.** Workato's formula language is a strict allowlist — standard Ruby methods like `.each`, `.map`, `.chomp`, `.merge`, `.utc`, and `.to_a` do not exist and will cause silent import failures.
+
+**Common equivalents:**
+- For UTC timestamps: use `in_time_zone("UTC")` or `strftime('%Y-%m-%dT%H:%M:%SZ')` (not `.utc`)
+- For array access: use `.first` / `.last` (not `[0]` or `[n]`)
+- For JSON parsing: use the `json_parser` connector's `parse_json_v2` action (not `.parse_json` — no such formula method exists). See [adhoc-http-actions.md](patterns/adhoc-http-actions.md#json-response-handling-nested-data-extraction) for the pattern.
+- For filtering/mapping arrays: use `.where`, `.pluck`, `.format_map` (not `.select`, `.map`, `.each`)
 
 ### Formula Examples
 
