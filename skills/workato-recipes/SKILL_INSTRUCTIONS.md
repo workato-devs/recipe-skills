@@ -127,6 +127,12 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 
 ---
 
+## CRITICAL: REST Connector Action Name
+
+> **WARNING:** The `rest` provider MUST use `make_request_v2` as its action name — NOT `__adhoc_http_action`. Using the wrong action name causes Workato to silently strip all input config on import. See [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) for the full `make_request_v2` structure and examples.
+
+---
+
 ## Quick Reference
 
 | Topic | Documentation |
@@ -140,6 +146,8 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 | Foreach Loops | [control-flow/foreach.md](control-flow/foreach.md) |
 | API Endpoint Trigger | [triggers/api-endpoint.md](triggers/api-endpoint.md) |
 | Callable Recipe Trigger | [triggers/callable-recipe.md](triggers/callable-recipe.md) |
+| Adhoc HTTP Actions | [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) |
+| JWT Bearer Auth | [patterns/jwt-auth.md](patterns/jwt-auth.md) |
 
 ---
 

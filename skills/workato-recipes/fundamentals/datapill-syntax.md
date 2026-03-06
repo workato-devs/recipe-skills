@@ -186,6 +186,10 @@ For **3 or more sources**, or when accumulating values in a loop, use the `worka
 
 8. **Condition LHS: NO formula mode**: The `lhs` field in if/else conditions does NOT support `=` formula mode — only `#{_dp(...)}` interpolation. See [if-else.md](../control-flow/if-else.md) for details and workarounds.
 
+9. **No `.parse_json['key']` bracket notation in formulas**: Chaining `['field']` after `.parse_json` in a formula causes validation errors. Instead, define response fields in `extended_output_schema` and reference them via datapill path. See [adhoc-http-actions.md](../patterns/adhoc-http-actions.md#json-response-handling-nested-data-extraction) for the correct pattern using `parse_json_v2`.
+
+10. **`now.utc` is invalid**: The `.utc` method is not available on Workato's `now` object. For ISO 8601 UTC timestamps, use `now.strftime('%Y-%m-%dT%H:%M:%SZ')`.
+
 ## Validation
 
 See [validation-checklist.md](../validation-checklist.md) for consolidated validation.

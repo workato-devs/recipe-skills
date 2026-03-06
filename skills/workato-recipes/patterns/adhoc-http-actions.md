@@ -300,7 +300,7 @@ Without `.encode_base64`: raw binary in a JSON string field causes Workato to re
 
 ### JSON Response Handling (Nested Data Extraction)
 
-**CRITICAL:** `make_request_v2` with `output_type: "json"` returns the response body as a **raw JSON string**, NOT a parsed hash. You cannot use `['key']` hash access directly on the body datapill — it will fail at runtime with `no method '[]' for nil`.
+**CRITICAL:** `make_request_v2` with `output_type: "json"` returns the response body as a **raw JSON string**, NOT a parsed hash. You cannot use `['key']` hash access directly on the body datapill — it will fail at runtime with `no method '[]' for nil`. This also applies to `.parse_json['key']` — chaining bracket notation after `.parse_json` in a formula causes the same validation/runtime errors. Always use `extended_output_schema` fields or a `parse_json_v2` action step instead.
 
 To extract nested data from a JSON API response, you MUST add an intermediate **`json_parser` / `parse_json_v2`** action step:
 
