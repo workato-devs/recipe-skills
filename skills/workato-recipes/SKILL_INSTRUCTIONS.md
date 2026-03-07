@@ -1078,6 +1078,7 @@ Workato formulas are an allowlist of Ruby methods. **If a method is not listed h
 | `to_xml` | Convert to XML string |
 | `from_xml` | Parse XML string |
 | `encode_www_form` | URL-encode as form data |
+| `encode_url` | URL-encode a string |
 | `to_param` | Convert to URL parameter string |
 | `keys` | Hash keys as array |
 | `values` | Hash values as array |

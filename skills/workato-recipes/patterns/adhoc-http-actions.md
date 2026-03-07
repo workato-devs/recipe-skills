@@ -222,7 +222,7 @@ The generic REST connector (`rest` provider) uses `make_request_v2` instead of `
 | `application/json` | **Raw JSON body** (free-text string — use this for dynamic payloads with datapills) |
 | `application/xml` | XML |
 | `text/plain` | Plain text |
-| `application/x-www-form-urlencoded` | URL-encoded form data |
+| `application/x-www-form-urlencoded` | URL-encoded form data. **Warning:** Workato auto-encodes the body when this content type is set. Pre-encoded values get double-encoded. For bodies with manually encoded values, use `content_type: "application/json"` with a manual `Content-Type: application/x-www-form-urlencoded` header instead. |
 | `application/octet-stream` | Binary |
 | `multipart/form-data` | Multipart form |
 
