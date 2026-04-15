@@ -33,7 +33,7 @@ This skill provides Salesforce-specific knowledge for generating Workato recipes
 1. [When to Use This Skill](#when-to-use-this-skill)
 2. [Salesforce Config Requirements](#salesforce-config-requirements)
 3. [Standard vs Custom Objects and Fields](#standard-vs-custom-objects-and-fields)
-4. [Salesforce Native Actions](#salesforce-native-actions)
+4. [Native Salesforce Connector Actions](#native-salesforce-connector-actions)
 5. [Salesforce Datapill Paths](#salesforce-datapill-paths)
 6. [Salesforce Patterns](#salesforce-patterns)
 7. [Pre-Push Checklist (Salesforce)](#pre-push-checklist-salesforce)
@@ -130,9 +130,146 @@ For callable recipe trigger:
 
 ---
 
-## Salesforce Native Actions
+## Native Salesforce Connector Actions
 
-Workato provides built-in Salesforce connector actions (no custom HTTP needed).
+The Workato Salesforce connector (`provider: "salesforce"`) provides **~75 agent-usable actions** and **10 triggers** — the largest connector in this skill set. Actions are organized below into **common** (used in most recipes) and **specialized** (bulk, composite, approval, documents).
+
+> **CRITICAL:** All Salesforce actions require `dynamicPickListSelection` in addition to the `input` block. See [dynamicPickListSelection](#dynamicpicklistselection-critical) below.
+
+### Triggers
+
+| Name | Description | Notes |
+|------|-------------|-------|
+| `scheduled_sobject_soql_query` | Poll-based trigger using SOQL query | Most common trigger for Salesforce recipes |
+| `change_data_capture` | Real-time trigger on record changes via CDC | Requires CDC enabled on the SObject |
+| `new_platform_event` | Trigger on Salesforce Platform Events | |
+| `new_outbound_message` | Trigger on Outbound Message notifications | |
+| `closed_case` | Trigger when a Case is closed | |
+| `completed_campaign` | Trigger when a Campaign is completed | |
+| `new_duplicate_record_item` | Trigger on duplicate record detection | |
+| `new_pushtopic_event` | Trigger on PushTopic streaming events | Legacy — prefer CDC |
+| `scheduled_sobject_soql_query_v2` | Poll-based SOQL trigger (v2) | |
+| `sobject_created_bulk` | Bulk trigger on new SObject records | |
+
+### Common Actions
+
+#### Generic CRUD (work with any SObject)
+
+| Name | Description | Notes |
+|------|-------------|-------|
+| `upsert_sobject` | Create or update by external ID | See [detail below](#upsert_sobject-detail). Requires `dynamicPickListSelection` with `query_field.primary_key` |
+| `update_sobject` | Update by Salesforce record ID | See [detail below](#update_sobject-detail) |
+| `delete_sobject` | Delete by Salesforce record ID | |
+| `get_object` | Get a single record by ID | |
+| `search_sobjects` | Search by exact field match | See [detail below](#search_sobjects-detail). Has critical EIS rules |
+| `search_sobjects_soql` | Search using raw SOQL query | See [detail below](#search_sobjects_soql-detail). Use for complex criteria (LIKE, IN, OR) |
+
+#### Object-Specific Create
+
+All follow the same pattern — specify fields for the target SObject. Use these instead of a generic create when working with standard objects:
+
+| Name | Description |
+|------|-------------|
+| `create_contact` | Create a Contact (`LastName` required) |
+| `create_account` | Create an Account (`Name` required) |
+| `create_lead` | Create a Lead (`LastName`, `Company` required) |
+| `create_opportunity` | Create an Opportunity (`Name`, `StageName`, `CloseDate` required) |
+| `create_case` | Create a Case |
+| `create_campaign` | Create a Campaign |
+| `create_campaign_member` | Add a member to a Campaign |
+| `create_note` | Create a Note attached to a record |
+| `create_channel` | Create a Salesforce Channel |
+| `create_channel_member` | Add a member to a Channel |
+
+#### Object-Specific Lookup
+
+Return a single record by matching criteria:
+
+| Name | Description |
+|------|-------------|
+| `lookup_contact` | Find a Contact |
+| `lookup_account` | Find an Account |
+| `lookup_lead` | Find a Lead |
+| `lookup_opportunity` | Find an Opportunity |
+| `lookup_campaign` | Find a Campaign |
+| `object_lookup` | Generic lookup for any SObject |
+
+#### Additional Search
+
+| Name | Description | Notes |
+|------|-------------|-------|
+| `search_sobjects_soql_v2` | SOQL search (v2 API) | |
+| `soql_query` | Execute raw SOQL query | |
+| `composite_soql_query` | Execute multiple SOQL queries in one call | |
+| `custom_query` | Custom query execution | |
+
+### Specialized Actions
+
+#### Bulk Operations
+
+For large data volumes (thousands+ of records):
+
+| Name | Description |
+|------|-------------|
+| `create_batch_job` / `create_batch_job_v2` | Create a bulk job |
+| `create_batch` | Add a batch to a bulk job |
+| `start_bulk_job` / `submit_bulk_job` | Start/submit a bulk job |
+| `close_batch_job` / `close_batch_job_v2` | Close a bulk job |
+| `get_batch_job` / `get_batch_job_v2` | Get bulk job details |
+| `get_all_bulk_jobs_status` / `get_bulk_job_status` | Check bulk job status |
+| `get_job_batches` | List batches in a job |
+| `get_job_batch_result` / `get_job_batch_result_data` | Get batch results |
+| `retry_bulk_jobs` | Retry failed bulk jobs |
+| `search_sobjects_soql_bulk_csv` / `_v2` | Bulk SOQL query with CSV output |
+
+#### Composite Requests
+
+Execute multiple operations in a single API call:
+
+| Name | Description |
+|------|-------------|
+| `create_composite_request` | Create a composite request |
+| `update_composite_request` | Update via composite request |
+| `upsert_composite_request` | Upsert via composite request |
+| `upsert_composite_sobject` | Upsert multiple SObjects |
+
+#### Approvals
+
+| Name | Description |
+|------|-------------|
+| `approval_process` | Trigger an approval process |
+| `get_all_approval_process` | List available approval processes |
+| `submit_process` | Submit a record for approval |
+
+#### Documents & Files
+
+| Name | Description |
+|------|-------------|
+| `get_document` / `get_document_content` | Get document metadata/content |
+| `upload_file_content` | Upload a file |
+| `get_attachment_body` / `get_combined_attachment` | Get attachment content |
+
+#### Reports & Metadata
+
+| Name | Description |
+|------|-------------|
+| `get_report_by_id` / `list_reports` | Get/list reports |
+| `get_related` | Get related records |
+| `get_updated_sobject_info` | Get recently updated records |
+| `get_owner_info` | Get record owner details |
+| `get_campaign_members` | List campaign members |
+| `get_sobjects` | List available SObjects |
+| `update_campaign` | Update a campaign |
+
+### Raw HTTP
+
+| Name | Description |
+|------|-------------|
+| `__adhoc_http_action` | Direct HTTP call to any Salesforce REST API endpoint |
+
+Use `__adhoc_http_action` for Salesforce operations not covered by the native actions: REST API endpoints, Tooling API, Metadata API, or custom Apex REST services.
+
+---
 
 ### dynamicPickListSelection (CRITICAL)
 
@@ -160,7 +297,7 @@ Workato provides built-in Salesforce connector actions (no custom HTTP needed).
 
 **Note:** Both `dynamicPickListSelection.sobject_name` AND `input.sobject_name` are required. They should have the same value.
 
-### 1. Upsert SObject
+### upsert_sobject Detail
 
 **Use when:** Creating or updating records based on an external ID field.
 
@@ -198,7 +335,7 @@ Workato provides built-in Salesforce connector actions (no custom HTTP needed).
 - A standard unique field like `Email` or `Id`
 - **User must specify which field to use** - do not assume
 
-### 2. Update SObject
+### update_sobject Detail
 
 **Use when:** Updating an existing record by Salesforce ID.
 
@@ -222,7 +359,7 @@ Workato provides built-in Salesforce connector actions (no custom HTTP needed).
 - `id` - Salesforce 18-character record ID (required)
 - Other fields - Field values to update
 
-### 3. Search SObjects (Field Filters)
+### search_sobjects Detail
 
 **Use when:** Finding records by exact field match (equality only, no LIKE/IN/OR).
 
@@ -279,7 +416,7 @@ When accepting `limit` as a user input parameter, use **integer** type in the sc
 
 Do **NOT** use `"type": "number"` - this causes Workato to treat values as floats, producing malformed SOQL (e.g., `LIMIT 50.0`) which Salesforce rejects.
 
-### 4. Search SObjects with SOQL Query
+### search_sobjects_soql Detail
 
 **Use when:** Finding records with complex criteria (LIKE, IN, OR, ORDER BY, relationship fields) using raw SOQL.
 

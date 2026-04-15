@@ -11,10 +11,11 @@ This skill provides Stripe-specific knowledge for generating Workato recipes. It
 
 1. [When to Use This Skill](#when-to-use-this-skill)
 2. [Stripe Config Requirements](#stripe-config-requirements)
-3. [Stripe Custom HTTP Actions](#stripe-custom-http-actions)
-4. [Stripe Datapill Exception](#stripe-datapill-exception)
-5. [Stripe Patterns](#stripe-patterns)
-6. [Pre-Push Checklist (Stripe)](#pre-push-checklist-stripe)
+3. [Native Stripe Connector Actions](#native-stripe-connector-actions)
+4. [Stripe Custom HTTP Actions](#stripe-custom-http-actions)
+5. [Stripe Datapill Exception](#stripe-datapill-exception)
+6. [Stripe Patterns](#stripe-patterns)
+7. [Pre-Push Checklist (Stripe)](#pre-push-checklist-stripe)
 
 ---
 
@@ -70,11 +71,38 @@ For callable recipe trigger:
 
 ---
 
+## Native Stripe Connector Actions
+
+The Workato Stripe connector (`provider: "stripe"`) provides **2 agent-usable actions** and **1 trigger**. The native connector has very limited coverage of the Stripe API — most operations require `__adhoc_http_action`.
+
+### Trigger
+
+| Name | Description |
+|------|-------------|
+| `new_object` | Trigger on new Stripe objects (customers, charges, etc.) |
+
+### Actions
+
+| Name | Description |
+|------|-------------|
+| `get_customer_by_id` | Retrieve a Stripe customer by their ID |
+| `search_charges` | Search for charges with filters |
+
+### Raw HTTP
+
+| Name | Description |
+|------|-------------|
+| `__adhoc_http_action` | Direct HTTP call to any Stripe API endpoint |
+
+**Use `__adhoc_http_action` for all operations not listed above**, including: customer search/creation, PaymentIntents (create/confirm), refunds, subscriptions, invoices, and payment methods. See [Stripe Custom HTTP Actions](#stripe-custom-http-actions) below for patterns and examples.
+
+---
+
 ## Stripe Custom HTTP Actions
 
 ### Why Custom HTTP Actions
 
-Workato's built-in Stripe connector lacks modern API endpoints. Use custom HTTP actions (`__adhoc_http_action`) for:
+Given the limited native coverage (2 actions), most Stripe recipes rely on custom HTTP actions (`__adhoc_http_action`). Common operations:
 
 | Endpoint | Use Case |
 |----------|----------|

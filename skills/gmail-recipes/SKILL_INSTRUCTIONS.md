@@ -42,17 +42,17 @@ With this skill loaded, you can:
 ## Gmail Connector
 
 This skill covers the **native Gmail connector** (`gmail`) which provides:
-- Built-in `send_mail` action for sending emails
-- Adhoc HTTP actions for direct Gmail REST API calls
+- 6 built-in actions for common email operations (send, read, list, labels, user info, attachments)
+- 1 trigger for new email arrival
+- Adhoc HTTP actions for direct Gmail REST API calls beyond native coverage
 
 ### Connector Limitations
 
 > **Important:** The native Gmail connector is built on the **Gmail REST API v1** with a hardcoded base URL (`https://www.googleapis.com/gmail/v1/users/`). This means:
 >
-> - **Limited built-in actions** - Only `send_mail` is available out of the box
-> - **Adhoc HTTP required** - Most operations (list, search, labels, etc.) require adhoc HTTP calls
+> - **6 built-in actions + 1 trigger** — covers send, read, list, labels, user info, and attachments
+> - **Adhoc HTTP required** for operations beyond the 6 native actions (message modification, deletion, threads, drafts, label CRUD)
 > - **API version locked** - Cannot access newer Gmail API features not in v1
-> - **Workarounds may be needed** - Some advanced operations may not be possible
 >
 > If a user needs functionality not supported by the v1 API, recommend they:
 > 1. Check the Workato Community Library for updated Gmail connectors
@@ -149,9 +149,38 @@ For optional query parameters, use `.presence || skip`:
 
 ---
 
-## Native Gmail Actions
+## Native Gmail Connector Actions
 
-### send_mail
+The Workato Gmail connector (`provider: "gmail"`) provides **6 built-in actions** and **1 trigger**.
+
+### Trigger
+
+| Name | Description |
+|------|-------------|
+| `new_email` | Trigger when a new email arrives in the connected account |
+
+### Actions
+
+| Name | Description | Notes |
+|------|-------------|-------|
+| `send_mail` | Send an email (text or HTML) with optional attachments | See [detail below](#send_mail-detail) |
+| `get_email` | Get full details of a single email by message ID | Returns headers, body, labels, snippet |
+| `get_emails` | List/search emails with optional query filters | Supports Gmail search syntax via `q` param |
+| `get_labels` | List all labels in the connected account | Returns system and user labels |
+| `get_user_info` | Get the authenticated user's Gmail profile | Returns email address, messages/threads totals |
+| `download_attachment` | Download an email attachment by attachment ID | Requires `message_id` and `id` (attachment ID) |
+
+### Raw HTTP
+
+| Name | Description |
+|------|-------------|
+| `__adhoc_http_action` | Direct HTTP call to any Gmail REST API v1 endpoint |
+
+Use `__adhoc_http_action` for Gmail operations not covered by the 6 native actions above: message modification (add/remove labels, archive), message deletion, thread operations, draft management, and label creation/modification/deletion. See the [Gmail API Reference](patterns/gmail-api-reference.md) for the full endpoint catalog.
+
+---
+
+### send_mail Detail
 
 Send an email with optional attachments:
 

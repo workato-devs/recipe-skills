@@ -56,10 +56,10 @@ Data Source URL: https://app.trial.workato.com/slack_webhooks/data_source?coak_i
 
 This skill provides Slack-specific knowledge for generating Workato recipes. It covers **two Slack connectors**:
 
-| Connector | Provider | Use Case |
-|-----------|----------|----------|
-| **Workbot for Slack** | `slack_bot` | Interactive bots, slash commands, dialogs, buttons |
-| **Slack (native)** | `slack` | Programmatic actions via API-triggered recipes |
+| Connector | Provider | Actions | Trigger | Use Case |
+|-----------|----------|:---:|:---:|----------|
+| **Workbot for Slack** | `slack_bot` | 4 | `bot_command_v2` | Interactive bots, slash commands, dialogs, buttons |
+| **Slack (native)** | `slack` | 7 | `new_event` | Programmatic actions via API-triggered recipes |
 
 This skill extends the **workato-recipes** base skill.
 
@@ -148,6 +148,34 @@ Before generating a recipe with a slash command, verify the name is available in
   }
 }
 ```
+
+### Workbot Actions Overview
+
+The Workbot for Slack connector provides **4 built-in actions** and **1 trigger**.
+
+#### Trigger
+
+| Name | Description |
+|------|-------------|
+| `bot_command_v2` | Trigger on slash commands, button clicks, or dialog submissions |
+
+#### Actions
+
+| Name | Description | Notes |
+|------|-------------|-------|
+| `post_bot_reply_v2` | Reply to the triggering user in context | No channel ID needed |
+| `post_bot_message` | Post a message to any channel or DM | Requires channel ID |
+| `open_bot_dialog` | Open a dialog/modal to collect user input | Requires `trigger_id` from trigger context |
+
+#### Raw HTTP
+
+| Name | Description |
+|------|-------------|
+| `__adhoc_http_action` | Direct HTTP call to Slack API endpoints (e.g., `conversations.create`, `conversations.invite`, `users.info`) |
+
+Use `__adhoc_http_action` for Slack API operations not covered by the 4 native Workbot actions: channel management, user lookups, file operations, etc. See [Adhoc HTTP Action](#adhoc-http-action-direct-slack-api) below.
+
+---
 
 ### Workbot Command Trigger
 
@@ -507,19 +535,31 @@ Call Slack API endpoints directly:
 }
 ```
 
-### Available Actions
+### Native Slack Actions Overview
 
-| Action | Description |
-|--------|-------------|
-| `post_message_to_channel` | Post message to channel |
-| `create_conversation` | Create a channel |
-| `get_user_by_email` | Look up user by email |
-| `invite_user_to_channel` | Invite user to channel |
-| `archive_conversation` | Archive a channel |
-| `unarchive_conversation` | Unarchive a channel |
-| `set_conversation_purpose` | Set channel purpose |
+The native Slack connector provides **7 built-in actions** and **1 trigger**.
 
-See `patterns/native-slack-actions.md` for complete documentation.
+#### Trigger
+
+| Name | Description |
+|------|-------------|
+| `new_event` | Trigger on Slack events (new messages, reactions, etc.) |
+
+#### Actions
+
+| Name | Description | Notes |
+|------|-------------|-------|
+| `post_message_to_channel` | Post a message to a channel | Supports threading via `thread_ts` |
+| `create_conversation` | Create a new channel | Set `private: "false"` for public channels |
+| `get_user_by_email` | Look up a Slack user by email address | Returns user ID, name, profile, role flags |
+| `invite_user_to_channel` | Invite a user to a channel | Requires channel ID + user ID |
+| `archive_conversation` | Archive a channel | Requires channel ID |
+| `unarchive_conversation` | Unarchive a channel | Requires channel ID |
+| `set_conversation_purpose` | Set a channel's purpose text | Requires channel ID |
+
+> **Note:** The lint-rules also list `create_channel`, `slack_channel_create`, and `slack_conversation_create` — these are aliases for `create_conversation`. Always use `create_conversation`.
+
+See `patterns/native-slack-actions.md` for detailed examples and output fields.
 
 ---
 
