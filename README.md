@@ -153,8 +153,7 @@ We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full gu
 
 ### Next
 - [ ] Expand connector coverage (additional connectors)
-- [ ] Fill coverage gaps in existing skills (Slack threads/Block Kit, Gmail drafts/threads)
-- [ ] Workato CLI integration (pending platform support)
+- [ ] Workato CLI integration (pending CLI roadmap)
 
 ## License
 
