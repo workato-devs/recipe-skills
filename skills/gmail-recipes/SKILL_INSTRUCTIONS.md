@@ -42,16 +42,16 @@ With this skill loaded, you can:
 ## Gmail Connector
 
 This skill covers the **native Gmail connector** (`gmail`) which provides:
-- 6 built-in actions for common email operations (send, read, list, labels, user info, attachments)
+- 3 native actions for core email operations (send, get by ID, download attachment)
 - 1 trigger for new email arrival
-- Adhoc HTTP actions for direct Gmail REST API calls beyond native coverage
+- Adhoc HTTP actions for all other Gmail REST API operations (list, search, labels, user info, modify, delete, threads, drafts)
 
 ### Connector Limitations
 
 > **Important:** The native Gmail connector is built on the **Gmail REST API v1** with a hardcoded base URL (`https://www.googleapis.com/gmail/v1/users/`). This means:
 >
-> - **6 built-in actions + 1 trigger** — covers send, read, list, labels, user info, and attachments
-> - **Adhoc HTTP required** for operations beyond the 6 native actions (message modification, deletion, threads, drafts, label CRUD)
+> - **3 native actions + 1 trigger** — covers send, get email/draft by ID, and download attachment
+> - **Adhoc HTTP required** for most operations: list/search emails, labels, user info, message modification, deletion, threads, drafts
 > - **API version locked** - Cannot access newer Gmail API features not in v1
 >
 > If a user needs functionality not supported by the v1 API, recommend they:
@@ -149,34 +149,29 @@ For optional query parameters, use `.presence || skip`:
 
 ---
 
-## Native Gmail Connector Actions
+## Native Connector Guidance
 
-The Workato Gmail connector (`provider: "gmail"`) provides **6 built-in actions** and **1 trigger**.
+The Gmail connector provides 3 native actions and 1 trigger. See `lint-rules.json` for the authoritative list of valid action and trigger names.
 
 ### Trigger
 
-| Name | Description |
-|------|-------------|
-| `new_email` | Trigger when a new email arrives in the connected account |
+- **`new_email`** — Fires when a new email arrives in the connected account.
 
-### Actions
+### Choosing the Right Approach
 
-| Name | Description | Notes |
-|------|-------------|-------|
-| `send_mail` | Send an email (text or HTML) with optional attachments | See [detail below](#send_mail-detail) |
-| `get_email` | Get full details of a single email by message ID | Returns headers, body, labels, snippet |
-| `get_emails` | List/search emails with optional query filters | Supports Gmail search syntax via `q` param |
-| `get_labels` | List all labels in the connected account | Returns system and user labels |
-| `get_user_info` | Get the authenticated user's Gmail profile | Returns email address, messages/threads totals |
-| `download_attachment` | Download an email attachment by attachment ID | Requires `message_id` and `id` (attachment ID) |
+**Native actions (use these when possible):**
+- **`send_mail`** — Send an email (text or HTML) with optional attachments. See [detail below](#send_mail-detail).
+- **`get_email_or_draft_by_id`** — Get full details of a single email or draft by message ID. Returns headers, body, labels, snippet.
+- **`download_attachment`** — Download an attachment by message ID and attachment ID.
 
-### Raw HTTP
+**Adhoc HTTP required for everything else:**
+- **List/search emails** — Use `__adhoc_http_action` with `GET me/messages` and Gmail query syntax via the `q` parameter. See [adhoc patterns below](#adhoc-http-patterns).
+- **Labels** — List, create, modify, delete, apply, or remove labels via `me/labels` endpoints.
+- **User info** — Get Gmail profile via `me/profile`.
+- **Message operations** — Modify (add/remove labels, archive), delete, trash via `me/messages/{id}/modify`, `me/messages/{id}/trash`.
+- **Threads and drafts** — Full thread and draft management via `me/threads`, `me/drafts`.
 
-| Name | Description |
-|------|-------------|
-| `__adhoc_http_action` | Direct HTTP call to any Gmail REST API v1 endpoint |
-
-Use `__adhoc_http_action` for Gmail operations not covered by the 6 native actions above: message modification (add/remove labels, archive), message deletion, thread operations, draft management, and label creation/modification/deletion. See the [Gmail API Reference](patterns/gmail-api-reference.md) for the full endpoint catalog.
+See `patterns/gmail-api-reference.md` for the full endpoint catalog.
 
 ---
 

@@ -12,8 +12,8 @@ The following checks are specific to Jira connector recipes.
 
 ## Action Names
 
+- [ ] Action `name` matches a valid name in `lint-rules.json` or is `__adhoc_http_action`
 - [ ] `search_issues_by_JQL` is exactly case-correct (uppercase `JQL`, NOT `jql` or `Jql`)
-- [ ] Action names for untested actions (`create_issue`, `update_issue`, `get_issue`) include a comment or warning noting they are not yet validated via CLI push
 
 ## JQL Input Field
 

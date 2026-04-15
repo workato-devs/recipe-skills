@@ -11,7 +11,7 @@ This skill provides Stripe-specific knowledge for generating Workato recipes. It
 
 1. [When to Use This Skill](#when-to-use-this-skill)
 2. [Stripe Config Requirements](#stripe-config-requirements)
-3. [Native Stripe Connector Actions](#native-stripe-connector-actions)
+3. [Native Connector Guidance](#native-connector-guidance)
 4. [Stripe Custom HTTP Actions](#stripe-custom-http-actions)
 5. [Stripe Datapill Exception](#stripe-datapill-exception)
 6. [Stripe Patterns](#stripe-patterns)
@@ -71,38 +71,41 @@ For callable recipe trigger:
 
 ---
 
-## Native Stripe Connector Actions
+## Native Connector Guidance
 
-The Workato Stripe connector (`provider: "stripe"`) provides **2 agent-usable actions** and **1 trigger**. The native connector has very limited coverage of the Stripe API — most operations require `__adhoc_http_action`.
+The Stripe connector provides 7 native actions and 4 triggers. See `lint-rules.json` for the authoritative list of valid action and trigger names.
 
-### Trigger
+### Choosing the Right Trigger
 
-| Name | Description |
-|------|-------------|
-| `new_object` | Trigger on new Stripe objects (customers, charges, etc.) |
+- **`new_object`** — Generic trigger for new Stripe objects (customers, charges, invoices, etc.).
+- **`new_charge`** — Trigger specifically on new charges.
+- **`new_event`** — Trigger on Stripe webhook events.
+- **`new_objects_batch`** — Batch trigger for processing multiple new objects.
 
-### Actions
+### Choosing the Right Action
 
-| Name | Description |
-|------|-------------|
-| `get_customer_by_id` | Retrieve a Stripe customer by their ID |
-| `search_charges` | Search for charges with filters |
+**Customer operations:**
+- **`create_customer`** — Create a new Stripe customer natively.
+- **`update_customer`** — Update an existing customer.
 
-### Raw HTTP
+**Charges & invoices:**
+- **`create_charge`** — Create a charge.
+- **`create_invoice`** — Create an invoice.
+- **`create_invoice_item`** — Add a line item to an invoice.
 
-| Name | Description |
-|------|-------------|
-| `__adhoc_http_action` | Direct HTTP call to any Stripe API endpoint |
+**Generic lookups:**
+- **`get_object_by_id`** — Retrieve any Stripe object by ID (customer, charge, invoice, subscription, etc.).
+- **`list_objects`** — List objects of any type with optional filters.
 
-**Use `__adhoc_http_action` for all operations not listed above**, including: customer search/creation, PaymentIntents (create/confirm), refunds, subscriptions, invoices, and payment methods. See [Stripe Custom HTTP Actions](#stripe-custom-http-actions) below for patterns and examples.
+**Adhoc HTTP required for:** PaymentIntents (create/confirm), refunds, subscriptions, payment methods, customer search, and other Stripe API operations not covered by the 7 native actions. See [Stripe Custom HTTP Actions](#stripe-custom-http-actions) below.
 
 ---
 
 ## Stripe Custom HTTP Actions
 
-### Why Custom HTTP Actions
+### When to Use Custom HTTP Actions
 
-Given the limited native coverage (2 actions), most Stripe recipes rely on custom HTTP actions (`__adhoc_http_action`). Common operations:
+While the connector provides 7 native actions for basic customer, charge, and invoice operations, many Stripe workflows still require `__adhoc_http_action`. Common adhoc operations:
 
 | Endpoint | Use Case |
 |----------|----------|
@@ -324,7 +327,7 @@ PaymentIntent status after confirm indicates auth requirement:
 ### Stripe-Specific Checks
 
 - [ ] Config includes `stripe` provider with connection reference
-- [ ] Custom HTTP actions use `"name": "__adhoc_http_action"`
+- [ ] Action `name` matches a valid name in `lint-rules.json` or is `__adhoc_http_action`
 - [ ] Create/confirm actions include `Idempotency-Key` header
 - [ ] Datapill paths do NOT include `["body"]` wrapper
 - [ ] Search results use `["data", {"path_element_type":"current_item"}, "id"]`

@@ -58,8 +58,8 @@ This skill provides Slack-specific knowledge for generating Workato recipes. It 
 
 | Connector | Provider | Actions | Trigger | Use Case |
 |-----------|----------|:---:|:---:|----------|
-| **Workbot for Slack** | `slack_bot` | 4 | `bot_command_v2` | Interactive bots, slash commands, dialogs, buttons |
-| **Slack (native)** | `slack` | 7 | `new_event` | Programmatic actions via API-triggered recipes |
+| **Workbot for Slack** | `slack_bot` | 3 + adhoc | `bot_command_v2` | Interactive bots, slash commands, dialogs, buttons |
+| **Slack (native)** | `slack` | 9 | 2 triggers | Programmatic actions, button replies, channel management |
 
 This skill extends the **workato-recipes** base skill.
 
@@ -535,29 +535,29 @@ Call Slack API endpoints directly:
 }
 ```
 
-### Native Slack Actions Overview
+### Native Slack Connector Guidance
 
-The native Slack connector provides **7 built-in actions** and **1 trigger**.
+The native Slack connector provides 9 actions and 2 triggers. See `lint-rules.json` for the authoritative list of valid action and trigger names.
 
-#### Trigger
+#### Choosing the Right Trigger
 
-| Name | Description |
-|------|-------------|
-| `new_event` | Trigger on Slack events (new messages, reactions, etc.) |
+- **`new_event`** — Subscribe to Slack events (new messages, reactions, channel changes, etc.).
+- **`button_action`** — Trigger when a user clicks a button posted via the native Slack connector.
 
-#### Actions
+#### Choosing the Right Action
 
-| Name | Description | Notes |
-|------|-------------|-------|
-| `post_message_to_channel` | Post a message to a channel | Supports threading via `thread_ts` |
-| `create_conversation` | Create a new channel | Set `private: "false"` for public channels |
-| `get_user_by_email` | Look up a Slack user by email address | Returns user ID, name, profile, role flags |
-| `invite_user_to_channel` | Invite a user to a channel | Requires channel ID + user ID |
-| `archive_conversation` | Archive a channel | Requires channel ID |
-| `unarchive_conversation` | Unarchive a channel | Requires channel ID |
-| `set_conversation_purpose` | Set a channel's purpose text | Requires channel ID |
+**Messaging:**
+- **`post_message_to_channel`** — Post a message to a channel. Supports threading via `thread_ts`.
+- **`post_button_action_reply`** — Reply to a button action interaction.
 
-> **Note:** The lint-rules also list `create_channel`, `slack_channel_create`, and `slack_conversation_create` — these are aliases for `create_conversation`. Always use `create_conversation`.
+**Channel management:**
+- **`create_conversation`** — Create a new channel. Set `private: "false"` for public channels.
+- **`archive_conversation`** / **`unarchive_conversation`** — Archive or unarchive a channel.
+- **`set_conversation_purpose`** / **`set_conversation_topic`** — Set a channel's purpose or topic text.
+- **`invite_user_to_conversation`** — Invite a user to a channel. Requires channel ID + user ID.
+
+**Users:**
+- **`get_user_by_email`** — Look up a Slack user by email address. Returns user ID, name, profile, role flags.
 
 See `patterns/native-slack-actions.md` for detailed examples and output fields.
 

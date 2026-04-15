@@ -42,6 +42,7 @@ The following checks are specific to Slack connector recipes.
 
 - [ ] `slack` provider in config section
 - [ ] Connection name matches your Slack connection
+- [ ] Action `name` matches a valid name in `lint-rules.json` or is `__adhoc_http_action`
 
 ### Datapills & IDs
 

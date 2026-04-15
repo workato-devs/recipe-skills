@@ -12,7 +12,7 @@ The following checks are specific to Salesforce connector recipes.
 
 ## Actions
 
-- [ ] Action uses correct `name`: `upsert_sobject`, `update_sobject`, `search_sobjects`, or `search_sobjects_soql`
+- [ ] Action `name` matches a valid name in `lint-rules.json` or is `__adhoc_http_action`
 - [ ] `sobject_name` matches target SObject API name exactly
 - [ ] `dynamicPickListSelection` is present on all Salesforce actions
 - [ ] `sobject_name` is in both `dynamicPickListSelection` AND `input`

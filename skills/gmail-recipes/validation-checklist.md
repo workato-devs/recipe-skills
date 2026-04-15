@@ -9,6 +9,7 @@ The following checks are specific to Gmail connector recipes.
 ## Config & Connection
 
 - [ ] Config includes `gmail` provider with connection reference
+- [ ] Action `name` matches a valid name in `lint-rules.json` or is `__adhoc_http_action`
 
 ## Datapill Paths
 

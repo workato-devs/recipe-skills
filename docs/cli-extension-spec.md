@@ -5,11 +5,13 @@
 **Author:** Zayne Turner
 **Date:** January 2026
 
+> **Note:** This spec targets the Python-based `workato` platform CLI, which does not support plugins. If the Go-based `wk` CLI (which supports plugins and already has `wk recipes validate --skills-path`) supersedes the Python CLI, this spec will be deprecated in favor of `wk` plugin-based integration.
+
 ---
 
 ## Overview
 
-This document proposes an extension to the Workato CLI that adds support for Recipe Skills - reusable knowledge bundles that help developers (and AI agents) write production-grade recipes more efficiently.
+This document proposes an extension to the Python-based Workato CLI (`workato`) that adds support for Recipe Skills - reusable knowledge bundles that help developers (and AI agents) write production-grade recipes more efficiently.
 
 ## Vision
 

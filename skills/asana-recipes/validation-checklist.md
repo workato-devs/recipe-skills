@@ -14,7 +14,7 @@ The following checks are specific to Asana connector recipes.
 
 ## Actions
 
-- [ ] Action `name` matches one of the 18 native Asana actions (see SKILL_INSTRUCTIONS.md)
+- [ ] Action `name` matches a valid name in `lint-rules.json` or is `__adhoc_http_action`
 - [ ] For operations not covered by native actions, uses `__adhoc_http_action` with correct `mnemonic`
 - [ ] `keyword` is `"action"` for all non-trigger steps
 

@@ -5,7 +5,7 @@
 
 This skill provides Asana-specific knowledge for generating Workato recipes. It extends the **workato-recipes** base skill and focuses on Asana-specific patterns, including:
 
-- **Native Asana connector** (`provider: "asana"`) — 18 built-in actions for common operations
+- **Native Asana connector** (`provider: "asana"`) — 16 native actions for common operations
 - **Adhoc HTTP** for Asana REST API endpoints not covered by native actions
 
 ---
@@ -33,9 +33,9 @@ This skill provides Asana-specific knowledge for generating Workato recipes. It 
 
 1. [When to Use This Skill](#when-to-use-this-skill)
 2. [Asana Config Requirements](#asana-config-requirements)
-3. [Native Asana Connector Actions](#native-asana-connector-actions)
+3. [Native Connector Guidance](#native-connector-guidance)
 4. [Asana Datapill Paths](#asana-datapill-paths)
-5. [Asana API Resources (Full Coverage)](#asana-api-resources-full-coverage)
+5. [Adhoc HTTP for Extended API Coverage](#adhoc-http-for-extended-api-coverage)
 6. [Common Patterns](#common-patterns)
 7. [Validation](#validation)
 8. [Templates](#templates)
@@ -96,56 +96,22 @@ Every recipe using Asana actions requires the `asana` provider in the config sec
 
 ---
 
-## Native Asana Connector Actions
+## Native Connector Guidance
 
-The Workato Asana connector (`provider: "asana"`) provides 18 built-in actions.
+The Asana connector provides 16 native actions, 2 triggers, and `__adhoc_http_action` for everything else. See `lint-rules.json` for the authoritative list of valid action and trigger names.
 
-### Trigger
+### Choosing the Right Action
 
-| Name | Description | Key Inputs |
-|------|-------------|------------|
-| `new_event` | Webhook trigger for Asana events | `workspace_id` (required), `project_id`, `team_id`, `actions` (changed/deleted/removed/added/undeleted) |
+**Get vs Search vs List:**
+- **`get_*_by_id`** actions — Use when you already have the resource GID
+- **`search_*`** actions — Use when filtering by criteria (name, assignee, workspace, etc.)
+- **`list_*`** actions — Use when enumerating all items in a scope (project tasks, workspace members, tagged tasks)
 
-The trigger uses `dynamicPickListSelection` for workspace and action filtering.
+**Triggers:**
+- **`new_event`** — Webhook trigger for Asana change events. Requires `workspace_id`. Use `dynamicPickListSelection` for workspace and action filtering. Filter with `actions` array: `changed`, `deleted`, `removed`, `added`, `undeleted`.
+- **`new_or_updated_task_v2`** — Polling trigger for new or updated tasks.
 
-### CRUD Actions
-
-| Name | Description |
-|------|-------------|
-| `create_task` | Create a new task |
-| `create_subtask` | Create a subtask under a parent task |
-| `create_tag` | Create a new tag |
-| `update_task` | Update an existing task |
-| `get_task_details_by_id` | Get full task details |
-| `get_people_details_by_id` | Get user details |
-| `get_project_detail_by_id` | Get project details |
-| `get_project_sections` | Get sections in a project |
-
-### Search & List Actions
-
-| Name | Description | Key Inputs |
-|------|-------------|------------|
-| `search_tasks` | Search tasks with filters | |
-| `search_projects` | Search projects | |
-| `search_tags` | Search tags | |
-| `list_project_tasks` | List tasks in a project | `ProjectID`, `limit` |
-| `list_all_tasks_with_tag` | List tasks with a specific tag | |
-| `list_people` | List workspace members | |
-| `list_workspaces` | List accessible workspaces | |
-
-### Relationship Actions
-
-| Name | Description |
-|------|-------------|
-| `add_task_to_section` | Move/add a task to a section |
-
-### Raw HTTP
-
-| Name | Description |
-|------|-------------|
-| `__adhoc_http_action` | Direct HTTP call to any Asana API endpoint not covered by native actions |
-
-Use `__adhoc_http_action` for Asana REST API operations not covered by the 17 native actions above (e.g., goals, portfolios, budgets, webhooks, time tracking). See the Asana API resource reference below for the full operation catalog.
+**Uncovered operations:** Use `__adhoc_http_action` for any Asana REST API endpoint not in the 16 native actions (goals, portfolios, budgets, webhooks, time tracking, etc.). See [Adhoc HTTP for Extended API Coverage](#adhoc-http-for-extended-api-coverage) below.
 
 ---
 
@@ -165,81 +131,11 @@ Asana action outputs are accessed directly — no `["body"]` wrapper:
 
 ---
 
-## Asana API Resources (Full Coverage)
+## Adhoc HTTP for Extended API Coverage
 
-The templates directory includes reference recipes from the full Asana REST API covering **217 operations** across the following resources:
+The Asana REST API covers **217 operations** across 20+ resource types (tasks, projects, goals, portfolios, teams, users, workspaces, sections, tags, webhooks, custom fields, stories, attachments, status updates, budgets, rates, allocations, time tracking, memberships, and more).
 
-### Tasks (52 recipes) — Primary resource
-| Operation | Recipe |
-|-----------|--------|
-| Create | `create_a_task`, `create_a_subtask` |
-| Get | `get_a_task`, `get_multiple_tasks` |
-| Update | `update_a_task` |
-| Delete | `delete_a_task` |
-| Duplicate | `duplicate_a_task` |
-| Search | `search_tasks_in_a_workspace` |
-| List | `get_tasks_from_a_project`, `get_tasks_from_a_section`, `get_tasks_from_a_tag`, `get_tasks_from_a_user_task_list` |
-| Subtasks | `get_subtasks_from_a_task`, `set_the_parent_of_a_task` |
-| Dependencies | `get_dependencies_from_a_task`, `set_dependencies_for_a_task`, `unlink_dependencies_from_a_task` |
-| Dependents | `get_dependents_from_a_task`, `set_dependents_for_a_task`, `unlink_dependents_from_a_task` |
-| Tags | `add_a_tag_to_a_task`, `remove_a_tag_from_a_task`, `get_a_task_s_tags` |
-| Projects | `add_a_project_to_a_task`, `remove_a_project_from_a_task`, `get_projects_a_task_is_in` |
-| Followers | `add_followers_to_a_task`, `remove_followers_from_a_task` |
-| Custom ID | `get_a_task_for_a_given_custom_id` |
-
-### Projects (35 recipes)
-CRUD, duplicate, task counts, custom fields, members, followers, template instantiation, workspace/team scoped creation.
-
-### Goals (18 recipes)
-CRUD, metrics, relationships (supporting goals), collaborators, custom fields, parent goals.
-
-### Portfolios (16 recipes)
-CRUD, items, custom fields, memberships, users.
-
-### Teams (12 recipes)
-CRUD, memberships (team and user scoped), add/remove users.
-
-### Users (12 recipes)
-Get, update, list (workspace/team scoped), favorites, task lists.
-
-### Workspaces (8 recipes)
-Get, update, list, memberships, add/remove users, events.
-
-### Sections (7 recipes)
-CRUD, list in project, add task, move/insert.
-
-### Tags (7 recipes)
-CRUD, list (workspace scoped).
-
-### Webhooks (5 recipes)
-CRUD, list.
-
-### Custom Fields (7 recipes)
-CRUD, enum options (create, update, reorder), list by project/portfolio/goal/team/workspace.
-
-### Stories (5 recipes)
-CRUD, list from task.
-
-### Attachments (4 recipes)
-Get, delete, list from object, upload.
-
-### Status Updates (4 recipes)
-CRUD, list from object.
-
-### Budgets & Rates (10 recipes)
-Full CRUD for both.
-
-### Allocations (5 recipes)
-Full CRUD.
-
-### Time Tracking (7 recipes)
-CRUD, list entries per task and globally.
-
-### Memberships (5 recipes)
-CRUD for generic memberships, plus specialized portfolio/project/team/workspace memberships.
-
-### Other (17 recipes)
-Access requests, audit logs, events, exports, jobs, typeahead, parallel requests, rules, time periods, reactions.
+For the full operation catalog with per-resource recipes, see `patterns/api-endpoint-recipes.md`.
 
 ---
 
@@ -267,7 +163,7 @@ Step 2: [downstream action — Slack notification, Salesforce update, etc.]
 
 ### 3. Adhoc HTTP for uncovered operations
 
-For operations not in the 17 native actions (goals, portfolios, webhooks, etc.), use `__adhoc_http_action`:
+For operations not in the 16 native actions (goals, portfolios, webhooks, etc.), use `__adhoc_http_action`:
 
 ```json
 {
@@ -325,5 +221,5 @@ See `templates/` directory:
 - **Templates:** `templates/` directory — 3 reference recipes (create, get, search tasks)
 - **Patterns:** `patterns/` directory — API endpoint recipe pattern for full REST API coverage
 - **Asana API Docs:** https://developers.asana.com/docs/asana
-- **Connector actions:** 18 native actions (see [Native Asana Connector Actions](#native-asana-connector-actions))
+- **Connector actions:** See `lint-rules.json` for the authoritative list of valid action/trigger names
 - **Full API coverage:** 217 reference recipes covering the complete Asana REST API surface

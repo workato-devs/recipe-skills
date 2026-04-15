@@ -33,7 +33,7 @@ This skill provides Salesforce-specific knowledge for generating Workato recipes
 1. [When to Use This Skill](#when-to-use-this-skill)
 2. [Salesforce Config Requirements](#salesforce-config-requirements)
 3. [Standard vs Custom Objects and Fields](#standard-vs-custom-objects-and-fields)
-4. [Native Salesforce Connector Actions](#native-salesforce-connector-actions)
+4. [Native Connector Guidance](#native-connector-guidance)
 5. [Salesforce Datapill Paths](#salesforce-datapill-paths)
 6. [Salesforce Patterns](#salesforce-patterns)
 7. [Pre-Push Checklist (Salesforce)](#pre-push-checklist-salesforce)
@@ -130,144 +130,55 @@ For callable recipe trigger:
 
 ---
 
-## Native Salesforce Connector Actions
+## Native Connector Guidance
 
-The Workato Salesforce connector (`provider: "salesforce"`) provides **~75 agent-usable actions** and **10 triggers** — the largest connector in this skill set. Actions are organized below into **common** (used in most recipes) and **specialized** (bulk, composite, approval, documents).
+The Salesforce connector provides 32 native actions and 15 triggers. See `lint-rules.json` for the authoritative list of valid action and trigger names.
 
 > **CRITICAL:** All Salesforce actions require `dynamicPickListSelection` in addition to the `input` block. See [dynamicPickListSelection](#dynamicpicklistselection-critical) below.
 
-### Triggers
+### Choosing the Right Trigger
 
-| Name | Description | Notes |
-|------|-------------|-------|
-| `scheduled_sobject_soql_query` | Poll-based trigger using SOQL query | Most common trigger for Salesforce recipes |
-| `change_data_capture` | Real-time trigger on record changes via CDC | Requires CDC enabled on the SObject |
-| `new_platform_event` | Trigger on Salesforce Platform Events | |
-| `new_outbound_message` | Trigger on Outbound Message notifications | |
-| `closed_case` | Trigger when a Case is closed | |
-| `completed_campaign` | Trigger when a Campaign is completed | |
-| `new_duplicate_record_item` | Trigger on duplicate record detection | |
-| `new_pushtopic_event` | Trigger on PushTopic streaming events | Legacy — prefer CDC |
-| `scheduled_sobject_soql_query_v2` | Poll-based SOQL trigger (v2) | |
-| `sobject_created_bulk` | Bulk trigger on new SObject records | |
+- **Polling (most common):** `scheduled_sobject_soql_query` — runs a SOQL query on a schedule to detect new/changed records. V2 variant: `scheduled_sobject_soql_query_v2`.
+- **Real-time CDC:** `change_data_capture` — streams record changes as they happen. Requires CDC enabled on the SObject. Prefer over `new_pushtopic_event` (legacy).
+- **Platform Events:** `new_platform_event` — listens for platform event messages.
+- **Outbound Messages:** `new_outbound_message` — triggered by Salesforce workflow/process builder.
+- **Bulk:** `sobject_created_bulk`, `sobject_batch_created`, `scheduled_sobject_bulk_v2_created`, `scheduled_sobject_bulk_v2_created_or_updated` — for high-volume record processing.
+- **Custom objects:** `new_custom_object`, `updated_custom_object` (+ `_webhook` variants for real-time).
+- **Deletions:** `sobject_deleted` — triggers on record deletion.
 
-### Common Actions
+### Choosing the Right Action
 
-#### Generic CRUD (work with any SObject)
+**Record CRUD:**
+- **`upsert_sobject`** — Create or update by external ID. Best default for sync workflows. See [detail below](#upsert_sobject-detail).
+- **`update_sobject`** — Update by Salesforce record ID when you already have the ID. See [detail below](#update_sobject-detail).
+- **`delete_sobject`** — Delete by Salesforce record ID.
+- **`create_custom_object`** / **`get_custom_object`** — Create or retrieve custom object records.
+- **No native "get standard record by ID" action** — use `search_sobjects` with an `Id` filter or `search_sobjects_soql` with `WHERE Id = '...'`.
 
-| Name | Description | Notes |
-|------|-------------|-------|
-| `upsert_sobject` | Create or update by external ID | See [detail below](#upsert_sobject-detail). Requires `dynamicPickListSelection` with `query_field.primary_key` |
-| `update_sobject` | Update by Salesforce record ID | See [detail below](#update_sobject-detail) |
-| `delete_sobject` | Delete by Salesforce record ID | |
-| `get_object` | Get a single record by ID | |
-| `search_sobjects` | Search by exact field match | See [detail below](#search_sobjects-detail). Has critical EIS rules |
-| `search_sobjects_soql` | Search using raw SOQL query | See [detail below](#search_sobjects_soql-detail). Use for complex criteria (LIKE, IN, OR) |
+**Search:**
+- **`search_sobjects`** — Exact field match only (equality). Has critical EIS rules. See [detail below](#search_sobjects-detail).
+- **`search_sobjects_soql`** — Raw SOQL for complex criteria (LIKE, IN, OR, ORDER BY). See [detail below](#search_sobjects_soql-detail).
+- **`search_sobjects_soql_v2`** — V2 of SOQL search.
 
-#### Object-Specific Create
+**Bulk operations** (thousands+ records):
+- **`insert_bulk_job`** / **`upsert_bulk_job`** / **`update_bulk_job`** — Bulk create/upsert/update. V1 variants (`_v1` suffix) also available.
+- **`retry_bulk_jobs`** — Retry failed bulk jobs.
+- **`search_sobjects_soql_bulk_csv`** / **`_v2`** — Bulk SOQL query returning CSV.
 
-All follow the same pattern — specify fields for the target SObject. Use these instead of a generic create when working with standard objects:
+**Composite** (multiple operations in one API call):
+- **`composite_create_sobject`** / **`composite_update_sobject`** / **`upsert_composite_sobject`**
 
-| Name | Description |
-|------|-------------|
-| `create_contact` | Create a Contact (`LastName` required) |
-| `create_account` | Create an Account (`Name` required) |
-| `create_lead` | Create a Lead (`LastName`, `Company` required) |
-| `create_opportunity` | Create an Opportunity (`Name`, `StageName`, `CloseDate` required) |
-| `create_case` | Create a Case |
-| `create_campaign` | Create a Campaign |
-| `create_campaign_member` | Add a member to a Campaign |
-| `create_note` | Create a Note attached to a record |
-| `create_channel` | Create a Salesforce Channel |
-| `create_channel_member` | Add a member to a Channel |
+**Approvals:** `approve_process`, `reject_process`, `submit_process`
 
-#### Object-Specific Lookup
+**Files & attachments:** `upload_file_content`, `get_attachment_body`, `get_combined_attachment`
 
-Return a single record by matching criteria:
+**Reports & metadata:** `get_report_by_id`, `get_related`, `get_sobject_schema`
 
-| Name | Description |
-|------|-------------|
-| `lookup_contact` | Find a Contact |
-| `lookup_account` | Find an Account |
-| `lookup_lead` | Find a Lead |
-| `lookup_opportunity` | Find an Opportunity |
-| `lookup_campaign` | Find a Campaign |
-| `object_lookup` | Generic lookup for any SObject |
+**Platform events:** `create_custom_platform_event`
 
-#### Additional Search
+**Data categories:** `list_data_category_groups`, `read_data_category_group`
 
-| Name | Description | Notes |
-|------|-------------|-------|
-| `search_sobjects_soql_v2` | SOQL search (v2 API) | |
-| `soql_query` | Execute raw SOQL query | |
-| `composite_soql_query` | Execute multiple SOQL queries in one call | |
-| `custom_query` | Custom query execution | |
-
-### Specialized Actions
-
-#### Bulk Operations
-
-For large data volumes (thousands+ of records):
-
-| Name | Description |
-|------|-------------|
-| `create_batch_job` / `create_batch_job_v2` | Create a bulk job |
-| `create_batch` | Add a batch to a bulk job |
-| `start_bulk_job` / `submit_bulk_job` | Start/submit a bulk job |
-| `close_batch_job` / `close_batch_job_v2` | Close a bulk job |
-| `get_batch_job` / `get_batch_job_v2` | Get bulk job details |
-| `get_all_bulk_jobs_status` / `get_bulk_job_status` | Check bulk job status |
-| `get_job_batches` | List batches in a job |
-| `get_job_batch_result` / `get_job_batch_result_data` | Get batch results |
-| `retry_bulk_jobs` | Retry failed bulk jobs |
-| `search_sobjects_soql_bulk_csv` / `_v2` | Bulk SOQL query with CSV output |
-
-#### Composite Requests
-
-Execute multiple operations in a single API call:
-
-| Name | Description |
-|------|-------------|
-| `create_composite_request` | Create a composite request |
-| `update_composite_request` | Update via composite request |
-| `upsert_composite_request` | Upsert via composite request |
-| `upsert_composite_sobject` | Upsert multiple SObjects |
-
-#### Approvals
-
-| Name | Description |
-|------|-------------|
-| `approval_process` | Trigger an approval process |
-| `get_all_approval_process` | List available approval processes |
-| `submit_process` | Submit a record for approval |
-
-#### Documents & Files
-
-| Name | Description |
-|------|-------------|
-| `get_document` / `get_document_content` | Get document metadata/content |
-| `upload_file_content` | Upload a file |
-| `get_attachment_body` / `get_combined_attachment` | Get attachment content |
-
-#### Reports & Metadata
-
-| Name | Description |
-|------|-------------|
-| `get_report_by_id` / `list_reports` | Get/list reports |
-| `get_related` | Get related records |
-| `get_updated_sobject_info` | Get recently updated records |
-| `get_owner_info` | Get record owner details |
-| `get_campaign_members` | List campaign members |
-| `get_sobjects` | List available SObjects |
-| `update_campaign` | Update a campaign |
-
-### Raw HTTP
-
-| Name | Description |
-|------|-------------|
-| `__adhoc_http_action` | Direct HTTP call to any Salesforce REST API endpoint |
-
-Use `__adhoc_http_action` for Salesforce operations not covered by the native actions: REST API endpoints, Tooling API, Metadata API, or custom Apex REST services.
+**Uncovered operations:** Use `__adhoc_http_action` for REST API endpoints, Tooling API, Metadata API, or custom Apex REST services not covered by native actions.
 
 ---
 

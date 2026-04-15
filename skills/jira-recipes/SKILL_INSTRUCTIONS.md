@@ -29,7 +29,7 @@ This skill provides Jira-specific knowledge for generating Workato recipes. It e
 
 1. [When to Use This Skill](#when-to-use-this-skill)
 2. [Jira Config Requirements](#jira-config-requirements)
-3. [Native Jira Connector Actions](#native-jira-connector-actions)
+3. [Native Connector Guidance](#native-connector-guidance)
 4. [JQL Query Syntax](#jql-query-syntax)
 5. [Jira Datapill Paths](#jira-datapill-paths)
 6. [Jira Patterns](#jira-patterns)
@@ -96,108 +96,45 @@ Every Jira recipe requires the `jira` provider in the config section:
 
 ---
 
-## Native Jira Connector Actions
+## Native Connector Guidance
 
-The Workato Jira connector (`provider: "jira"`) provides **34 agent-usable actions** and **3 triggers**. Only `search_issues_by_JQL` has been fully tested via CLI push — other actions are available in the connector but should be verified against the Workato UI before production use.
+The Jira connector provides 17 native actions and 11 triggers. See `lint-rules.json` for the authoritative list of valid action and trigger names.
 
-> Actions marked with **(tested)** have been validated via CLI push. All others exist in the connector but have not been CLI-push verified.
+### Choosing the Right Trigger
 
-### Triggers
+- **Generic webhook:** `new_event` — fires on any configured Jira event (issue created, updated, etc.).
+- **Issue polling:** `new_issue`, `updated_issue` — poll for new or updated issues.
+- **Batch polling:** `new_issue_batch`, `updated_issue_batch` — poll for batches of new/updated issues.
+- **Bulk:** `issue_created_bulk`, `issue_created_or_updated_bulk` — for high-volume processing.
+- **Specific webhooks:** `updated_comment_webhook`, `updated_issue_webhook`, `updated_worklog_webhook` — real-time triggers for specific change types.
+- **Deletion:** `deleted_object` — triggers on object deletion.
 
-| Name | Description |
-|------|-------------|
-| `new_event` | Webhook trigger for Jira events (issue created, updated, etc.) |
-| `deleted_object` | Trigger when a Jira object is deleted |
-| `new_project` | Trigger when a new project is created |
+### Choosing the Right Action
 
-### Issues
+**Issue CRUD:**
+- **`create_issue`** — Create a new issue. Key inputs: `project_key`, `issue_type`, `summary`. See [detail below](#create_issue-detail).
+- **`get_issue`** — Get full issue details by ID or key. See [detail below](#get_issue-detail).
+- **`update_issue`** — Update issue fields. Requires `issue_id_or_key`. See [detail below](#update_issue-detail).
+- **`update_issue_status`** — Transition issue to a different workflow state.
+- **`assign_issue`** — Assign an issue to a user.
 
-| Name | Description | Notes |
-|------|-------------|-------|
-| `create_issue` | Create a new issue | Key inputs: `project_key`, `issue_type`, `summary` |
-| `get_issue` | Get full issue details by ID or key | Use this for single-issue lookups |
-| `update_issue` | Update an existing issue | Requires `issue_id_or_key` |
-| `assign_issue` | Assign an issue to a user | |
-| `update_issue_status` | Transition issue to a different workflow state | Use `get_transition_status` first to get valid transitions |
+**Search:**
+- **`search_issues_by_JQL`** — Primary search action. Full JQL flexibility, battle-tested. **Name is case-sensitive** (uppercase `JQL`). See [detail below](#search_issues_by_jql-detail).
+- **`search_issues`** — Simpler field-filter search without JQL. Less flexible.
 
-### Search
+**Comments:** `create_comment`, `update_comment`, `get_issue_comments`
 
-| Name | Description | Notes |
-|------|-------------|-------|
-| `search_issues_by_JQL` | Search issues using JQL query **(tested)** | **Primary search action.** Case-sensitive name (uppercase `JQL`). See [detail below](#search_issues_by_jql-detail) |
-| `search_issues` | Search issues with field filters | Simpler than JQL but less flexible |
-| `get_issues_v3_jql` | JQL search via v3 API | Alternative to `search_issues_by_JQL` |
-| `get_issues_v3_jql_count` | Count issues matching a JQL query | Returns count only, no issue data |
-| `get_issues_v3_jql_paginated` | Paginated JQL search (v3 API) | For large result sets |
-| `get_paginated_issues` | Paginated issue retrieval | |
+**Users:** `find_user` (by query string), `search_assignable_users` (users assignable to an issue), `create_user`
 
-> **Routing note:** Use `search_issues_by_JQL` for most search scenarios — it is the only tested action and supports full JQL flexibility. Use the `v3_jql` variants only if you specifically need v3 API features or pagination.
+**Attachments:** `upload_attachment`, `get_attachment`
 
-### Comments
+**Metadata:** `get_changelog` (issue change history), `get_object_schema`
 
-| Name | Description |
-|------|-------------|
-| `create_comment` | Add a comment to an issue |
-| `update_comment` | Update an existing comment |
-| `get_comment` | Get a single comment by ID |
-| `get_issue_comments` | Get all comments on an issue |
-
-### Users
-
-| Name | Description |
-|------|-------------|
-| `find_user` | Find a user by query string |
-| `search_assignable_users` | Search for users assignable to a specific issue |
-| `search_single_user_by_email` | Find a user by email address |
-| `get_current_user` | Get the authenticated user's details |
-| `get_assignees` | Get users assignable to a project |
-| `create_user` | Create a new Jira user |
-
-### Attachments
-
-| Name | Description |
-|------|-------------|
-| `upload_attachment` | Upload an attachment to an issue |
-| `get_attachment` | Get attachment metadata |
-
-### Projects
-
-| Name | Description |
-|------|-------------|
-| `get_all_projects` | List all accessible projects |
-| `get_paginated_projects` | List projects with pagination |
-
-### Webhooks
-
-| Name | Description |
-|------|-------------|
-| `create_webhook` | Register a new webhook |
-| `delete_webhook` | Delete an existing webhook |
-
-### Reference Data
-
-| Name | Description |
-|------|-------------|
-| `get_changelog` | Get change history for an issue |
-| `get_transition_status` | Get available workflow transitions for an issue |
-| `get_priorities` | List all available priorities |
-| `get_statuses` | List all workflow statuses |
-| `get_status` | Get a specific status by ID |
-| `get_all_resolutions` | List all issue resolutions |
-
-### Raw HTTP
-
-| Name | Description |
-|------|-------------|
-| `__adhoc_http_action` | Direct HTTP call to any Jira REST API endpoint |
-
-Use `__adhoc_http_action` for Jira operations not covered by the 34 native actions above: custom field management, sprint operations, board management, tempo/time tracking, and advanced workflow operations.
+**Uncovered operations:** Use `__adhoc_http_action` for Jira operations not covered by native actions: workflow transitions, sprint/board management, project listing, custom field management, tempo/time tracking, and advanced operations.
 
 ---
 
 ### search_issues_by_JQL Detail
-
-**(Tested, Production-Proven)**
 
 **Use when:** Finding issues using JQL queries — sprints, filters, project scoping.
 
@@ -239,8 +176,6 @@ Use `__adhoc_http_action` for Jira operations not covered by the 34 native actio
 
 ### create_issue Detail
 
-> **WARNING:** Not yet tested via CLI push. Verify field names by pulling from the UI before production use.
-
 ```json
 {
   "provider": "jira",
@@ -260,8 +195,6 @@ Use `__adhoc_http_action` for Jira operations not covered by the 34 native actio
 
 ### update_issue Detail
 
-> **WARNING:** Not yet tested via CLI push. Verify field names by pulling from the UI.
-
 ```json
 {
   "provider": "jira",
@@ -276,8 +209,6 @@ Use `__adhoc_http_action` for Jira operations not covered by the 34 native actio
 ```
 
 ### get_issue Detail
-
-> **WARNING:** Not yet tested via CLI push. Verify field names by pulling from the UI.
 
 ```json
 {

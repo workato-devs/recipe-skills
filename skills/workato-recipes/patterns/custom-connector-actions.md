@@ -63,7 +63,7 @@ SDK connectors require the `"custom": true` flag in the connection config:
 | `provider` | Full SDK connector provider ID |
 | `custom` | Must be `true` for SDK connectors |
 | `name` | Display name of the connection in Workato |
-| `zip_name` | Path to connection file for `workato push` |
+| `zip_name` | Path to connection file for `wk push` |
 | `folder` | Folder containing the connection file |
 
 ---
