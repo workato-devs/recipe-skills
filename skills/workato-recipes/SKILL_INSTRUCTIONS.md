@@ -148,6 +148,7 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 | Callable Recipe Trigger | [triggers/callable-recipe.md](triggers/callable-recipe.md) |
 | Adhoc HTTP Actions | [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) |
 | JWT Bearer Auth | [patterns/jwt-auth.md](patterns/jwt-auth.md) |
+| API Platform Artifacts | [patterns/api-platform-artifacts.md](patterns/api-platform-artifacts.md) |
 
 ---
 
@@ -174,6 +175,8 @@ Workato supports multiple trigger types. Choose based on how the recipe will be 
 **Action:** `receive_request`
 
 > **RECOMMENDATION:** Use API endpoint triggers for most recipes. They're easier to test via curl and more practical for real integrations than callable recipes.
+>
+> **Note:** API endpoint recipes require companion `.api_endpoint.json` and `.api_group.json` files in addition to the recipe JSON. See [patterns/api-platform-artifacts.md](patterns/api-platform-artifacts.md) for the complete artifact set and file formats.
 
 #### Complete API Endpoint Example
 
@@ -758,7 +761,7 @@ Every block in a recipe requires these fields:
 | `uuid` | Yes | Unique identifier (max 36 chars) |
 | `as` | Yes* | Step alias for datapill references |
 
-*Required for all blocks except some control flow
+*Required for actions, triggers, catch, and foreach. Optional for `try`, `if`, and `else` blocks.
 
 ### Provider Field Rules
 

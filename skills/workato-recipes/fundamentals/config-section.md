@@ -213,8 +213,33 @@ Adding the logger provider for debugging:
 
 6. **skip_validation**: Generally set to `false`. Only set to `true` if you want to import the recipe without validating the connection exists.
 
+## Connection File Format
+
+Connection files (`.connection.json`) are minimal stubs for the sync system. Credentials are managed server-side, not stored in these files.
+
+```json
+{
+  "name": "My Connection Name",
+  "provider": "rest",
+  "root_folder": false
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `name` | Display name — must match `account_id.name` in recipe config |
+| `provider` | Provider identifier — must match `config[].provider` in recipe config |
+| `root_folder` | Whether this connection is at the workspace root level |
+
+**Filename convention:** `{snake_case_name}.connection.json` (e.g., `stripe_test_connection.connection.json`)
+
+> **Note:** When creating API endpoint recipes, the connection file is part of the complete artifact set. See [patterns/api-platform-artifacts.md](../patterns/api-platform-artifacts.md) for the full file layout.
+
+---
+
 ## Related Documentation
 
 - [Recipe Structure](recipe-structure.md)
 - [API Endpoint Trigger](../triggers/api-endpoint.md)
 - [Callable Recipe Trigger](../triggers/callable-recipe.md)
+- [API Platform Artifacts](../patterns/api-platform-artifacts.md)

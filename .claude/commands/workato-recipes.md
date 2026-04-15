@@ -14,6 +14,7 @@ This affects ALL connectors. Complex connectors (Salesforce, NetSuite, etc.) are
 
 With this skill loaded, you can:
 - Generate recipes with different trigger types (API endpoint, callable recipe)
+- Generate API platform artifact files (endpoint, collection, connection)
 - Structure control flow (if/else, try/catch)
 - Write correct datapill references
 - Configure recipe settings and connections
@@ -70,7 +71,7 @@ Use `return_result` to return values.
 ```
 
 ### Block Requirements
-- Every block needs: `number`, `keyword`, `uuid`, `as`
+- Every block needs: `number`, `keyword`, `uuid`, `as` (`as` optional on `try`)
 - Actions need: `provider`
 - If/else: NO provider
 - Catch: `"provider": null`
@@ -80,6 +81,7 @@ Use `return_result` to return values.
 - `skills/workato-recipes/SKILL_INSTRUCTIONS.md` - Full documentation
 - `skills/workato-recipes/triggers/` - Trigger type details
 - `skills/workato-recipes/templates/` - Starter templates
+- `skills/workato-recipes/patterns/api-platform-artifacts.md` - API endpoint/collection/connection file formats
 - `skills/workato-recipes/validation-checklist.md` - Base validation checklist
 
 ## Usage

@@ -234,6 +234,8 @@ Use the `return_response` action to return data (see base skill Response Actions
 The `http_status_code` must match one of the status codes defined in the trigger's `response.responses` array.
 The `pick_list` in `extended_input_schema` must map response names to their status codes.
 
+> **Note:** `return_response` actions require BOTH `extended_input_schema` AND `extended_output_schema`, and they must be **identical**. This is unique to `return_response` — most actions have different input/output schemas. If they don't match, the response action will not render correctly in the Workato UI.
+
 ## Accessing Request Data
 
 ### Request Fields

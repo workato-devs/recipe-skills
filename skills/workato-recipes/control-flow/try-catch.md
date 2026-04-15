@@ -62,7 +62,7 @@ The try/catch structure enables error handling in Workato recipes. Actions in th
 | `block` | array | Yes | Actions to attempt (catch is last item) |
 | `uuid` | string | Yes | Unique identifier |
 
-**Note:** The try block does NOT have a `provider` or `as` field.
+**Note:** The try block does NOT have a `provider` field. The `as` field is optional on try blocks — Workato does not enforce it, and validated production recipes omit it. Only the catch block requires `as` (for datapill references to error data).
 
 ### Catch Block
 
@@ -333,7 +333,7 @@ Handle errors during iteration:
 
 6. **Step numbering**: The catch block continues the step numbering sequence from the try block's actions.
 
-7. **No try alias**: The try block does not have an `as` field, only the catch block does.
+7. **Try alias is optional**: The try block does not require an `as` field. Only the catch block needs `as` (for error datapill references).
 
 8. **Return placement**: When using with API endpoints, place the success return inside the try block before the catch, not after.
 
@@ -341,9 +341,9 @@ Handle errors during iteration:
 
 - [ ] Catch block is the LAST element in the try block's `block` array
 - [ ] Catch has `"provider": null` (explicit null, not omitted)
-- [ ] Catch has an `as` alias (try block does NOT)
+- [ ] Catch has an `as` alias (required for error datapill references)
 - [ ] Catch `input` has `max_retry_count` and `retry_interval`
-- [ ] Try block has NO `provider` or `as` field
+- [ ] Try block has NO `provider` field (`as` is optional)
 - [ ] Step numbering continues sequentially from try block through catch block
 - [ ] Success return is inside the try block BEFORE the catch (for API endpoint recipes)
 - [ ] Catch block provides values for ALL required return fields (use `"=null"` for unavailable data)

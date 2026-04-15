@@ -238,7 +238,9 @@ The generic REST connector (`rest` provider) uses `make_request_v2` instead of `
 
 ### toggleCfg
 
-Controls toggle-field behaviors. Common toggles:
+Controls toggle-field behaviors. Keys can use **dot-path notation** to target nested fields (e.g., `"response.ignore_http_errors"` targets the `ignore_http_errors` field inside the `response` object). A value of `true` switches the field to use a custom/formula value instead of a picklist selection.
+
+Common toggles:
 
 ```json
 "toggleCfg": {

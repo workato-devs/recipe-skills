@@ -55,6 +55,7 @@ templates:
 patterns:
   - patterns/adhoc-http-actions.md
   - patterns/custom-connector-actions.md
+  - patterns/api-platform-artifacts.md
 
 # Validation checklist
 validation:
