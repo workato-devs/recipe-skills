@@ -1,0 +1,21 @@
+{
+  "version": "0.1.0",
+  "connector": "stripe",
+  "connector_internals": [],
+  "valid_action_names": [
+    "create_charge",
+    "create_customer",
+    "create_invoice",
+    "create_invoice_item",
+    "get_object_by_id",
+    "list_objects",
+    "update_customer"
+  ],
+  "valid_trigger_names": [
+    "new_charge",
+    "new_event",
+    "new_object",
+    "new_objects_batch"
+  ],
+  "action_rules": []
+}

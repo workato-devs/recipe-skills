@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "connector": "gmail",
+  "connector_internals": [],
+  "valid_action_names": [
+    "download_attachment",
+    "get_email_or_draft_by_id",
+    "send_mail"
+  ],
+  "valid_trigger_names": [
+    "new_email"
+  ],
+  "action_rules": []
+}

@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0",
+  "connector": "slack_bot",
+  "connector_internals": [],
+  "valid_action_names": [
+    "block_kit_modals",
+    "delete_message",
+    "download_attachment",
+    "generate_menu_options",
+    "get_user_by_email",
+    "open_bot_app_home",
+    "open_bot_dialog",
+    "post_bot_message",
+    "post_bot_reply",
+    "post_bot_reply_v2",
+    "update_blocks_by_block_id",
+    "upload_file"
+  ],
+  "valid_trigger_names": [
+    "bot_command_v2",
+    "bot_document_mention",
+    "dynamic_menu",
+    "help_event",
+    "message_action",
+    "new_event"
+  ],
+  "action_rules": []
+}

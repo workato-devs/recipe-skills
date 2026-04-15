@@ -1,0 +1,21 @@
+{
+  "version": "0.1.0",
+  "connector": "slack",
+  "connector_internals": [],
+  "valid_action_names": [
+    "archive_conversation",
+    "create_conversation",
+    "get_user_by_email",
+    "invite_user_to_conversation",
+    "post_button_action_reply",
+    "post_message_to_channel",
+    "set_conversation_purpose",
+    "set_conversation_topic",
+    "unarchive_conversation"
+  ],
+  "valid_trigger_names": [
+    "button_action",
+    "new_event"
+  ],
+  "action_rules": []
+}

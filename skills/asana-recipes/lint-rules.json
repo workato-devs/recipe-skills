@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0",
+  "connector": "asana",
+  "connector_internals": [],
+  "valid_action_names": [
+    "add_task_to_section",
+    "create_subtask",
+    "create_tag",
+    "create_task",
+    "get_people_details_by_id",
+    "get_project_detail_by_id",
+    "get_project_sections",
+    "get_task_details_by_id",
+    "list_all_tasks_with_tag",
+    "list_people",
+    "list_project_tasks",
+    "list_workspaces",
+    "search_projects",
+    "search_tags",
+    "search_tasks",
+    "update_task"
+  ],
+  "valid_trigger_names": [
+    "new_event",
+    "new_or_updated_task_v2"
+  ],
+  "action_rules": []
+}

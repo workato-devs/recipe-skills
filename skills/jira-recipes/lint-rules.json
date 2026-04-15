@@ -1,0 +1,38 @@
+{
+  "version": "0.1.0",
+  "connector": "jira",
+  "connector_internals": [],
+  "valid_action_names": [
+    "assign_issue",
+    "create_comment",
+    "create_issue",
+    "create_user",
+    "find_user",
+    "get_attachment",
+    "get_changelog",
+    "get_issue",
+    "get_issue_comments",
+    "get_object_schema",
+    "search_assignable_users",
+    "search_issues",
+    "search_issues_by_JQL",
+    "update_comment",
+    "update_issue",
+    "update_issue_status",
+    "upload_attachment"
+  ],
+  "valid_trigger_names": [
+    "deleted_object",
+    "issue_created_bulk",
+    "issue_created_or_updated_bulk",
+    "new_event",
+    "new_issue",
+    "new_issue_batch",
+    "updated_comment_webhook",
+    "updated_issue",
+    "updated_issue_batch",
+    "updated_issue_webhook",
+    "updated_worklog_webhook"
+  ],
+  "action_rules": []
+}
