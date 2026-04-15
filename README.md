@@ -1,123 +1,71 @@
 # Recipe Skills
 
-A library of reusable integration knowledge for Workato recipes, built by **Workato, vendors, and the community**. Abstract away API complexity and compose enterprise integrations like code.
+An open-source knowledge library for agent-assisted Workato recipe development. A **Workato Labs** project.
 
 ## What are Recipe Skills?
 
-Recipe Skills encapsulate the complexity of vendor-specific API operations and integration patterns. Under the hood, operations like `Stripe.createCustomer` or `Salesforce.updateAccount` involve hundreds of lines of specialized JSON defining authentication, field mappings, error handling, and API-specific logic. Skills make these patterns learnable and repeatable.
-
-**A skill is NOT:**
-- Pre-packaged individual operations
-- A code library you import at runtime
-- A replacement for the Workato platform
+Recipe Skills teach AI agents how to generate valid Workato recipe JSON. Each skill encapsulates the connector-specific knowledge an agent needs -- which actions exist, when to use each one, how datapills work for that connector, and what gotchas to avoid. Without skills, agents hallucinate action names, produce malformed schemas, and miss critical connector rules.
 
 **A skill IS:**
-- A knowledge bundle that teaches agents (and humans) how to write recipes
-- Documentation, templates, and patterns for a connector domain
-- Validated examples you can adapt for your use case
+- A knowledge bundle that teaches agents how to write recipes for a specific connector
+- Documentation, validated templates, and patterns an agent can reference during generation
+- Audited lint rules defining every valid action and trigger name for the connector
+
+**A skill is NOT:**
+- A code library you import at runtime
+- Pre-packaged operations or a connector SDK
+- A replacement for the Workato platform
 
 ## Available Skills
 
 ### Base Skill
 
-| Skill | Description | Status |
-|-------|-------------|--------|
-| [workato-recipes](skills/workato-recipes/) | Core Workato recipe fundamentals (triggers, control flow, datapills) | v1.0.0 |
+| Skill | Description |
+|-------|-------------|
+| [workato-recipes](skills/workato-recipes/) | Core Workato recipe fundamentals -- triggers, control flow, datapills, formulas, recipe JSON structure |
 
-### Connector-Specific Skills
+### Connector Skills
 
-| Skill | Description | Status |
-|-------|-------------|--------|
-| [gmail-recipes](skills/gmail-recipes/) | Gmail email integration recipes (send, list, search, labels) | v1.0.0 |
-| [salesforce-recipes](skills/salesforce-recipes/) | Salesforce CRM recipes (standard & custom objects) | v1.0.0 |
-| [slack-recipes](skills/slack-recipes/) | Slack/Workbot recipes (commands, dialogs, messages) | v1.0.0 |
-| [stripe-recipes](skills/stripe-recipes/) | Stripe payment integration recipes | v1.0.0 |
+| Skill | Connector | Native Actions | Triggers |
+|-------|-----------|:-:|:-:|
+| [asana-recipes](skills/asana-recipes/) | Asana | 16 | 2 |
+| [gmail-recipes](skills/gmail-recipes/) | Gmail | 3 | 1 |
+| [jira-recipes](skills/jira-recipes/) | Jira | 17 | 11 |
+| [salesforce-recipes](skills/salesforce-recipes/) | Salesforce | 32 | 15 |
+| [slack-recipes](skills/slack-recipes/) | Slack (native + Workbot) | 9 | 2 |
+| [stripe-recipes](skills/stripe-recipes/) | Stripe | 7 | 4 |
+
+Action and trigger counts reflect what is audited in each skill's `lint-rules.json`. All connectors also support `__adhoc_http_action` for API operations beyond the native action set.
 
 ## Quick Start
 
-### For AI Agents (Claude Code)
+### With Claude Code
 
-When a user invokes a skill (`/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`, `/slack-recipes`, `/gmail-recipes`), you will have full context to help them generate valid Workato recipe JSON using natural language.
-
-Users can ask you to build recipes using requests like:
-- "Create an API endpoint recipe that accepts customer data"
-- "Create a recipe to search for a Stripe customer by email"
-- "Create a recipe to upsert a Salesforce Contact by external ID"
-- "Create a slash command recipe that opens a dialog and posts to Slack"
-- "Create a recipe that sends an HTML email and lists unread messages"
-
-Each skill contains documentation, templates, and patterns you can reference to generate recipes that follow Workato best practices.
-
-### For Human Developers
-
-Skills are designed for AI agents to generate recipes. As a human developer:
-
-1. Navigate to this repo directory in Claude Code
-2. Invoke a skill: `/workato-recipes`, `/stripe-recipes`, `/salesforce-recipes`, `/slack-recipes`, or `/gmail-recipes`
-3. Ask the agent to generate a recipe using natural language
-4. Review and test the generated recipe JSON
-5. Deploy: `workato push`
-
-For reference and learning, you can browse:
-- Skill documentation: `skills/{skill-name}/SKILL_INSTRUCTIONS.md`
-- Example templates: `skills/{skill-name}/templates/*.json`
-
-### Proposed CLI (Future)
+This repo includes slash commands for each skill. From this repo directory:
 
 ```bash
-# List available skills
-workato skills list
-
-# Import a skill to your project
-workato skills import stripe-recipes
-
-# Validate recipe against skill rules
-workato skills validate my-recipe.json --skill stripe-recipes
-```
-
-See [CLI Extension Spec](docs/cli-extension-spec.md) for the full proposal.
-
-## Skill Structure
-
-Each skill follows this structure:
-
-```
-skills/<skill-name>/
-├── skill.yaml              # Metadata and manifest
-├── SKILL_INSTRUCTIONS.md   # Main knowledge document
-├── templates/              # Validated recipe templates
-│   └── *.json
-└── patterns/               # Pattern documentation
-    └── *.md
-```
-
-## Using with AI Agents
-
-### Claude Code
-
-This repo includes a `.claude/commands/` directory with slash commands:
-
-```bash
-# In Claude Code, from this repo:
-/workato-recipes    # Learn recipe structure and triggers
+/workato-recipes    # Load recipe fundamentals
 /stripe-recipes     # Generate Stripe recipes
 /salesforce-recipes # Generate Salesforce recipes
 /slack-recipes      # Generate Slack/Workbot recipes
 /gmail-recipes      # Generate Gmail recipes
-
-# Examples:
-"Generate a recipe with an API endpoint trigger"
-"Create a recipe to create a Stripe PaymentIntent"
-"Create a recipe to search and update Salesforce Accounts"
-"Create a slash command that collects user input via dialog"
-"Create a recipe that sends emails and searches Gmail"
+/jira-recipes       # Generate Jira recipes
+/asana-recipes      # Generate Asana recipes
 ```
 
-The agent will have full context from the skill to generate valid Workato recipe JSON.
+Then ask the agent to generate a recipe:
+- "Create an API endpoint recipe that accepts customer data"
+- "Create a recipe to search for a Stripe customer by email and create a PaymentIntent"
+- "Create a recipe to upsert a Salesforce Contact by external ID"
+- "Create a slash command that collects user input via dialog and posts to Slack"
+- "Create a recipe that searches Jira issues by JQL and returns sprint status"
+- "Create a recipe that creates an Asana task with subtasks"
 
-### Other AI Agents (Codex, Cursor, Windsurf, etc.)
+The agent uses the skill's documentation, templates, and lint rules to generate valid recipe JSON.
 
-Point your agent to the skill entry points directly:
+### With Other AI Agents (Codex, Cursor, Windsurf, etc.)
+
+Point your agent to the skill entry points:
 
 1. **Load the base skill first:**
    ```
@@ -126,75 +74,93 @@ Point your agent to the skill entry points directly:
 
 2. **Then load a connector skill:**
    ```
-   Read skills/stripe-recipes/SKILL_INSTRUCTIONS.md
-   Read skills/salesforce-recipes/SKILL_INSTRUCTIONS.md
-   Read skills/slack-recipes/SKILL_INSTRUCTIONS.md
-   Read skills/gmail-recipes/SKILL_INSTRUCTIONS.md
+   Read skills/<connector>-recipes/SKILL_INSTRUCTIONS.md
    ```
 
-Each `skill.yaml` defines an `entry_point` field pointing to the main instruction file, plus an `extends` field for dependencies. Agents or tooling can parse this metadata to automate skill loading.
+Each `skill.yaml` defines an `entry_point` for the main instruction file and `extends: workato-recipes` to declare the base dependency. Agents or tooling can parse this metadata to automate skill loading.
 
-## Contributing
+### Deploy
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Generated recipes are standard Workato recipe JSON. Push them to your workspace:
 
-### Ways to Contribute
+```bash
+wk push
+```
 
-1. **Improve existing skills** - Fix bugs, add patterns, improve documentation
-2. **Add new templates** - Create validated recipes for common operations
-3. **Create new skills** - Build skills for connectors you use
+## Skill Structure
 
-### Contribution Models
+Each connector skill follows this structure:
 
-**Workato-maintained:** Core skills maintained by Workato engineering
-**Vendor-contributed:** Skills contributed and maintained by API vendors
-**Community-contributed:** Skills from the developer community
+```
+skills/<connector>-recipes/
+├── skill.yaml              # Metadata and manifest
+├── SKILL_INSTRUCTIONS.md   # Main knowledge document
+├── lint-rules.json         # Valid action/trigger names (source of truth)
+├── validation-checklist.md # Connector-specific validation checks
+├── templates/              # Validated recipe templates
+│   └── *.json
+└── patterns/               # Pattern documentation
+    └── *.md
+```
+
+The base skill (`workato-recipes`) additionally includes `fundamentals/`, `triggers/`, and `control-flow/` subdirectories covering core Workato concepts that all connector skills inherit.
+
+## How It Works
+
+Skills are structured around a key principle: **lint rules own the "what," instructions own the "how."**
+
+- **`lint-rules.json`** defines every valid action and trigger name for the connector, audited against the actual Workato connector. This is the single source of truth that prevents agents from hallucinating action names.
+
+- **`SKILL_INSTRUCTIONS.md`** teaches agents when and how to use each action through decision-logic guidance (e.g., "use `search_sobjects` for exact match, `search_sobjects_soql` for complex SOQL queries"). It references `lint-rules.json` for valid names rather than duplicating them.
+
+- **`templates/`** provide complete, validated recipe JSON that agents can reference and adapt. These are real recipes that have been pushed to Workato, not placeholder scaffolds.
+
+- **`validation-checklist.md`** gives agents a pre-push verification checklist covering connector-specific rules that lint alone cannot catch (datapill path formats, EIS requirements, query syntax).
 
 ## Documentation
 
-### Skills
-- [workato-recipes Instructions](skills/workato-recipes/SKILL_INSTRUCTIONS.md) - Recipe fundamentals and base patterns
-- [gmail-recipes Instructions](skills/gmail-recipes/SKILL_INSTRUCTIONS.md) - Gmail email integration patterns
-- [salesforce-recipes Instructions](skills/salesforce-recipes/SKILL_INSTRUCTIONS.md) - Salesforce CRM integration patterns
-- [slack-recipes Instructions](skills/slack-recipes/SKILL_INSTRUCTIONS.md) - Slack/Workbot integration patterns
-- [stripe-recipes Instructions](skills/stripe-recipes/SKILL_INSTRUCTIONS.md) - Stripe payment integration patterns
+### Skill Instructions
+- [workato-recipes](skills/workato-recipes/SKILL_INSTRUCTIONS.md) -- Recipe fundamentals and base patterns
+- [asana-recipes](skills/asana-recipes/SKILL_INSTRUCTIONS.md) -- Asana task and project management
+- [gmail-recipes](skills/gmail-recipes/SKILL_INSTRUCTIONS.md) -- Gmail email operations
+- [jira-recipes](skills/jira-recipes/SKILL_INSTRUCTIONS.md) -- Jira issue tracking and JQL
+- [salesforce-recipes](skills/salesforce-recipes/SKILL_INSTRUCTIONS.md) -- Salesforce CRM operations
+- [slack-recipes](skills/slack-recipes/SKILL_INSTRUCTIONS.md) -- Slack and Workbot integration
+- [stripe-recipes](skills/stripe-recipes/SKILL_INSTRUCTIONS.md) -- Stripe payment processing
 
-### Project Documentation
-- [CLI Extension Spec](docs/cli-extension-spec.md) - Proposed Workato CLI integration
+### Project
+- [Contributing Guide](CONTRIBUTING.md) -- How to add or improve skills
+- [wk CLI + Recipe Lint Guide](docs/cli-guidance.md) -- Linter setup, tiers, rule reference
+- [CLI Extension Spec](docs/cli-extension-spec.md) -- Proposed `workato` CLI integration (Python CLI)
+
+## Contributing
+
+We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+
+- **Add a new connector skill** -- build a skill for a connector you use
+- **Improve existing skills** -- fix bugs, add patterns, add templates
+- **Extend the base skill** -- improve core recipe knowledge that all connector skills inherit
 
 ## Roadmap
 
-### Completed (v1.0)
-- [x] workato-recipes base skill (triggers, control flow, fundamentals)
-- [x] stripe-recipes skill with templates and patterns
-- [x] salesforce-recipes skill with SObject operations
-- [x] slack-recipes skill (Workbot + native Slack connector)
-- [x] gmail-recipes skill (send, list, search, labels)
+### Shipped
+- [x] Base skill: triggers, control flow, datapills, formulas, recipe JSON structure
+- [x] Connector skills: Salesforce, Stripe, Slack, Gmail, Jira, Asana
+- [x] Audited lint rules for all connectors
 - [x] Claude Code slash command integration
+- [x] Contribution guidelines
 - [x] CLI extension specification
-- [x] Adhoc HTTP actions pattern (base skill)
-- [x] Custom connector (SDK) pattern (base skill)
 
 ### Next
-- [ ] Expand connector skill coverage (slack-recipes gaps: threads, reactions, Block Kit)
-- [ ] Community and vendor contribution guidelines and templates
+- [ ] Expand connector coverage (additional connectors)
+- [ ] Fill coverage gaps in existing skills (Slack threads/Block Kit, Gmail drafts/threads)
 - [ ] Workato CLI integration (pending platform support)
-- [ ] Skill validation rules
-
-### Future
-- [ ] Central skill registry
-- [ ] Vendor contribution program
-- [ ] CI/CD recipe validation
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License -- see [LICENSE](LICENSE) for details.
 
 ## Support
 
 - **Issues:** [GitHub Issues](https://github.com/workato/recipe-skills/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/workato/recipe-skills/discussions)
-
----
-
-Built with insights from the [Dewy Resort Hotel Demo](https://github.com/workato-devs/demo-workato-dewy-resort-hotel) project.
