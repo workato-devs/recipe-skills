@@ -1,6 +1,21 @@
-.workatoenv
-.env
-*settings.local.json
+# OS
 .DS_Store
-.workato-ignore
+Thumbs.db
 
+# Editor & IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment & secrets
+*.env
+
+# Agent tooling
+.claude/settings.local.json
+.cursor/
+.cursorrules
+.windsurf/
+.windsurfrules
+.aider*
