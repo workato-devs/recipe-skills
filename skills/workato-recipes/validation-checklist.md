@@ -40,7 +40,7 @@ Never duplicate items between this file and the inline checklists.
 
 ### Formulas
 
-- [ ] All formula methods used are in the [Supported Formula Methods allowlist](SKILL_INSTRUCTIONS.md#supported-formula-methods-complete-allowlist)
+- [ ] All formula methods used are in the [Supported Formula Methods allowlist](SKILL.md#supported-formula-methods-complete-allowlist)
 - [ ] No `.utc` — use `in_time_zone("UTC")` or `strftime('%Y-%m-%dT%H:%M:%SZ')`
 - [ ] No `.parse_json` — use `json_parser` connector's `parse_json_v2` action
 - [ ] No integer array index (`[0]`, `[n]`) — use `.first` / `.last`

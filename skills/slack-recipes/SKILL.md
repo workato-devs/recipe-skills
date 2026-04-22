@@ -1,3 +1,12 @@
+---
+name: slack-recipes
+description: Slack integration recipes for Workato using Workbot for Slack. Enables AI agents to generate valid recipe JSON for slash commands, dialogs/modals, message posting, button interactions, and channel management.
+license: MIT
+metadata:
+  author: Workato
+  version: "1.0.0"
+---
+
 # Slack Recipes Skill - Agent Instructions
 
 > **DEPENDENCY: Load `/workato-recipes` first if not already loaded.**

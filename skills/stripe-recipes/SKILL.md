@@ -1,3 +1,12 @@
+---
+name: stripe-recipes
+description: Stripe payment integration recipes for Workato. Enables AI agents to generate valid recipe JSON for Stripe operations including customer management, payment processing, and refunds.
+license: MIT
+metadata:
+  author: Workato
+  version: "1.0.0"
+---
+
 # Stripe Recipes Skill - Agent Instructions
 
 > **⚠️ DEPENDENCY: Load `/workato-recipes` first if not already loaded.**

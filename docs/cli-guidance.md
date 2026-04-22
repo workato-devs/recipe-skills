@@ -153,7 +153,7 @@ The linter uses this data for three rules:
 - **`CONFIG_PROVIDER_MATCH`** -- skips providers listed in `connector_internals`
 - **`EIS_NO_CONNECTOR_INTERNAL`** -- flags connector-internal fields that appear in `extended_input_schema`
 
-The linter does **not** read `SKILL_INSTRUCTIONS.md`, `validation-checklist.md`, templates, or patterns. Those files are for AI agents and human developers, not the linter.
+The linter does **not** read `SKILL.md`, `validation-checklist.md`, templates, or patterns. Those files are for AI agents and human developers, not the linter.
 
 ---
 

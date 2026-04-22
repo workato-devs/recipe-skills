@@ -25,7 +25,7 @@ capabilities:
   - Custom connector actions (Connector SDK)
 
 # Entry point for agent consumption
-entry_point: SKILL_INSTRUCTIONS.md
+entry_point: SKILL.md
 
 # Trigger documentation
 triggers:

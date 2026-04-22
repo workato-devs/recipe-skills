@@ -78,7 +78,7 @@ Use `return_result` to return values.
 
 ## Reference Files
 
-- `skills/workato-recipes/SKILL_INSTRUCTIONS.md` - Full documentation
+- `skills/workato-recipes/SKILL.md` - Full documentation
 - `skills/workato-recipes/triggers/` - Trigger type details
 - `skills/workato-recipes/templates/` - Starter templates
 - `skills/workato-recipes/patterns/api-platform-artifacts.md` - API endpoint/collection/connection file formats

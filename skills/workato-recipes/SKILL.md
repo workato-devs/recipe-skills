@@ -1,3 +1,12 @@
+---
+name: workato-recipes
+description: Base skill for Workato recipe development. Provides foundational knowledge for recipe JSON structure, trigger types, control flow patterns, datapill syntax, and formulas. Connector-specific skills extend this base.
+license: MIT
+metadata:
+  author: Workato
+  version: "1.0.0"
+---
+
 # Workato Recipes Base Skill - Agent Instructions
 
 This document provides foundational knowledge for AI agents to generate valid Workato recipe JSON. This is the base skill that connector-specific skills (stripe-recipes, salesforce-recipes, etc.) extend.

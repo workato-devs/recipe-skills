@@ -1,3 +1,12 @@
+---
+name: gmail-recipes
+description: Gmail integration recipes for Workato. Enables AI agents to generate valid recipe JSON for Gmail operations including sending emails, listing/searching messages, managing labels, and message details.
+license: MIT
+metadata:
+  author: Workato
+  version: "1.0.0"
+---
+
 # Gmail Recipes Skill
 
 > **DEPENDENCY: Run `/workato-recipes` first if not already loaded.**
@@ -302,7 +311,7 @@ See [validation-checklist.md](validation-checklist.md) for Gmail-specific valida
 
 ## Reference Files
 
-- `skills/workato-recipes/SKILL_INSTRUCTIONS.md` - Base platform knowledge
+- `skills/workato-recipes/SKILL.md` - Base platform knowledge
 - `skills/gmail-recipes/patterns/native-gmail-actions.md` - Native action details
 - `skills/gmail-recipes/patterns/gmail-api-reference.md` - API endpoint reference
 - `skills/gmail-recipes/templates/` - Validated recipe templates

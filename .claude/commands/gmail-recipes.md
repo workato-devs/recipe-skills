@@ -76,8 +76,8 @@ For optional query parameters, use `.presence || skip`:
 
 ## Reference Files
 
-- `skills/workato-recipes/SKILL_INSTRUCTIONS.md` - Base platform knowledge
-- `skills/gmail-recipes/SKILL_INSTRUCTIONS.md` - Gmail-specific knowledge
+- `skills/workato-recipes/SKILL.md` - Base platform knowledge
+- `skills/gmail-recipes/SKILL.md` - Gmail-specific knowledge
 - `skills/gmail-recipes/patterns/` - Pattern documentation
 - `skills/gmail-recipes/templates/` - Validated recipe templates
 - `skills/gmail-recipes/validation-checklist.md` - Gmail validation checklist

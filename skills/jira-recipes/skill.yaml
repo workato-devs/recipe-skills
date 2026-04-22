@@ -25,7 +25,7 @@ capabilities:
   - Get issue by ID (documented, not yet tested via CLI push)
 
 # Entry point for agent consumption
-entry_point: SKILL_INSTRUCTIONS.md
+entry_point: SKILL.md
 
 # Templates available for reference/adaptation
 templates:

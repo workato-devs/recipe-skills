@@ -26,7 +26,7 @@ capabilities:
   - User lookup, channel management, message posting
 
 # Entry point for agent consumption
-entry_point: SKILL_INSTRUCTIONS.md
+entry_point: SKILL.md
 
 # Pattern documentation
 patterns:

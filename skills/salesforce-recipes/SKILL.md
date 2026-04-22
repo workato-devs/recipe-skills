@@ -1,3 +1,12 @@
+---
+name: salesforce-recipes
+description: Salesforce integration recipes for Workato. Enables AI agents to generate valid recipe JSON for Salesforce operations including record creation, updates, upserts, and searches using standard SObjects and custom objects.
+license: MIT
+metadata:
+  author: Workato
+  version: "1.0.0"
+---
+
 # Salesforce Recipes Skill - Agent Instructions
 
 > **⚠️ DEPENDENCY: Load `/workato-recipes` first if not already loaded.**

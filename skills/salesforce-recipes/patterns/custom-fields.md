@@ -331,4 +331,4 @@ Before sharing a recipe that uses custom objects/fields:
 
 - See `upsert-with-external-id.md` for using custom External ID fields
 - See `search-sobjects.md` for querying custom objects
-- See SKILL_INSTRUCTIONS.md for complete list of suffixes
+- See SKILL.md for complete list of suffixes

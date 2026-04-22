@@ -1,3 +1,12 @@
+---
+name: jira-recipes
+description: Jira integration recipes for Workato. Enables AI agents to generate valid recipe JSON for Jira operations including searching issues by JQL, creating and updating issues, and querying sprint data.
+license: MIT
+metadata:
+  author: Workato
+  version: "1.0.0"
+---
+
 # Jira Recipes Skill - Agent Instructions
 
 > **⚠️ DEPENDENCY: Load `/workato-recipes` first if not already loaded.**

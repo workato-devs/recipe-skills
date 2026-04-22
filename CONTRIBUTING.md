@@ -15,7 +15,7 @@ These principles prevent the drift and bloat patterns that degrade agent accurac
 **1. lint-rules.json is the single source of truth for action/trigger names.**
 Every valid action and trigger name for a connector is defined in `lint-rules.json`. This file is audited against the actual Workato connector. No other file should enumerate or duplicate these names.
 
-**2. SKILL_INSTRUCTIONS.md owns behavioral guidance, not name enumeration.**
+**2. SKILL.md owns behavioral guidance, not name enumeration.**
 Instructions teach agents *when* and *how* to use actions via decision trees. They reference `lint-rules.json` for *which* actions exist. They never list action names in tables.
 
 **3. validation-checklist.md defers to lint-rules.json for name checks.**
@@ -30,7 +30,7 @@ No placeholder syntax like `{{RECIPE_NAME}}` or `{{CONNECTOR}}`. Templates are a
 ### Anti-Patterns
 
 Do not:
-- Create action/trigger enumeration tables in SKILL_INSTRUCTIONS.md
+- Create action/trigger enumeration tables in SKILL.md
 - Hardcode action counts (e.g., "18 native actions") -- they go stale when connectors update
 - Duplicate lint-rule names in validation checklists
 - Add connector-specific content to the base workato-recipes skill
@@ -44,7 +44,7 @@ Do not:
 
 ```
 skills/<connector>-recipes/
-├── SKILL_INSTRUCTIONS.md     # REQUIRED - Behavioral guidance, decision logic
+├── SKILL.md     # REQUIRED - Behavioral guidance, decision logic
 ├── lint-rules.json           # REQUIRED - Authoritative action/trigger name list
 ├── skill.yaml                # REQUIRED - Manifest (must set extends: workato-recipes)
 ├── validation-checklist.md   # REQUIRED - Connector-specific validation checks
@@ -56,7 +56,7 @@ skills/<connector>-recipes/
 
 ```
 skills/workato-recipes/
-├── SKILL_INSTRUCTIONS.md
+├── SKILL.md
 ├── skill.yaml
 ├── validation-checklist.md
 ├── fundamentals/             # Recipe structure, datapills, config
@@ -136,7 +136,7 @@ capabilities:
   - Capability 1
   - Capability 2
 
-entry_point: SKILL_INSTRUCTIONS.md
+entry_point: SKILL.md
 
 templates:
   - templates/example-operation.json
@@ -159,7 +159,7 @@ tags:
 
 `extends: workato-recipes` is required -- it declares the dependency on the base skill.
 
-### Step 4: Write SKILL_INSTRUCTIONS.md
+### Step 4: Write SKILL.md
 
 Follow this established section structure:
 
@@ -221,7 +221,7 @@ Then organize by **decision context**, not alphabetical listing:
 - **`search_things_by_query`** -- Full query language for complex criteria.
 ```
 
-See `skills/asana-recipes/SKILL_INSTRUCTIONS.md` for the cleanest example of this pattern.
+See `skills/asana-recipes/SKILL.md` for the cleanest example of this pattern.
 
 ### Step 5: Write validation-checklist.md
 
@@ -270,7 +270,7 @@ One markdown file per deep-dive topic:
 - Do not add names based on vendor API documentation alone
 - Keep the list sorted alphabetically
 
-### Updating SKILL_INSTRUCTIONS.md
+### Updating SKILL.md
 
 - **Never add action name enumerations** -- add behavioral guidance instead
 - When a new action is added to lint-rules.json, add decision-logic guidance for when to use it in the "Native Connector Guidance" section
@@ -357,8 +357,8 @@ Before submitting, verify your changes against at least 2 connector skills. The 
 
 - [ ] `lint-rules.json` is present and every name verified against actual Workato connector
 - [ ] `skill.yaml` is valid YAML and includes `extends: workato-recipes`
-- [ ] `SKILL_INSTRUCTIONS.md` follows the established section structure
-- [ ] `SKILL_INSTRUCTIONS.md` does not enumerate action names (references `lint-rules.json` instead)
+- [ ] `SKILL.md` follows the established section structure
+- [ ] `SKILL.md` does not enumerate action names (references `lint-rules.json` instead)
 - [ ] `validation-checklist.md` is present and references `lint-rules.json` for name checks
 - [ ] Templates are valid JSON with real values (no placeholders)
 - [ ] Templates have been pushed to a Workato workspace successfully
@@ -380,7 +380,7 @@ wk push
 ```
 
 **Agent test:**
-Load the skill in Claude Code and generate a recipe. Verify it uses correct action names from `lint-rules.json` and follows the behavioral guidance from `SKILL_INSTRUCTIONS.md`.
+Load the skill in Claude Code and generate a recipe. Verify it uses correct action names from `lint-rules.json` and follows the behavioral guidance from `SKILL.md`.
 
 ---
 

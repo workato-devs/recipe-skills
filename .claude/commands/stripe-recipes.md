@@ -61,8 +61,8 @@ When creating customers, always search first to prevent duplicates.
 
 ## Reference Files
 
-- `skills/workato-recipes/SKILL_INSTRUCTIONS.md` - Base platform knowledge
-- `skills/stripe-recipes/SKILL_INSTRUCTIONS.md` - Stripe-specific knowledge
+- `skills/workato-recipes/SKILL.md` - Base platform knowledge
+- `skills/stripe-recipes/SKILL.md` - Stripe-specific knowledge
 - `skills/stripe-recipes/templates/` - Validated recipe templates
 
 ## Usage

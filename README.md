@@ -65,19 +65,21 @@ The agent uses the skill's documentation, templates, and lint rules to generate 
 
 ### With Other AI Agents (Codex, Cursor, Windsurf, etc.)
 
-Point your agent to the skill entry points:
+Each skill directory contains a `SKILL.md` file following the [open agent skills standard](https://agentskills.io). Any SKILL.md-aware tool can discover and load these skills automatically.
+
+To load skills manually, point your agent to the entry points:
 
 1. **Load the base skill first:**
    ```
-   Read skills/workato-recipes/SKILL_INSTRUCTIONS.md
+   Read skills/workato-recipes/SKILL.md
    ```
 
 2. **Then load a connector skill:**
    ```
-   Read skills/<connector>-recipes/SKILL_INSTRUCTIONS.md
+   Read skills/<connector>-recipes/SKILL.md
    ```
 
-Each `skill.yaml` defines an `entry_point` for the main instruction file and `extends: workato-recipes` to declare the base dependency. Agents or tooling can parse this metadata to automate skill loading.
+Each `skill.yaml` defines an `entry_point` and `extends: workato-recipes` to declare the base dependency. Agents or tooling can parse this metadata to automate skill loading.
 
 ### Deploy
 
@@ -94,7 +96,7 @@ Each connector skill follows this structure:
 ```
 skills/<connector>-recipes/
 ├── skill.yaml              # Metadata and manifest
-├── SKILL_INSTRUCTIONS.md   # Main knowledge document
+├── SKILL.md   # Main knowledge document
 ├── lint-rules.json         # Valid action/trigger names (source of truth)
 ├── validation-checklist.md # Connector-specific validation checks
 ├── templates/              # Validated recipe templates
@@ -111,7 +113,7 @@ Skills are structured around a key principle: **lint rules own the "what," instr
 
 - **`lint-rules.json`** defines every valid action and trigger name for the connector, audited against the actual Workato connector. This is the single source of truth that prevents agents from hallucinating action names.
 
-- **`SKILL_INSTRUCTIONS.md`** teaches agents when and how to use each action through decision-logic guidance (e.g., "use `search_sobjects` for exact match, `search_sobjects_soql` for complex SOQL queries"). It references `lint-rules.json` for valid names rather than duplicating them.
+- **`SKILL.md`** teaches agents when and how to use each action through decision-logic guidance (e.g., "use `search_sobjects` for exact match, `search_sobjects_soql` for complex SOQL queries"). It references `lint-rules.json` for valid names rather than duplicating them.
 
 - **`templates/`** provide complete, validated recipe JSON that agents can reference and adapt. These are real recipes that have been pushed to Workato, not placeholder scaffolds.
 
@@ -120,18 +122,17 @@ Skills are structured around a key principle: **lint rules own the "what," instr
 ## Documentation
 
 ### Skill Instructions
-- [workato-recipes](skills/workato-recipes/SKILL_INSTRUCTIONS.md) -- Recipe fundamentals and base patterns
-- [asana-recipes](skills/asana-recipes/SKILL_INSTRUCTIONS.md) -- Asana task and project management
-- [gmail-recipes](skills/gmail-recipes/SKILL_INSTRUCTIONS.md) -- Gmail email operations
-- [jira-recipes](skills/jira-recipes/SKILL_INSTRUCTIONS.md) -- Jira issue tracking and JQL
-- [salesforce-recipes](skills/salesforce-recipes/SKILL_INSTRUCTIONS.md) -- Salesforce CRM operations
-- [slack-recipes](skills/slack-recipes/SKILL_INSTRUCTIONS.md) -- Slack and Workbot integration
-- [stripe-recipes](skills/stripe-recipes/SKILL_INSTRUCTIONS.md) -- Stripe payment processing
+- [workato-recipes](skills/workato-recipes/SKILL.md) -- Recipe fundamentals and base patterns
+- [asana-recipes](skills/asana-recipes/SKILL.md) -- Asana task and project management
+- [gmail-recipes](skills/gmail-recipes/SKILL.md) -- Gmail email operations
+- [jira-recipes](skills/jira-recipes/SKILL.md) -- Jira issue tracking and JQL
+- [salesforce-recipes](skills/salesforce-recipes/SKILL.md) -- Salesforce CRM operations
+- [slack-recipes](skills/slack-recipes/SKILL.md) -- Slack and Workbot integration
+- [stripe-recipes](skills/stripe-recipes/SKILL.md) -- Stripe payment processing
 
 ### Project
 - [Contributing Guide](CONTRIBUTING.md) -- How to add or improve skills
 - [wk CLI + Recipe Lint Guide](docs/cli-guidance.md) -- Linter setup, tiers, rule reference
-- [CLI Extension Spec](docs/cli-extension-spec.md) -- Proposed `workato` CLI integration (Python CLI)
 
 ## Contributing
 
@@ -147,13 +148,14 @@ We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full gu
 - [x] Base skill: triggers, control flow, datapills, formulas, recipe JSON structure
 - [x] Connector skills: Salesforce, Stripe, Slack, Gmail, Jira, Asana
 - [x] Audited lint rules for all connectors
-- [x] Claude Code slash command integration
+- [x] Claude Code slash commands for all connectors (7/7)
+- [x] SKILL.md standard conformance (agent-agnostic skill discovery)
+- [x] wk CLI + recipe-lint integration guide
 - [x] Contribution guidelines
-- [x] CLI extension specification
 
 ### Next
 - [ ] Expand connector coverage (additional connectors)
-- [ ] Workato CLI integration (pending CLI roadmap)
+- [ ] wk CLI plugin ecosystem (additional lint rules, recipe generation)
 
 ## License
 

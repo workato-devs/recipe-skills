@@ -1,3 +1,12 @@
+---
+name: asana-recipes
+description: Asana integration recipes for Workato. Enables AI agents to generate valid recipe JSON for Asana operations including task management, project organization, portfolio tracking, goal setting, team management, and workspace administration.
+license: MIT
+metadata:
+  author: Workato
+  version: "1.0.0"
+---
+
 # Asana Recipes Skill - Agent Instructions
 
 > **DEPENDENCY: Load `/workato-recipes` first if not already loaded.**

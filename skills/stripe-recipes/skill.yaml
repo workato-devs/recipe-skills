@@ -24,7 +24,7 @@ capabilities:
   - Retrieve payment and subscription status
 
 # Entry point for agent consumption
-entry_point: SKILL_INSTRUCTIONS.md
+entry_point: SKILL.md
 
 # Templates available for reference/adaptation
 templates:
