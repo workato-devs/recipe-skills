@@ -31,7 +31,7 @@ The fastest way to get a skill for a connector you use is to build it. The archi
 
 ### How we prioritize connector requests
 
-When the community requests a connector (via [Issues](https://github.com/workato/recipe-skills/issues) or [Discussions](https://github.com/workato/recipe-skills/discussions)), we prioritize based on:
+When the community requests a connector (via [Issues](https://github.com/workato/recipe-skills/issues), we prioritize based on:
 
 1. **Adoption** -- widely used connectors benefit the most people. A skill for a popular SaaS application is high-priority regardless of its connector complexity.
 2. **Community demand** -- how many people are asking for it, and are any willing to contribute?
@@ -51,4 +51,3 @@ Connector coverage is the most visible axis of growth, but not the only one. Are
 - **Build a skill** for a connector you use -- see [CONTRIBUTING.md](../CONTRIBUTING.md)
 - **Request a connector** -- open an [issue](https://github.com/workato/recipe-skills/issues) describing your use case
 - **Improve existing skills** -- add templates, fix patterns, improve guidance
-- **Join the discussion** -- [GitHub Discussions](https://github.com/workato/recipe-skills/discussions) for ideas and questions

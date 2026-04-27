@@ -150,4 +150,3 @@ MIT License -- see [LICENSE](LICENSE.md) for details.
 ## Support
 
 - **Issues:** [GitHub Issues](https://github.com/workato/recipe-skills/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/workato/recipe-skills/discussions)
