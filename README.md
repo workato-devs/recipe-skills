@@ -131,6 +131,7 @@ Skills are structured around a key principle: **lint rules own the "what," instr
 - [stripe-recipes](skills/stripe-recipes/SKILL.md) -- Stripe payment processing
 
 ### Project
+- [Roadmap](docs/roadmap.md) -- Project direction, connector prioritization, how to get involved
 - [Contributing Guide](CONTRIBUTING.md) -- How to add or improve skills
 - [wk CLI + Recipe Lint Guide](docs/cli-guidance.md) -- Linter setup, tiers, rule reference
 
@@ -142,24 +143,9 @@ We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full gu
 - **Improve existing skills** -- fix bugs, add patterns, add templates
 - **Extend the base skill** -- improve core recipe knowledge that all connector skills inherit
 
-## Roadmap
-
-### Shipped
-- [x] Base skill: triggers, control flow, datapills, formulas, recipe JSON structure
-- [x] Connector skills: Salesforce, Stripe, Slack, Gmail, Jira, Asana
-- [x] Audited lint rules for all connectors
-- [x] Claude Code slash commands for all connectors (7/7)
-- [x] SKILL.md standard conformance (agent-agnostic skill discovery)
-- [x] wk CLI + recipe-lint integration guide
-- [x] Contribution guidelines
-
-### Next
-- [ ] Expand connector coverage (additional connectors)
-- [ ] wk CLI plugin ecosystem (additional lint rules, recipe generation)
-
 ## License
 
-MIT License -- see [LICENSE](LICENSE) for details.
+MIT License -- see [LICENSE](LICENSE.md) for details.
 
 ## Support
 
