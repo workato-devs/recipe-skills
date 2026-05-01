@@ -7,7 +7,7 @@ Many Workato connectors support **adhoc HTTP actions**, which allow you to call 
 | Provider type | Action name | Examples |
 |---|---|---|
 | `http` | `__adhoc_http_action` | Generic HTTP connector |
-| Native connectors | `__adhoc_http_action` | `slack_bot`, `salesforce`, `gmail`, `stripe` |
+| Native connectors | `__adhoc_http_action` | `asana`, `gmail`, `jira`, `salesforce`, `slack`, `slack_bot`, `stripe` |
 | `rest` | `make_request_v2` | Generic REST connector (e.g., ElevenLabs, custom REST APIs) |
 
 ---
@@ -633,10 +633,12 @@ The `schema`, `output`, and `response_headers` fields (for `__adhoc_http_action`
 ## Connectors Supporting Adhoc HTTP
 
 Most OAuth/API-based connectors support adhoc HTTP actions, including:
-- `slack_bot` (Workbot for Slack) — `__adhoc_http_action`
-- `slack` (Slack) — `__adhoc_http_action`
+- `asana` (Asana) — `__adhoc_http_action`
 - `gmail` (Gmail) — `__adhoc_http_action`
+- `jira` (Jira) — `__adhoc_http_action`
 - `salesforce` — `__adhoc_http_action`
+- `slack` (Slack) — `__adhoc_http_action`
+- `slack_bot` (Workbot for Slack) — `__adhoc_http_action`
 - `stripe` — `__adhoc_http_action`
 - `rest` (Generic REST connector) — `make_request_v2`
 - Custom SDK connectors — `__adhoc_http_action`

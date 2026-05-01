@@ -3,6 +3,7 @@
   "connector": "salesforce",
   "connector_internals": [],
   "valid_action_names": [
+    "__adhoc_http_action",
     "approve_process",
     "composite_create_sobject",
     "composite_update_sobject",

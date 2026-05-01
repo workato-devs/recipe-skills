@@ -3,6 +3,7 @@
   "connector": "asana",
   "connector_internals": [],
   "valid_action_names": [
+    "__adhoc_http_action",
     "add_task_to_section",
     "create_subtask",
     "create_tag",

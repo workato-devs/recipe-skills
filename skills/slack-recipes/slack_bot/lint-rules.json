@@ -3,6 +3,7 @@
   "connector": "slack_bot",
   "connector_internals": [],
   "valid_action_names": [
+    "__adhoc_http_action",
     "block_kit_modals",
     "delete_message",
     "download_attachment",

@@ -3,6 +3,7 @@
   "connector": "stripe",
   "connector_internals": [],
   "valid_action_names": [
+    "__adhoc_http_action",
     "create_charge",
     "create_customer",
     "create_invoice",

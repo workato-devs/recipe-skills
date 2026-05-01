@@ -3,6 +3,7 @@
   "connector": "slack",
   "connector_internals": [],
   "valid_action_names": [
+    "__adhoc_http_action",
     "archive_conversation",
     "create_conversation",
     "get_user_by_email",

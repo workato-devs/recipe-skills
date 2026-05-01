@@ -3,6 +3,7 @@
   "connector": "jira",
   "connector_internals": [],
   "valid_action_names": [
+    "__adhoc_http_action",
     "assign_issue",
     "create_comment",
     "create_issue",
