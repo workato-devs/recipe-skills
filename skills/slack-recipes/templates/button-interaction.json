@@ -76,7 +76,7 @@
                 "name": "Handle Approval",
                 "folder": "Recipes"
               },
-              "params": "action=approve"
+              "params": "action: approve"
             },
             {
               "title": "Reject",
@@ -85,7 +85,7 @@
                 "name": "Handle Rejection",
                 "folder": "Recipes"
               },
-              "params": "action=reject"
+              "params": "action: reject"
             }
           ]
         },

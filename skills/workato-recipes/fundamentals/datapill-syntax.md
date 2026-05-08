@@ -95,6 +95,11 @@ When you need to explicitly reference an array item:
 "path": ["data", {"path_element_type": "current_item"}, "id"]
 ```
 
+> **Datapill paths cannot use integer indices.** A path like `["data", 0, "name"]` returns `Invalid path element` at validation time. Datapill paths only navigate object keys (strings) and the special `current_item` token shown above. Array element access by index requires one of:
+> - a `foreach` loop (using `current_item`)
+> - a formula with method chains (`.first`, `.last`, `[N]`) — but method chains don't work in body fields of HTTP actions, see [adhoc-http-actions.md](../patterns/adhoc-http-actions.md#body-field-gotchas)
+> - a `py_eval` step that walks the array natively in Python — see [python-snippets.md](../patterns/python-snippets.md)
+
 ### Catch Block Error
 
 Access error details in a catch block:

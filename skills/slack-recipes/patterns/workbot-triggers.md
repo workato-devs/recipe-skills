@@ -241,6 +241,50 @@ The `toggleCfg` object controls whether fields use picklist selection vs custom/
 
 ---
 
+## Button-to-Recipe Parameter Routing
+
+When a Workbot message uses `attachment_buttons` with `bot_command` pointing at another recipe, each button's `params` field passes data to the receiver's `bot_command_v2` trigger parameters.
+
+**Use the space-separated, colon-prefixed format:**
+
+```json
+"params": "approval_id: <UUID>"
+```
+
+| Field | Behavior |
+|-------|----------|
+| `key: value` (with space after the colon, optional) | Routed to the receiver's matching parameter on click — verified for single-parameter receivers |
+| `key=value&key=value` (URL-encoded) | **Does not work** — Workbot drops the params and falls back to interactive parameter-collection mode, prompting the user to enter each value manually |
+
+> *Multi-parameter syntax is untested.* In our testing, multi-parameter button receivers fell into Workbot's interactive collection flow regardless of params formatting (see the [Multi-Parameter Receivers](#multi-parameter-receivers-dont-reliably-work-via-buttons) section below). We extrapolated `"key1: value1 key2: value2"` from the single-parameter shape but never confirmed it routes correctly when the receiver declares multiple parameters. If multi-param is needed, validate the exact delimiter behavior first or take the recommended split-handler approach.
+
+### Multi-Parameter Receivers Don't Reliably Work via Buttons
+
+Even with the correct `key: value` format and `allow_dialog: "false"`, a receiver recipe with **multiple parameters** triggered by a button click will, in practice, fall into Workbot's interactive collection flow on the first click and produce malformed input on subsequent clicks.
+
+**Recommended pattern:** Split per-action handlers. Instead of one `handle_response` recipe with `(approval_id, action)` parameters, create separate `handle_approve` and `handle_deny` recipes, each with a single parameter (`approval_id`). The button's `bot_command` then points at the appropriate single-action recipe and the `params` field carries only one key:
+
+```json
+"attachment_buttons": [
+  {
+    "title": "Approve",
+    "bot_command": { "zip_name": "Recipes/handle_approve.recipe.json", ... },
+    "params": "approval_id: 1f2c40ee-..."
+  },
+  {
+    "title": "Deny",
+    "bot_command": { "zip_name": "Recipes/handle_deny.recipe.json", ... },
+    "params": "approval_id: 1f2c40ee-..."
+  }
+]
+```
+
+### Defensive Parameter Normalization
+
+If you encounter a case where the button click delivers a single concatenated string (e.g., `it_approvals approve request <UUID>`) into the receiver's first parameter, add a `py_eval` step at the top of the receiver to extract the canonical value with a regex (e.g., a UUID regex against the raw input). This is a belt-and-suspenders defense against the Workbot fallback delivering malformed input.
+
+---
+
 ## Visibility Configuration
 
 Control which fields appear in Workato UI:

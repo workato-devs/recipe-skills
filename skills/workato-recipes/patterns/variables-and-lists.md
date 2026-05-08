@@ -152,7 +152,7 @@ Initialize a variable with a starting value. Uses `variables.schema` (stringifie
 
 ### Update Variable
 
-Set or update a variable's value:
+Set or update a variable's value. **Use the "raw" input form** — this is what the Workato server normalizes to internally and what survives a push/pull round-trip:
 
 ```json
 {
@@ -162,16 +162,32 @@ Set or update a variable's value:
   "as": "set_customer_id",
   "keyword": "action",
   "input": {
-    "variables": [
-      {
-        "variable": "customer_id",
-        "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
-      }
-    ]
+    "input_mode": "raw",
+    "name": "declare-customer-id-001:declare_customer_id:customer_id",
+    "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
   },
   "uuid": "set-customer-id-001"
 }
 ```
+
+#### Key structural rules for `update_variables` (raw form):
+
+- **`input_mode`**: must be the literal string `"raw"`.
+- **`name`**: `\n`-separated entries, one per variable being updated. Each entry has the form `<declare-uuid>:<declare-as>:<variable-name>`, pointing at the `declare_variable` step that owns the variable.
+- **Per-variable values**: each variable is a flat top-level key on `input` (e.g., `customer_id`, `order_id`). The value is a datapill, formula, or literal.
+
+For multiple variables in a single update:
+
+```json
+"input": {
+  "input_mode": "raw",
+  "name": "declare-vars-001:declare_vars:customer_id\ndeclare-vars-001:declare_vars:order_id",
+  "customer_id": "#{_dp('{...}')}",
+  "order_id": "#{_dp('{...}')}"
+}
+```
+
+> **WARNING:** An older structured form — `"variables": [{"variable": "...", "value": "..."}]` — appears in some examples and parses as valid JSON, but **the Workato importer silently drops it on round-trip**. The recipe pushes, lint passes, but every variable mapping comes back empty after import. Use the raw form above.
 
 ### Reference Variable in Datapill
 
@@ -426,12 +442,9 @@ This example shows using a variable to capture a customer ID from either a searc
             "as": "set_found_id",
             "keyword": "action",
             "input": {
-              "variables": [
-                {
-                  "variable": "customer_id",
-                  "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}"
-                }
-              ]
+              "input_mode": "raw",
+              "name": "declare-customer-id-001:declare_customer_id:customer_id",
+              "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}"
             },
             "uuid": "set-found-id-001"
           },
@@ -457,12 +470,9 @@ This example shows using a variable to capture a customer ID from either a searc
                 "as": "set_created_id",
                 "keyword": "action",
                 "input": {
-                  "variables": [
-                    {
-                      "variable": "customer_id",
-                      "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
-                    }
-                  ]
+                  "input_mode": "raw",
+                  "name": "declare-customer-id-001:declare_customer_id:customer_id",
+                  "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
                 },
                 "uuid": "set-created-id-001"
               }
@@ -509,6 +519,8 @@ This example shows using a variable to capture a customer ID from either a searc
 
 7. **Schema field needs `parent`**: Each field in `variables.schema` must include `"parent": ["variables", "data"]` or the field won't bind to the data input.
 
+8. **`update_variables` must use the raw input form**: The structured `variables: [{variable, value}]` array form is silently dropped by the Workato importer on round-trip. Use `input_mode: "raw"` with a `\n`-separated `name` field and flat per-variable top-level keys (see [Update Variable](#update-variable) above).
+
 ## Validation Checklist
 
 - [ ] Variable actions use `workato_variable` provider (NOT `workato`)
@@ -520,6 +532,7 @@ This example shows using a variable to capture a customer ID from either a searc
 - [ ] Datapill references use `"provider": "workato_variable"` and path uses the field name
 - [ ] Config includes `workato_variable` entry with `"account_id": null`
 - [ ] List actions use `name` + `list_item_schema_json` input (NOT `list_name` + `list_schema`)
+- [ ] `update_variables` uses `input_mode: "raw"` with a `\n`-separated `name` field (NOT the structured `variables: [{variable, value}]` array form, which is silently dropped on import)
 
 For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 

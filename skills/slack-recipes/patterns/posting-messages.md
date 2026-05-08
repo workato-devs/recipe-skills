@@ -178,7 +178,7 @@ Send an interactive reply with buttons:
           "name": "Handle Approval",
           "folder": "Recipes"
         },
-        "params": "request_id=123"
+        "params": "request_id: 123"
       },
       {
         "title": "Reject",
@@ -187,7 +187,7 @@ Send an interactive reply with buttons:
           "name": "Handle Rejection",
           "folder": "Recipes"
         },
-        "params": "request_id=123"
+        "params": "request_id: 123"
       }
     ]
   }
@@ -287,3 +287,92 @@ Confirm successful operations:
   }
 }
 ```
+
+---
+
+## `update_blocks_by_block_id` — Mutating an Already-Posted Message
+
+The canonical action for updating a previously-posted message in place. Most commonly used to **clean up after an interactive button click** — once a manager has clicked Approve, you want to remove the buttons so the message can't be re-clicked.
+
+### Action Structure
+
+```json
+{
+  "number": 5,
+  "provider": "slack_bot",
+  "name": "update_blocks_by_block_id",
+  "as": "remove_buttons",
+  "keyword": "action",
+  "input": {
+    "surface": "message",
+    "message_json": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"trigger_001\",\"path\":[\"context\",\"original_message_json\"]}')}",
+    "blocks_to_update": [
+      {
+        "block_id": "approve_deny_buttons",
+        "remove_block": "true",
+        "blocks": [
+          {
+            "type": "section",
+            "block_id": "decision_summary",
+            "text": {
+              "type": "mrkdwn",
+              "text": ":white_check_mark: *Approved* by <@#{_dp('...user_id...')}>"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "uuid": "remove-buttons-001"
+}
+```
+
+### Input Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `surface` | Yes | Always `"message"` for posted Slack messages |
+| `message_json` | Yes | The full JSON of the original message — passed through from the Workbot trigger context (`context.original_message_json`). The action uses this to find which message to mutate |
+| `blocks_to_update` | Yes | Array of update operations, one per `block_id` to mutate |
+| `blocks_to_update[].block_id` | Yes | The `block_id` of the existing block to update (must match what was assigned when the message was originally posted) |
+| `blocks_to_update[].remove_block` | No | `"true"` to remove the existing block entirely. If you also supply `blocks`, those are inserted in its place |
+| `blocks_to_update[].blocks` | No | Replacement block(s) to insert. Standard Slack Block Kit shape (`type`, `block_id`, `text`, etc.) |
+
+### Patterns
+
+**Remove buttons after a click, leave a static confirmation:**
+
+Set `remove_block: "true"` on the buttons block and supply a single `section` block in `blocks` with the new confirmation text. The button row disappears, replaced by a "✅ Approved by @manager" line.
+
+**Remove a block without replacing it:**
+
+Set `remove_block: "true"` and supply an empty `blocks: []`.
+
+**Replace block content without removing the block_id:**
+
+Omit `remove_block` and supply `blocks` with the new content. The block_id stays put; its content is overwritten.
+
+### Setup Requirements (When Posting the Original Message)
+
+To use `update_blocks_by_block_id` later, the *original* `post_bot_message` must have given each interactive block a stable `block_id`. The default Workato message helpers don't do this for you — you have to construct the message in raw block form:
+
+```json
+{
+  "name": "post_bot_message",
+  "input": {
+    "channel": "...",
+    "message": {
+      "blocks": [
+        { "type": "section", "block_id": "summary", "text": { ... } },
+        {
+          "type": "actions",
+          "block_id": "approve_deny_buttons",
+          "elements": [ ... button definitions ... ]
+        }
+      ]
+    }
+  }
+}
+```
+
+The receiver recipe then references `block_id: "approve_deny_buttons"` to remove or replace that row.

@@ -269,13 +269,48 @@ For JSON responses with defined `response_schema`, fields are nested under `resp
 
 ### Raw JSON Body with Datapills
 
-For `content_type: "application/json"` (raw JSON), use Ruby hash `.to_json` for safe JSON construction:
+For `content_type: "application/json"` (raw JSON), there are three patterns. Choose based on body complexity:
+
+#### Pattern 1 (preferred for non-trivial bodies): Build the body string in Python, then interpolate it
+
+For any body with operator-style keys (e.g. `$eq`, `$gte`), nested hashes, conditional fields, or numeric values, build the JSON string in a `py_eval` step upstream and reference it via `#{}` interpolation:
+
+```python
+# py_eval step
+import json
+
+def main(input):
+    body = {
+        'where': {'employee_id': {'$eq': int(input['emp_id'])}},
+        'limit': 1,
+        'select': ['Work Email', 'First Name', 'Last Name']
+    }
+    return {'body': json.dumps(body)}
+```
+
+```json
+"body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"build_query_body\",\"path\":[\"output\",\"body\"]}')}"
+```
+
+This is the safest pattern — Python handles type coercion (integers stay integers, not strings), nested structures, and conditionals naturally. The body field receives a fully-formed JSON string, so the body validator only has to check `#{}` interpolation against valid JSON, which it does correctly.
+
+#### Pattern 2: Literal JSON template with `#{}` interpolation only
+
+For simple bodies with string-only values:
+
+```json
+"body": "{\"text\":\"#{_dp('{...text...}')}\",\"model_id\":\"default_value\"}"
+```
+
+> **Important:** wrapping every `#{}` placeholder inside `"..."` quotes is the defensive pattern — even for fields the receiving API expects to be numeric or boolean. The body validator strips `#{}` placeholders before parsing the remainder as JSON, so a bare `:#{...}` *can* leave invalid JSON behind and the validator may error out, misleadingly attributing the failure to the datapill itself rather than the body shape. *(Caveat: in our testing, bare `:#{...}` for integer fields runs fine in some shapes — see the [Body Field Gotchas](#body-field-gotchas) section below for nuance.)* If the API needs numeric typing, either rely on its type coercion (passing `"#{...}"` typically works) or use Pattern 1.
+
+#### Pattern 3 (works for simple bodies, but with caveats): Ruby hash with `.to_json`
 
 ```json
 "body": "={'text' => _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"text\"]}'), 'model_id' => 'default_value', 'settings' => {'key' => 0.5}}.to_json"
 ```
 
-This approach:
+This pattern works for simple bodies and:
 - Properly escapes special characters in datapill values (quotes, newlines)
 - Handles nested objects naturally with Ruby hash syntax
 - Uses `.to_json` to produce valid JSON output
@@ -285,6 +320,29 @@ For optional fields with defaults:
 ```json
 "body": "={'text' => _dp('{...text...}'), 'model' => (_dp('{...model...}').present? ? _dp('{...model...}') : 'default_model')}.to_json"
 ```
+
+> **WARNING:** for bodies with operator-style keys (e.g. `'$eq'`, `'$gte'`), the leading `=` may be stripped on import — the body is then sent as the literal Ruby hash string with `_dp(...)` inline-substituted, producing parse errors from the receiving API (e.g. `"key must be a string"`). If you hit this, switch to Pattern 1 (Python-built body) — the failure mode is silent at lint/push time and only surfaces at runtime.
+
+### Body Field Gotchas
+
+A few interpolation rules that aren't obvious from the editor and produce confusing error messages when violated:
+
+**1. `#{}` placeholders inside `"..."` is the safe pattern, even for numeric values.** The body validator strips `#{}` placeholders before parsing the remainder as JSON, so a bare `:#{...}` (without surrounding quotes) can leave invalid JSON behind — the validator then emits `expression has invalid data pill _dp(...): Invalid JSON`, pointing at the datapill rather than the body shape. Defensive workaround: wrap interpolations in quotes (`"$eq":"#{_dp(...)}"`) and rely on the receiving API's type coercion, or build the body upstream in `py_eval` (Pattern 1 above).
+
+> *Caveat: this rule isn't universal in our testing — bare `:#{_dp(...)}` for an integer does run successfully against some receivers (e.g. data-table query bodies with `"$eq": <integer>`). The "Invalid JSON" error has been observed at the body-editor / lint layer in some shapes but doesn't always block import or runtime. If you see the error, the quote-wrap or Python-built body workaround resolves it; if you don't, bare interpolation may be fine. Pattern 1 (Python-built body) is the safest default since it sidesteps the question entirely.*
+
+**2. Method chains in `#{}` don't work in body fields.** `#{_dp(...).first.last[3].to_i}` renders the `_dp(...)` as a chip and the rest as literal text after it. The body editor reports "Formula has errors." Method chains *do* work in regular action input fields (e.g. `workflow_return_result.input`, regular schema-mapped action input fields) — just not in raw body fields. Workaround: do the transformation upstream in a `py_eval` step or a `workato_variable` `update_variables` step, then interpolate the result.
+
+**3. Datapill paths cannot use integer indices for array element access.** A path like `["document","data",0,"array",1]` returns `Invalid path element`. Datapill paths only navigate object keys (strings). Array element access requires either:
+- a `foreach` loop (using `path_element_type: "current_item"`)
+- a formula with method chains (`.first`, `.last`, `[N]`) — but these don't work in body fields per gotcha #2
+- a `py_eval` step that walks the array natively in Python
+
+**4. `parse_json_v2` schematizes nested arrays as `array of object with property "array"`.** A response like `{"data":[[ ["a","b","c"], [1,2,3] ]]}` is reported to become `data: array of {array: array of {array: array of string}}` — an extra `array` wrapper at every level. Combined with gotcha #3, there's no way to send a positional element from such a structure into a body field via datapill interpolation. Workaround: parse the raw response in `py_eval` (skip `parse_json_v2`), or extract the value into a `workato_variable` first and reference the variable.
+
+> *Caveat: this gotcha is based on observation during early experimentation; we don't currently have a working recipe that demonstrates the exact wrapping shape, since we converged on `py_eval` for all nested-JSON handling. Treat it as a reason to reach for `py_eval` first rather than as a definitive `parse_json_v2` schema reference. If you do hit this shape and have a clean repro, please document the exact output schema produced.*
+
+For non-trivial response handling, **prefer `py_eval` over the formula + `parse_json_v2` chain**. See [python-snippets.md](./python-snippets.md).
 
 ### Binary Response Handling
 
