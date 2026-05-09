@@ -26,8 +26,9 @@ A genie skill recipe pairs with an `.agentic_skill.json` companion file in the s
   "keyword": "trigger",
   "input": {
     "description": "Look up the requesting user's manager via the master employee table. Returns manager_email, manager_name, manager_employee_id, plus the requester's name and employee id. Use this as the FIRST step before sending any approval-related DM.",
-    "input_schema": "[{\"name\":\"user_email\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"User email\",\"optional\":false,\"hint\":\"Work email of the user whose manager to look up\"}]",
-    "output_schema": "[{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"},{\"name\":\"manager_email\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Manager email\"},{\"name\":\"manager_name\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Manager name\"},{\"name\":\"error\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error\"}]"
+    "parameters_schema_json": "[{\"name\":\"user_email\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"User email\",\"optional\":false,\"hint\":\"Work email of the user whose manager to look up\"}]",
+    "result_schema_json": "[{\"name\":\"success\",\"type\":\"boolean\",\"control_type\":\"checkbox\",\"label\":\"Success\"},{\"name\":\"manager_email\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Manager email\"},{\"name\":\"manager_name\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Manager name\"},{\"name\":\"error\",\"type\":\"string\",\"control_type\":\"text\",\"label\":\"Error\"}]",
+    "requires_user_confirmation": "false"
   },
   "extended_output_schema": [
     {
@@ -43,15 +44,60 @@ A genie skill recipe pairs with an `.agentic_skill.json` companion file in the s
 }
 ```
 
+### Trigger EOS with `metadata_schema_json` (unverified)
+
+When `metadata_schema_json` is defined, server exports show the trigger's `extended_output_schema` includes a `custom_metadata` section alongside `parameters`. This structure has been observed but not activation-tested:
+
+```json
+"extended_output_schema": [
+  {
+    "label": "Parameters",
+    "name": "parameters",
+    "type": "object",
+    "properties": [
+      { "control_type": "text", "label": "Input 1", "name": "Input1", "optional": true, "type": "string" }
+    ]
+  },
+  {
+    "label": "Custom Metadata",
+    "name": "custom_metadata",
+    "type": "object",
+    "properties": [
+      { "control_type": "text", "label": "Label1", "name": "TaskMetadata1", "optional": true, "type": "string" }
+    ]
+  }
+]
+```
+
 ### Key structural rules
 
 - **`input.description` is the skill description shown in the Workato UI's "When should your genie run this skill?" textarea.** This is what the genie's LLM sees to decide whether to invoke the skill, so write it clearly: when to use, when NOT to use, what each input means, what the outputs mean, what to do with each output. Long descriptions (200–800 words) are fine and recommended.
-- **`input_schema`** is a stringified JSON array — the typed inputs the LLM must supply.
-- **`output_schema`** is a stringified JSON array — the fields the recipe will return. The LLM consumes these.
-- Datapills for the trigger inputs use:
-  ```json
-  "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_genie\",\"line\":\"trigger\",\"path\":[\"parameters\",\"user_email\"]}')}"
-  ```
+- **`parameters_schema_json`** is a stringified JSON array — the typed inputs the LLM must supply. (NOT `input_schema` — that name is invalid.)
+- **`result_schema_json`** is a stringified JSON array — the fields the recipe will return. The LLM consumes these. (NOT `output_schema`.)
+- **`requires_user_confirmation`** is a string `"true"` or `"false"` — controls whether the genie asks the user for confirmation before running the skill.
+- **`metadata_schema_json`** (optional) is a stringified JSON array — defines custom metadata fields visible in the genie UI. When present, the trigger's `extended_output_schema` must include a matching `custom_metadata` section (see EOS structure below).
+
+### Datapill paths
+
+Genie triggers expose datapill namespaces based on the schemas defined in the trigger input:
+
+| Namespace | Path prefix | Source | Verified |
+|-----------|-------------|--------|----------|
+| `parameters` | `["parameters", "field"]` | User-defined inputs from `parameters_schema_json` | Yes (golden recipes 237474, 237651) |
+| `context` | `["context", "field"]` | Built-in genie runtime identity fields | Yes (golden recipe 237651 — returns invoking user's name) |
+| `custom_metadata` | `["custom_metadata", "field"]` | Custom metadata from `metadata_schema_json` | Unverified (observed in server export) |
+
+**User-defined parameter** (from `parameters_schema_json`):
+```json
+"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_genie\",\"line\":\"trigger\",\"path\":[\"parameters\",\"user_email\"]}')}"
+```
+
+**Built-in context field** (genie runtime identity — available without any schema declaration):
+```json
+"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_genie\",\"line\":\"trigger\",\"path\":[\"context\",\"user_name\"]}')}"
+```
+
+Known `context` fields: `user_name` (verified), `user_email` (unverified but expected).
 
 ---
 
@@ -76,6 +122,9 @@ Use `workflow_return_result` to send the typed output back to the genie:
   "name": "workflow_return_result",
   "as": "return_success",
   "keyword": "action",
+  "toggleCfg": {
+    "result.success": true
+  },
   "input": {
     "result": {
       "success": "true",
@@ -84,11 +133,39 @@ Use `workflow_return_result` to send the typed output back to the genie:
       "error": ""
     }
   },
+  "extended_input_schema": [
+    {
+      "label": "Result",
+      "name": "result",
+      "type": "object",
+      "properties": [
+        { "control_type": "checkbox", "label": "Success", "name": "success", "optional": true, "type": "boolean", "render_input": "boolean_conversion", "parse_output": "boolean_conversion", "toggle_hint": "Select from option list", "toggle_field": { "label": "Success", "control_type": "text", "toggle_hint": "Use custom value", "name": "success", "type": "boolean" } },
+        { "control_type": "text", "label": "Manager email", "name": "manager_email", "optional": true, "type": "string" },
+        { "control_type": "text", "label": "Manager name", "name": "manager_name", "optional": true, "type": "string" },
+        { "control_type": "text", "label": "Error", "name": "error", "optional": true, "type": "string" }
+      ]
+    }
+  ],
+  "extended_output_schema": [
+    {
+      "label": "Result",
+      "name": "result",
+      "type": "object",
+      "properties": [
+        { "control_type": "checkbox", "label": "Success", "name": "success", "optional": true, "type": "boolean", "render_input": "boolean_conversion", "parse_output": "boolean_conversion", "toggle_hint": "Select from option list", "toggle_field": { "label": "Success", "control_type": "text", "toggle_hint": "Use custom value", "name": "success", "type": "boolean" } },
+        { "control_type": "text", "label": "Manager email", "name": "manager_email", "optional": true, "type": "string" },
+        { "control_type": "text", "label": "Manager name", "name": "manager_name", "optional": true, "type": "string" },
+        { "control_type": "text", "label": "Error", "name": "error", "optional": true, "type": "string" }
+      ]
+    }
+  ],
   "uuid": "return-success-001"
 }
 ```
 
-Each key in `input.result` must match a field name in the trigger's `output_schema`. Unknown keys are dropped silently.
+**CRITICAL:** `workflow_return_result` requires both `extended_input_schema` and `extended_output_schema` defining the result fields. Without them, the UI cannot resolve the result object and datapills break. The `toggleCfg` entry controls how boolean fields are rendered.
+
+Each key in `input.result` must match a field name in the trigger's `result_schema_json`. Unknown keys are dropped silently.
 
 ### Returning an error
 
@@ -146,10 +223,12 @@ The `trigger_description` on this file appears to be ignored by the UI (see gotc
 - [ ] Trigger action name is `start_workflow`
 - [ ] Return action name is `workflow_return_result`
 - [ ] `code.input.description` is populated with the skill's "when to use / when NOT to use / inputs / outputs" guidance for the LLM
-- [ ] `input_schema` and `output_schema` are stringified JSON arrays
-- [ ] Each `workflow_return_result.input.result` key matches a field in `output_schema`
+- [ ] `parameters_schema_json` and `result_schema_json` are stringified JSON arrays (NOT `input_schema`/`output_schema`)
+- [ ] Each `workflow_return_result.input.result` key matches a field in `result_schema_json`
+- [ ] `requires_user_confirmation` is present (string `"true"` or `"false"`)
 - [ ] Error paths use `workflow_return_result` with `success: false` (NOT `stop` with `stop_with_error: "true"`)
-- [ ] Config entry for `workato_genie` includes `"account_id": null`
+- [ ] Config entry for `workato_genie` includes `"name": "workato_genie"`, `"account_id": null`, and `"skip_validation": false`
+- [ ] `workflow_return_result` has both `extended_input_schema` and `extended_output_schema` matching the result fields
 
 ---
 
@@ -159,3 +238,4 @@ The `trigger_description` on this file appears to be ignored by the UI (see gotc
 - [Datapill Syntax](../fundamentals/datapill-syntax.md)
 - [Python Snippets](../patterns/python-snippets.md) — preferred for any non-trivial transformation inside a genie skill
 - [Data Table Trigger](./data-table.md) — for background recipes triggered by row events (typically paired with genie skills that write to those tables)
+- [Stop Action](../control-flow/stop.md) — `stop_with_error: "true"` is NOT supported in genie skills; use `workflow_return_result` with `success: false` instead
