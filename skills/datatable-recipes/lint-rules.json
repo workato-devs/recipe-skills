@@ -1,0 +1,33 @@
+{
+  "version": "0.3.0",
+  "connector": "workato_db_table",
+  "connector_internals": [
+    "table_id"
+  ],
+  "valid_action_names": [
+    "add_record",
+    "get_records",
+    "update_record",
+    "delete_record",
+    "upsert_record",
+    "truncate_table",
+    "remove_values_from_record"
+  ],
+  "valid_trigger_names": [
+    "new_records_polling",
+    "new_records_realtime",
+    "updated_records_realtime",
+    "updated_records_polling"
+  ],
+  "action_rules": [],
+  "_notes": {
+    "verification_status": "all trigger names and all action names verified via golden recipe end-to-end testing 2026-05-08",
+    "verified_triggers": ["new_records_realtime", "updated_records_realtime", "new_records_polling", "updated_records_polling"],
+    "unverified_triggers": [],
+    "verified_actions": ["add_record", "get_records", "update_record", "delete_record", "upsert_record", "truncate_table", "remove_values_from_record"],
+    "unverified_actions": [],
+    "invalid_trigger_names": ["new_record_realtime"],
+    "invalid_action_names": ["create_record", "search_records", "add_row", "insert_record", "create_row", "create_records", "update_records", "delete_records", "add_records", "upsert_records", "batch_create", "batch_update", "batch_delete", "bulk_create", "bulk_update", "bulk_delete"],
+    "naming_convention": "_realtime suffix = real-time triggers, _polling suffix = batch triggers"
+  }
+}

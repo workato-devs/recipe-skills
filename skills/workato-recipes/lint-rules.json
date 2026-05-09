@@ -1,0 +1,24 @@
+{
+  "version": "0.1.0",
+  "connector": "workato_pub_sub",
+  "connector_internals": [
+    "topic_id"
+  ],
+  "valid_action_names": [
+    "publish_to_topic"
+  ],
+  "valid_trigger_names": [
+    "subscribe_to_topic"
+  ],
+  "action_rules": [],
+  "_notes": {
+    "verification_status": "all trigger and action names verified via golden recipe end-to-end testing 2026-05-08",
+    "verified_triggers": ["subscribe_to_topic"],
+    "unverified_triggers": [],
+    "verified_actions": ["publish_to_topic"],
+    "unverified_actions": [],
+    "invalid_trigger_names": ["subscribe", "new_message", "new_messages", "new_batch_of_messages", "batch_subscribe"],
+    "invalid_action_names": ["publish", "publish_message", "send_message", "publish_event", "produce_message", "produce", "post_message", "batch_publish", "batch_publish_to_topic", "publish_messages", "publish_batch"],
+    "naming_convention": "subscribe_to_topic for triggers, publish_to_topic for actions — no batch variants exist"
+  }
+}

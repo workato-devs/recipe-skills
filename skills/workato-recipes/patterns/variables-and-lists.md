@@ -152,7 +152,7 @@ Initialize a variable with a starting value. Uses `variables.schema` (stringifie
 
 ### Update Variable
 
-Set or update a variable's value:
+Set or update a variable's value. **Use the "raw" input form** — this is what the Workato server normalizes to internally and what survives a push/pull round-trip:
 
 ```json
 {
@@ -162,16 +162,48 @@ Set or update a variable's value:
   "as": "set_customer_id",
   "keyword": "action",
   "input": {
-    "variables": [
-      {
-        "variable": "customer_id",
-        "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
-      }
-    ]
+    "input_mode": "raw",
+    "name": "declare-customer-id-001:declare_customer_id:customer_id",
+    "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
   },
+  "extended_input_schema": [
+    {
+      "control_type": "text",
+      "label": "customer_id",
+      "name": "customer_id",
+      "optional": true,
+      "type": "string"
+    }
+  ],
   "uuid": "set-customer-id-001"
 }
 ```
+
+#### Key structural rules for `update_variables` (raw form):
+
+- **`input_mode`**: must be the literal string `"raw"`.
+- **`name`**: `\n`-separated entries, one per variable being updated. Each entry has the form `<declare-uuid>:<declare-as>:<variable-name>`, pointing at the `declare_variable` step that owns the variable.
+- **Per-variable values**: each variable is a flat top-level key on `input` (e.g., `customer_id`, `order_id`). The value is a datapill, formula, or literal.
+- **EIS is REQUIRED**: Each variable field being updated must be declared in `extended_input_schema`. Without EIS, the flat value keys are **silently stripped on import** — the recipe imports without error but the variable values are empty.
+
+For multiple variables in a single update:
+
+```json
+{
+  "input": {
+    "input_mode": "raw",
+    "name": "declare-vars-001:declare_vars:customer_id\ndeclare-vars-001:declare_vars:order_id",
+    "customer_id": "#{_dp('{...}')}",
+    "order_id": "#{_dp('{...}')}"
+  },
+  "extended_input_schema": [
+    {"control_type": "text", "label": "customer_id", "name": "customer_id", "optional": true, "type": "string"},
+    {"control_type": "text", "label": "order_id", "name": "order_id", "optional": true, "type": "string"}
+  ]
+}
+```
+
+> **WARNING:** An older structured form — `"variables": [{"variable": "...", "value": "..."}]` — appears in some examples and parses as valid JSON, but **the Workato importer silently drops it on round-trip**. The recipe pushes, lint passes, but every variable mapping comes back empty after import. Use the raw form above.
 
 ### Reference Variable in Datapill
 
@@ -233,7 +265,7 @@ Initialize a named list with a schema defining each item's structure. Uses `name
 
 ### Insert to List
 
-Add a single item to a list:
+Add a single item to a list. Uses a reference to the `declare_list` step (NOT a plain list name string):
 
 ```json
 {
@@ -242,20 +274,43 @@ Add a single item to a list:
   "name": "insert_to_list",
   "as": "add_result",
   "keyword": "action",
+  "dynamicPickListSelection": {"name": "results (step 2)"},
   "input": {
-    "list_name": "results",
+    "name": "declare-results-list-001:declare_results_list",
+    "location": "end",
     "list_item": {
       "id": "#{_dp('{...}')}",
       "status": "success"
     }
   },
+  "extended_input_schema": [
+    {
+      "hint": "",
+      "label": "List item",
+      "name": "list_item",
+      "optional": false,
+      "type": "object",
+      "properties": [
+        {"control_type": "text", "label": "Id", "type": "string", "name": "id", "optional": true},
+        {"control_type": "text", "label": "Status", "type": "string", "name": "status", "optional": true}
+      ]
+    }
+  ],
   "uuid": "add-result-001"
 }
 ```
 
+#### Key structural rules for `insert_to_list`:
+
+- **`input.name`**: `<declare-uuid>:<declare-as>` — references the `declare_list` step that owns the list. Do NOT use `list_name` (that format is silently stripped on import).
+- **`input.location`**: `"end"` to append (only known valid value).
+- **`dynamicPickListSelection`**: `{"name": "listname (step N)"}` where N is the 1-based UI step number of the `declare_list` step.
+- **`list_item`**: object with fields matching the list schema.
+- **EIS is REQUIRED**: Must define the `list_item` object with properties matching the list schema. Without EIS, the `list_item` values are stripped on import.
+
 ### Insert Batch to List
 
-Add multiple items at once:
+Add multiple items at once. Same reference format as `insert_to_list`:
 
 ```json
 {
@@ -264,8 +319,10 @@ Add multiple items at once:
   "name": "insert_to_list_batch",
   "as": "add_results_batch",
   "keyword": "action",
+  "dynamicPickListSelection": {"name": "results (step 2)"},
   "input": {
-    "list_name": "results",
+    "name": "declare-results-list-001:declare_results_list",
+    "location": "end",
     "list_items": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"search_contacts\",\"path\":[\"records\"]}')}"
   },
   "uuid": "add-results-batch-001"
@@ -426,13 +483,13 @@ This example shows using a variable to capture a customer ID from either a searc
             "as": "set_found_id",
             "keyword": "action",
             "input": {
-              "variables": [
-                {
-                  "variable": "customer_id",
-                  "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}"
-                }
-              ]
+              "input_mode": "raw",
+              "name": "declare-customer-id-001:declare_customer_id:customer_id",
+              "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"search_customer\",\"path\":[\"data\",{\"path_element_type\":\"current_item\"},\"id\"]}')}"
             },
+            "extended_input_schema": [
+              {"control_type": "text", "label": "customer_id", "name": "customer_id", "optional": true, "type": "string"}
+            ],
             "uuid": "set-found-id-001"
           },
           {
@@ -457,13 +514,13 @@ This example shows using a variable to capture a customer ID from either a searc
                 "as": "set_created_id",
                 "keyword": "action",
                 "input": {
-                  "variables": [
-                    {
-                      "variable": "customer_id",
-                      "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
-                    }
-                  ]
+                  "input_mode": "raw",
+                  "name": "declare-customer-id-001:declare_customer_id:customer_id",
+                  "customer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"stripe\",\"line\":\"create_customer\",\"path\":[\"id\"]}')}"
                 },
+                "extended_input_schema": [
+                  {"control_type": "text", "label": "customer_id", "name": "customer_id", "optional": true, "type": "string"}
+                ],
                 "uuid": "set-created-id-001"
               }
             ],
@@ -505,9 +562,26 @@ This example shows using a variable to capture a customer ID from either a searc
 
 5. **Variable scope**: Variables are scoped to the recipe execution. They persist across all actions within a single run.
 
-6. **EIS is required**: Without the `extended_input_schema` (with `form-schema-builder` control type), the variable action will not render correctly in the Workato UI.
+6. **EIS is required on `declare_variable`**: Without the `extended_input_schema` (with `form-schema-builder` control type), the variable action will not render correctly in the Workato UI.
 
 7. **Schema field needs `parent`**: Each field in `variables.schema` must include `"parent": ["variables", "data"]` or the field won't bind to the data input.
+
+8. **`update_variables` must use the raw input form**: The structured `variables: [{variable, value}]` array form is silently dropped by the Workato importer on round-trip. Use `input_mode: "raw"` with a `\n`-separated `name` field and flat per-variable top-level keys (see [Update Variable](#update-variable) above).
+
+9. **`update_variables` EIS is required**: Each flat variable key in `update_variables` input MUST have a matching EIS entry, or the value is silently stripped on import.
+
+10. **`insert_to_list` uses step reference, NOT list name**: The `input.name` field must be `"<declare-uuid>:<declare-as>"` referencing the `declare_list` step. Using `list_name: "results"` causes the entire input to be stripped. Also requires `location`, `dynamicPickListSelection`, and EIS for `list_item`.
+
+11. **Config `name` field required**: Platform provider config entries (including `workato_variable`) MUST include `"name": "workato_variable"` or activation fails with "missing adapter configuration".
+
+12. **Returning lists in `return_response`**: You cannot map a list datapill directly to an array field (it gets stripped on import). Instead, map each field individually using `current_item` path elements:
+    ```json
+    "items": {
+      "label": "#{_dp('{...\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"label\"]}')}",
+      "value": "#{_dp('{...\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"value\"]}')}",
+    }
+    ```
+    Workato auto-iterates over the list and builds the response array.
 
 ## Validation Checklist
 
@@ -515,11 +589,13 @@ This example shows using a variable to capture a customer ID from either a searc
 - [ ] Variable actions use `declare_variable` (NOT `set_variable`)
 - [ ] Input uses `variables.schema` (stringified JSON) + `variables.data.{field}` structure
 - [ ] Schema entries have `"parent": ["variables", "data"]`
-- [ ] EIS has `"control_type": "form-schema-builder"` with `schema` and `data` properties
+- [ ] `declare_variable` EIS has `"control_type": "form-schema-builder"` with `schema` and `data` properties
 - [ ] EOS field name matches the variable field name (NOT `"value"`)
 - [ ] Datapill references use `"provider": "workato_variable"` and path uses the field name
-- [ ] Config includes `workato_variable` entry with `"account_id": null`
-- [ ] List actions use `name` + `list_item_schema_json` input (NOT `list_name` + `list_schema`)
+- [ ] Config includes `workato_variable` entry with `"account_id": null` AND `"name": "workato_variable"`
+- [ ] `declare_list` uses `name` + `list_item_schema_json` input (NOT `list_name` + `list_schema`)
+- [ ] `update_variables` uses `input_mode: "raw"` with `\n`-separated `name` field and EIS for each variable field
+- [ ] `insert_to_list` uses `name: "uuid:as"` + `location: "end"` + `dynamicPickListSelection` + EIS for `list_item` (NOT `list_name`)
 
 For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 

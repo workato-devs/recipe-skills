@@ -92,6 +92,7 @@ Run the inline checklist in each pattern your recipe uses:
 
 After completing the checks above, run the connector-specific checklist for your target connector:
 
+- **Data Tables:** See [datatable-recipes/validation-checklist.md](../datatable-recipes/validation-checklist.md)
 - **Salesforce:** See [salesforce-recipes/validation-checklist.md](../salesforce-recipes/validation-checklist.md)
 - **Slack:** See [slack-recipes/validation-checklist.md](../slack-recipes/validation-checklist.md)
 - **Gmail:** See [gmail-recipes/validation-checklist.md](../gmail-recipes/validation-checklist.md)

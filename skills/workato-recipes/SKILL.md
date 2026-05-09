@@ -153,8 +153,11 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 | If/Else | [control-flow/if-else.md](control-flow/if-else.md) |
 | Try/Catch | [control-flow/try-catch.md](control-flow/try-catch.md) |
 | Foreach Loops | [control-flow/foreach.md](control-flow/foreach.md) |
+| Stop Action | [control-flow/stop.md](control-flow/stop.md) |
 | API Endpoint Trigger | [triggers/api-endpoint.md](triggers/api-endpoint.md) |
 | Callable Recipe Trigger | [triggers/callable-recipe.md](triggers/callable-recipe.md) |
+| Messaging Topic Trigger | [triggers/messaging-topic.md](triggers/messaging-topic.md) |
+| Publish to Topic Action | [triggers/messaging-topic.md](triggers/messaging-topic.md) |
 | Adhoc HTTP Actions | [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) |
 | JWT Bearer Auth | [patterns/jwt-auth.md](patterns/jwt-auth.md) |
 | API Platform Artifacts | [patterns/api-platform-artifacts.md](patterns/api-platform-artifacts.md) |
@@ -358,6 +361,7 @@ See: [triggers/callable-recipe.md](triggers/callable-recipe.md)
 |----------|--------------|
 | External API access needed | API Endpoint |
 | Called by other recipes only | Callable Recipe |
+| React to messages from other recipes | Messaging Topic (subscriber) |
 | Receive external webhooks | Webhook |
 | Time-based execution | Scheduler |
 
@@ -766,7 +770,7 @@ Every block in a recipe requires these fields:
 | Field | Required | Description |
 |-------|----------|-------------|
 | `number` | Yes | Sequential step number |
-| `keyword` | Yes | Block type: `trigger`, `action`, `if`, `else`, `try`, `catch`, `foreach` |
+| `keyword` | Yes | Block type: `trigger`, `action`, `if`, `else`, `try`, `catch`, `foreach`, `stop` |
 | `uuid` | Yes | Unique identifier (max 36 chars) |
 | `as` | Yes* | Step alias for datapill references |
 
@@ -1237,5 +1241,5 @@ See [validation-checklist.md](validation-checklist.md) for the consolidated reci
 
 - **Fundamentals:** See `fundamentals/` directory for recipe structure, config, and datapill syntax
 - **Triggers:** See `triggers/` directory for detailed trigger documentation
-- **Control Flow:** See `control-flow/` directory for if/else, try/catch, and foreach patterns
+- **Control Flow:** See `control-flow/` directory for if/else, try/catch, foreach, and stop patterns
 - **Templates:** See `templates/` directory for starter templates

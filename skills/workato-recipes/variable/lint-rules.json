@@ -1,0 +1,26 @@
+{
+  "version": "0.1.0",
+  "connector": "workato_variable",
+  "connector_internals": [
+    "input_mode",
+    "name",
+    "location",
+    "list_item_schema_json"
+  ],
+  "valid_action_names": [
+    "declare_variable",
+    "update_variables",
+    "declare_list",
+    "insert_to_list",
+    "insert_to_list_batch"
+  ],
+  "valid_trigger_names": [],
+  "action_rules": [],
+  "_notes": {
+    "verification_status": "declare_variable, update_variables, declare_list, insert_to_list verified via golden recipe end-to-end testing 2026-05-08",
+    "verified_actions": ["declare_variable", "update_variables", "declare_list", "insert_to_list"],
+    "unverified_actions": ["insert_to_list_batch"],
+    "invalid_action_names": ["set_variable", "create_variable", "add_variable", "add_to_list", "append_to_list", "create_list"],
+    "naming_convention": "declare_variable/declare_list for creation, update_variables for updates, insert_to_list for list manipulation"
+  }
+}

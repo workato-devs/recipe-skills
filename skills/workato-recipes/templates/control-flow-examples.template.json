@@ -728,6 +728,68 @@
           }
         ],
         "uuid": "if-status-active-001"
+      },
+      {
+        "number": 19,
+        "keyword": "if",
+        "as": "validate_status_present",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}')}",
+              "uuid": "cond-status-present-001"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 20,
+            "provider": "logger",
+            "name": "log_message",
+            "as": "log_validated",
+            "keyword": "action",
+            "input": {
+              "message": "Input validated, proceeding",
+              "user_logs_enabled": "false"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "switch",
+                "default": false,
+                "disable_formula": true,
+                "extends_schema": true,
+                "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                "label": "Send to Workato log service",
+                "name": "user_logs_enabled",
+                "optional": true,
+                "type": "string"
+              }
+            ],
+            "uuid": "log-validated-020"
+          },
+          {
+            "number": 21,
+            "keyword": "else",
+            "as": "else_missing_status",
+            "input": {},
+            "block": [
+              {
+                "number": 22,
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "false",
+                  "stop_reason": "Required field 'status' was not provided"
+                },
+                "uuid": "stop-missing-status-022"
+              }
+            ],
+            "uuid": "else-missing-status-021"
+          }
+        ],
+        "uuid": "if-validate-status-019"
       }
     ],
     "uuid": "trigger-control-flow-001",
@@ -736,12 +798,14 @@
   "config": [
     {
       "keyword": "application",
+      "name": "workato_recipe_function",
       "provider": "workato_recipe_function",
       "skip_validation": false,
       "account_id": null
     },
     {
       "keyword": "application",
+      "name": "logger",
       "provider": "logger",
       "skip_validation": false,
       "account_id": null

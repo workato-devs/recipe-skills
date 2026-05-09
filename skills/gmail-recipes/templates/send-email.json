@@ -60,12 +60,14 @@
   "config": [
     {
       "keyword": "application",
+      "name": "workato_api_platform",
       "provider": "workato_api_platform",
       "skip_validation": false,
       "account_id": null
     },
     {
       "keyword": "application",
+      "name": "gmail",
       "provider": "gmail",
       "skip_validation": false,
       "account_id": {

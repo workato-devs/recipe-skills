@@ -1146,12 +1146,14 @@
   "config": [
     {
       "keyword": "application",
+      "name": "workato_recipe_function",
       "provider": "workato_recipe_function",
       "skip_validation": false,
       "account_id": null
     },
     {
       "keyword": "application",
+      "name": "stripe",
       "provider": "stripe",
       "skip_validation": false,
       "account_id": {
@@ -1162,6 +1164,7 @@
     },
     {
       "keyword": "application",
+      "name": "logger",
       "provider": "logger",
       "skip_validation": false,
       "account_id": null

@@ -76,7 +76,7 @@ Every block in a recipe requires these fields:
 | Field | Required | Description |
 |-------|----------|-------------|
 | `number` | Yes | Sequential step number (trigger is 0) |
-| `keyword` | Yes | Block type: `trigger`, `action`, `if`, `else`, `try`, `catch`, `foreach` |
+| `keyword` | Yes | Block type: `trigger`, `action`, `if`, `else`, `try`, `catch`, `foreach`, `stop` |
 | `uuid` | Yes | Unique identifier (max 36 characters) |
 | `as` | Yes* | Step alias for datapill references |
 
@@ -88,6 +88,7 @@ Every block in a recipe requires these fields:
 |------------|----------|
 | Trigger | Required (e.g., `workato_api_platform`) |
 | Action | Required (e.g., `stripe`, `salesforce`) |
+| Stop | NO provider or name field — uses `keyword: "stop"` only |
 | If/Else | NO provider field |
 | Catch | `"provider": null` (explicitly null) |
 
@@ -208,3 +209,7 @@ See [validation-checklist.md](../validation-checklist.md) for consolidated valid
 - [Datapill Syntax](datapill-syntax.md)
 - [API Endpoint Trigger](../triggers/api-endpoint.md)
 - [Callable Recipe Trigger](../triggers/callable-recipe.md)
+- [If/Else Conditional](../control-flow/if-else.md)
+- [Stop Action](../control-flow/stop.md)
+- [Try/Catch Error Handling](../control-flow/try-catch.md)
+- [Foreach Loops](../control-flow/foreach.md)

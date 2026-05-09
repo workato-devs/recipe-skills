@@ -408,6 +408,7 @@ For cross-cutting validation (UUIDs, numbering, config, datapills), see [validat
 
 ## Related Documentation
 
+- [Stop Action](stop.md) — commonly used inside else blocks for input validation
 - [Datapill Syntax](../fundamentals/datapill-syntax.md)
 - [Try/Catch Error Handling](try-catch.md)
 - [Foreach Loops](foreach.md)

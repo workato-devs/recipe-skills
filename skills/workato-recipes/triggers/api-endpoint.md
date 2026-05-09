@@ -293,6 +293,12 @@ Access fields directly from the request object:
 
 For cross-cutting validation (UUIDs, numbering, config, datapills), see [validation-checklist.md](../validation-checklist.md).
 
+## Input Validation with Stop
+
+To validate input fields and bail out early, use an if/else block with a `stop` action in the else branch. When stop fires in an API endpoint recipe, the response is empty (no body) with HTTP 200 — the `return_response` action never executes.
+
+If you need a structured error response for invalid input, use a `return_response` action in the else block with an error HTTP status instead of stop. See [control-flow/stop.md](../control-flow/stop.md) for full stop action documentation.
+
 ## Complete Example
 
 See: [templates/api-endpoint-trigger.template.json](../templates/api-endpoint-trigger.template.json)

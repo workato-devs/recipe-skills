@@ -31,6 +31,8 @@ entry_point: SKILL.md
 triggers:
   - triggers/api-endpoint.md
   - triggers/callable-recipe.md
+  - triggers/data-table.md
+  - triggers/genie-skill.md
 
 # Control flow documentation
 control_flow:
@@ -56,6 +58,8 @@ patterns:
   - patterns/adhoc-http-actions.md
   - patterns/custom-connector-actions.md
   - patterns/api-platform-artifacts.md
+  - patterns/variables-and-lists.md
+  - patterns/python-snippets.md
 
 # Validation checklist
 validation:
