@@ -10,6 +10,7 @@ The config section defines which providers and connections a recipe uses. Every 
 "config": [
   {
     "keyword": "application",
+    "name": "PROVIDER_OR_CONNECTION_NAME",
     "provider": "PROVIDER_NAME",
     "skip_validation": false,
     "account_id": null
@@ -22,6 +23,7 @@ The config section defines which providers and connections a recipe uses. Every 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `keyword` | string | Yes | Always `"application"` |
+| `name` | string | Platform providers only | Adapter name. **Required for platform providers** (`account_id: null`) — set to same value as `provider`. Not needed for external connectors — the server resolves it from the connection reference. Omitting for platform providers causes silent activation failure (`"missing adapter configuration"` error). |
 | `provider` | string | Yes | Provider identifier (e.g., `salesforce`, `stripe`) |
 | `skip_validation` | boolean | Yes | Whether to skip connection validation |
 | `account_id` | object/null | Yes | Connection reference or `null` for platform providers |
@@ -30,7 +32,7 @@ The config section defines which providers and connections a recipe uses. Every 
 
 ### Platform Providers (No Connection Needed)
 
-These are built-in Workato providers that don't require external connections:
+These are built-in Workato providers that don't require external connections. Because they have no connection reference (`account_id: null`), the server cannot resolve the adapter name automatically — you **must** include `"name"` set to the same value as `"provider"`:
 
 | Provider | Description |
 |----------|-------------|
@@ -43,6 +45,7 @@ These are built-in Workato providers that don't require external connections:
 ```json
 {
   "keyword": "application",
+  "name": "workato_api_platform",
   "provider": "workato_api_platform",
   "skip_validation": false,
   "account_id": null
@@ -53,7 +56,7 @@ These are built-in Workato providers that don't require external connections:
 
 ### Connector Providers (Connection Required)
 
-External service connectors require a connection reference:
+External service connectors require a connection reference. The server resolves the adapter `name` from the `account_id` connection, so `"name"` is **not needed** in config source files:
 
 | Provider | Description |
 |----------|-------------|
@@ -118,6 +121,7 @@ Recipes triggered by external HTTP requests:
 "config": [
   {
     "keyword": "application",
+    "name": "workato_api_platform",
     "provider": "workato_api_platform",
     "skip_validation": false,
     "account_id": null
@@ -133,6 +137,7 @@ Recipes invoked by other Workato recipes:
 "config": [
   {
     "keyword": "application",
+    "name": "workato_recipe_function",
     "provider": "workato_recipe_function",
     "skip_validation": false,
     "account_id": null
@@ -148,6 +153,7 @@ When a recipe uses multiple services:
 "config": [
   {
     "keyword": "application",
+    "name": "workato_api_platform",
     "provider": "workato_api_platform",
     "skip_validation": false,
     "account_id": null
@@ -183,12 +189,14 @@ Adding the logger provider for debugging:
 "config": [
   {
     "keyword": "application",
+    "name": "workato_recipe_function",
     "provider": "workato_recipe_function",
     "skip_validation": false,
     "account_id": null
   },
   {
     "keyword": "application",
+    "name": "logger",
     "provider": "logger",
     "skip_validation": false,
     "account_id": null
@@ -198,9 +206,11 @@ Adding the logger provider for debugging:
 
 ## Gotchas and Best Practices
 
-1. **Include all providers**: Every provider used anywhere in the recipe must have a config entry. Missing entries cause import failures.
+1. **Include `"name"` for platform providers**: Platform providers (`account_id: null`) require `"name"` set to the same value as `"provider"`. External connectors (with `account_id` connection references) do NOT need `"name"` — the server resolves it from the connection. Omitting `"name"` for platform providers causes `"missing adapter configuration"` on activation — the API returns HTTP 200 with `"success": false`, so the error is silent unless you inspect the response body.
 
-2. **Platform providers use null**: `workato_api_platform`, `workato_recipe_function`, `workato_variable`, and `logger` always use `"account_id": null`.
+2. **Include all providers**: Every provider used anywhere in the recipe must have a config entry. Missing entries cause import failures.
+
+3. **Platform providers use null**: `workato_api_platform`, `workato_recipe_function`, `workato_variable`, `workato_db_table`, and `logger` always use `"account_id": null`.
 
 3. **Do NOT include `workato` in config**: The built-in `workato` provider (used for `set_variable`) should NOT be added to the config array. Adding it causes "invalid custom adapter" errors. However, avoid using `workato` provider entirely - use `workato_variable` instead.
 
