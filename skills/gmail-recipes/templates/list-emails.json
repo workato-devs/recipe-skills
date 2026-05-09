@@ -56,11 +56,20 @@
                 "type": "array",
                 "of": "object",
                 "properties": [
-                  {"name": "id", "type": "string"},
-                  {"name": "threadId", "type": "string"}
+                  {
+                    "name": "id",
+                    "type": "string"
+                  },
+                  {
+                    "name": "threadId",
+                    "type": "string"
+                  }
                 ]
               },
-              {"name": "resultSizeEstimate", "type": "number"}
+              {
+                "name": "resultSizeEstimate",
+                "type": "number"
+              }
             ]
           }
         ],
@@ -105,10 +114,23 @@
                 "name": "body",
                 "type": "object",
                 "properties": [
-                  {"name": "id", "type": "string"},
-                  {"name": "threadId", "type": "string"},
-                  {"name": "snippet", "type": "string"},
-                  {"name": "labelIds", "type": "array", "of": "string"}
+                  {
+                    "name": "id",
+                    "type": "string"
+                  },
+                  {
+                    "name": "threadId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "snippet",
+                    "type": "string"
+                  },
+                  {
+                    "name": "labelIds",
+                    "type": "array",
+                    "of": "string"
+                  }
                 ]
               }
             ],
@@ -161,12 +183,14 @@
   "config": [
     {
       "keyword": "application",
+      "name": "workato_api_platform",
       "provider": "workato_api_platform",
       "skip_validation": false,
       "account_id": null
     },
     {
       "keyword": "application",
+      "name": "gmail",
       "provider": "gmail",
       "skip_validation": false,
       "account_id": {
@@ -177,6 +201,7 @@
     },
     {
       "keyword": "application",
+      "name": "workato_variable",
       "provider": "workato_variable",
       "skip_validation": false,
       "account_id": null

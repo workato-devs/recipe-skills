@@ -263,12 +263,14 @@
   "config": [
     {
       "keyword": "application",
+      "name": "workato_recipe_function",
       "provider": "workato_recipe_function",
       "skip_validation": false,
       "account_id": null
     },
     {
       "keyword": "application",
+      "name": "gmail",
       "provider": "gmail",
       "skip_validation": false,
       "account_id": {
@@ -277,6 +279,7 @@
     },
     {
       "keyword": "application",
+      "name": "salesforce",
       "provider": "salesforce",
       "skip_validation": false,
       "account_id": {

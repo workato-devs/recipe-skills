@@ -156,9 +156,18 @@
                     "label": "Response",
                     "name": "http_status_code",
                     "pick_list": [
-                      ["Success", "200"],
-                      ["Bad Request", "400"],
-                      ["Server Error", "500"]
+                      [
+                        "Success",
+                        "200"
+                      ],
+                      [
+                        "Bad Request",
+                        "400"
+                      ],
+                      [
+                        "Server Error",
+                        "500"
+                      ]
                     ],
                     "type": "string"
                   },
@@ -204,9 +213,18 @@
                     "label": "Response",
                     "name": "http_status_code",
                     "pick_list": [
-                      ["Success", "200"],
-                      ["Bad Request", "400"],
-                      ["Server Error", "500"]
+                      [
+                        "Success",
+                        "200"
+                      ],
+                      [
+                        "Bad Request",
+                        "400"
+                      ],
+                      [
+                        "Server Error",
+                        "500"
+                      ]
                     ],
                     "type": "string"
                   },
@@ -275,9 +293,18 @@
                         "label": "Response",
                         "name": "http_status_code",
                         "pick_list": [
-                          ["Success", "200"],
-                          ["Bad Request", "400"],
-                          ["Server Error", "500"]
+                          [
+                            "Success",
+                            "200"
+                          ],
+                          [
+                            "Bad Request",
+                            "400"
+                          ],
+                          [
+                            "Server Error",
+                            "500"
+                          ]
                         ],
                         "type": "string"
                       },
@@ -323,9 +350,18 @@
                         "label": "Response",
                         "name": "http_status_code",
                         "pick_list": [
-                          ["Success", "200"],
-                          ["Bad Request", "400"],
-                          ["Server Error", "500"]
+                          [
+                            "Success",
+                            "200"
+                          ],
+                          [
+                            "Bad Request",
+                            "400"
+                          ],
+                          [
+                            "Server Error",
+                            "500"
+                          ]
                         ],
                         "type": "string"
                       },
@@ -404,9 +440,18 @@
                     "label": "Response",
                     "name": "http_status_code",
                     "pick_list": [
-                      ["Success", "200"],
-                      ["Bad Request", "400"],
-                      ["Server Error", "500"]
+                      [
+                        "Success",
+                        "200"
+                      ],
+                      [
+                        "Bad Request",
+                        "400"
+                      ],
+                      [
+                        "Server Error",
+                        "500"
+                      ]
                     ],
                     "type": "string"
                   },
@@ -452,9 +497,18 @@
                     "label": "Response",
                     "name": "http_status_code",
                     "pick_list": [
-                      ["Success", "200"],
-                      ["Bad Request", "400"],
-                      ["Server Error", "500"]
+                      [
+                        "Success",
+                        "200"
+                      ],
+                      [
+                        "Bad Request",
+                        "400"
+                      ],
+                      [
+                        "Server Error",
+                        "500"
+                      ]
                     ],
                     "type": "string"
                   },
@@ -507,12 +561,14 @@
   "config": [
     {
       "keyword": "application",
+      "name": "workato_api_platform",
       "provider": "workato_api_platform",
       "skip_validation": false,
       "account_id": null
     },
     {
       "keyword": "application",
+      "name": "jira",
       "provider": "jira",
       "skip_validation": false,
       "account_id": {

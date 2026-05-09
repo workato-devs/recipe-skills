@@ -70,9 +70,7 @@
             "dialog_data_source": "custom",
             "options": "1 - Poor,2 - Fair,3 - Good,4 - Very Good,5 - Excellent",
             "of": "object",
-            "properties": [
-
-            ]
+            "properties": []
           },
           {
             "label": "Category",
@@ -102,9 +100,7 @@
             "dialog_data_source": "custom",
             "options": "Product,Support,Documentation,Other",
             "of": "object",
-            "properties": [
-
-            ]
+            "properties": []
           },
           {
             "control_type": "text-area",
@@ -175,6 +171,7 @@
   "config": [
     {
       "keyword": "application",
+      "name": "slack_bot",
       "provider": "slack_bot",
       "skip_validation": false,
       "account_id": {

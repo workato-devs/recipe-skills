@@ -105,6 +105,7 @@
   "config": [
     {
       "keyword": "application",
+      "name": "slack_bot",
       "provider": "slack_bot",
       "skip_validation": false,
       "account_id": {

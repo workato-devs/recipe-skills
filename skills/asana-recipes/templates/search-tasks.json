@@ -268,8 +268,7 @@
         "as": "return_response",
         "input": {
           "http_status_code": "200",
-          "response": {
-          }
+          "response": {}
         },
         "extended_input_schema": [
           {
@@ -416,6 +415,7 @@
   "config": [
     {
       "keyword": "application",
+      "name": "workato_api_platform",
       "provider": "workato_api_platform",
       "account_id": null
     }
