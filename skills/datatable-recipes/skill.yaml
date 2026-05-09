@@ -1,0 +1,53 @@
+# Data Tables Recipes Skill for Workato
+# Knowledge bundle for AI agents to write production-grade
+# Workato Data Tables integration recipes in recipe JSON format.
+
+name: datatable-recipes
+version: 0.1.0
+description: >
+  Data Tables connector recipes for Workato. Enables AI agents to generate
+  valid recipe JSON for Workato Data Tables operations including triggers
+  (new/updated records), record CRUD, search, upsert, and batch operations.
+  Covers the unique UUID-based column naming, table reference objects, and
+  output format patterns specific to this internal connector.
+
+author: Workato
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Trigger on new or updated data table records (real-time and batch)
+  - Create, update, upsert, and delete data table records
+  - Search data table records with typed filters
+  - Batch create, update, and delete operations
+  - UUID-based column mapping and datapill references
+  - Table reference objects for portable imports
+
+# Entry point for agent consumption
+entry_point: SKILL.md
+
+# Pattern documentation
+patterns:
+  - patterns/crud-actions.md
+  - patterns/search-records.md
+  - patterns/uuid-column-mapping.md
+
+# Validation checklist
+validation:
+  - validation-checklist.md
+
+# Target platforms
+platforms:
+  - workato
+
+# Tags for discovery
+tags:
+  - workato
+  - data-tables
+  - datatable
+  - integration
+  - recipes
+  - internal-connector
