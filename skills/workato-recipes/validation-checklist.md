@@ -80,6 +80,7 @@ Run the inline checklist in each pattern your recipe uses:
 - [If/Else](control-flow/if-else.md#validation-checklist)
 - [Try/Catch](control-flow/try-catch.md#validation-checklist)
 - [Foreach](control-flow/foreach.md#validation-checklist)
+- [Repeat-While](control-flow/repeat-while.md#validation-checklist)
 - [Variables & Lists](patterns/variables-and-lists.md#validation-checklist)
 - [Adhoc HTTP Actions](patterns/adhoc-http-actions.md#validation-checklist)
 - [Custom Connector Actions](patterns/custom-connector-actions.md#validation-checklist)
