@@ -18,10 +18,17 @@ The following checks are specific to Asana connector recipes.
 - [ ] For operations not covered by native actions, uses `__adhoc_http_action` with correct `mnemonic`
 - [ ] `keyword` is `"action"` for all non-trigger steps
 
+## Adhoc HTTP (`__adhoc_http_action`)
+
+- [ ] Path uses a leading `/` — e.g. `/api/1.0/tasks` not `api/1.0/tasks`
+- [ ] `extended_output_schema` is declared for every field referenced by downstream datapills
+- [ ] Workspace GID passed as plain string in `input.data` — NOT as `'gid'` with surrounding quotes (causes "Not a Long" 400)
+- [ ] `mnemonic` describes the operation for readability
+
 ## Asana-Specific
 
 - [ ] Resource GIDs are typed as `"string"`, not `"integer"`
-- [ ] Workspace/project GIDs are parameterized (not hardcoded)
+- [ ] Workspace/project GIDs are parameterized OR intentionally hardcoded — if exposing as an MCP tool, consider hardcoding the workspace GID to prevent AI agents from substituting GIDs from their own integrations
 - [ ] `pick_list` values match Asana API enum values (e.g., `resource_subtype`: default_task, milestone, approval)
 - [ ] `dynamicPickListSelection` included where the connector requires it (e.g., `new_event` trigger)
 

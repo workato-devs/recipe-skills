@@ -22,14 +22,17 @@ This skill provides Asana-specific knowledge for generating Workato recipes. It 
 ## CRITICAL: Pre-Generation Checklist
 
 ### For EXISTING projects:
+
 1. **Read existing Asana `.recipe.json` files** to understand local patterns
 2. **Check the config section** for the connection name already in use
 
 ### For GREENFIELD projects:
+
 1. **Use skill templates** — see `templates/create-task.json`, `templates/get-task.json`, `templates/search-tasks.json`
 2. **Use descriptive UUIDs** — e.g., `create-task-001`, `search-tasks-002`
 
 ### ALWAYS:
+
 1. **Ask for connection name** — exact name of Asana connection in Workato
 2. **Confirm workspace/project** — which Asana workspace and project GIDs?
 3. **Use API endpoint trigger** for testability via curl
@@ -55,6 +58,7 @@ This skill provides Asana-specific knowledge for generating Workato recipes. It 
 ## When to Use This Skill
 
 Use this skill when building Workato recipes that:
+
 - Create, read, update, or delete Asana resources (tasks, projects, goals, etc.)
 - Search or list Asana resources with filtering
 - Manage relationships between Asana resources (task→project, user→team, etc.)
@@ -62,6 +66,7 @@ Use this skill when building Workato recipes that:
 - Handle operations not covered by native actions via adhoc HTTP
 
 **Prerequisites:**
+
 - `workato-recipes` base skill loaded
 - Workato workspace with Asana connection configured
 - Understanding of target Asana workspace structure (workspace GID, project GIDs)
@@ -112,11 +117,13 @@ The Asana connector provides 16 native actions, 2 triggers, and `__adhoc_http_ac
 ### Choosing the Right Action
 
 **Get vs Search vs List:**
+
 - **`get_*_by_id`** actions — Use when you already have the resource GID
 - **`search_*`** actions — Use when filtering by criteria (name, assignee, workspace, etc.)
 - **`list_*`** actions — Use when enumerating all items in a scope (project tasks, workspace members, tagged tasks)
 
 **Triggers:**
+
 - **`new_event`** — Webhook trigger for Asana change events. Requires `workspace_id`. Use `dynamicPickListSelection` for workspace and action filtering. Filter with `actions` array: `changed`, `deleted`, `removed`, `added`, `undeleted`.
 - **`new_or_updated_task_v2`** — Polling trigger for new or updated tasks.
 
@@ -187,6 +194,20 @@ For operations not in the 16 native actions (goals, portfolios, webhooks, etc.),
 }
 ```
 
+> **PATH FORMAT:** Always use a leading `/` for the `path` field. The Asana connector's
+> base URL is `https://app.asana.com/` with a trailing slash. Without a leading `/` on
+> the path (e.g. `api/1.0/tasks`), the URL is constructed incorrectly and Asana returns
+> 404 "No matching route for request". Use `/api/1.0/tasks` not `api/1.0/tasks`.
+
+> **EXTENDED OUTPUT SCHEMA REQUIRED:** The `output` string field in `__adhoc_http_action`
+> defines how the connector parses its response internally but does **not** register the
+> step as a datapill source in the recipe graph. You must declare `extended_output_schema`
+> explicitly for any field you want to reference downstream. Without it, downstream steps
+> show "invalid source" even though the `output` field looks correct.
+>
+> Note: The "no body wrapper" rule applies to **native actions** only. For `__adhoc_http_action`,
+> datapill paths match the field names declared in `extended_output_schema` directly.
+
 ### 4. Asana resource GIDs
 
 All Asana resources are identified by GID (string, not integer). Always type GID fields as `"type": "string"`:
@@ -194,6 +215,12 @@ All Asana resources are identified by GID (string, not integer). Always type GID
 ```json
 { "name": "task_gid", "type": "string", "label": "Task GID", "optional": false }
 ```
+
+> **WORKSPACE GID AS INPUT VALUE:** When passing a workspace GID as a literal value in
+> `input.data` (not as a formula), do not wrap it in single quotes. The Asana API treats
+> the `workspace` parameter as a numeric long. Using `'10403697401604'` (with quotes in a
+> formula) causes a 400 error: "workspace: Not a Long". Use the plain string value
+> `"10403697401604"` in the JSON input data.
 
 ### 5. Resource subtypes
 
@@ -203,7 +230,11 @@ Tasks can be `default_task`, `milestone`, or `approval`. Use `pick_list` for the
 {
   "name": "resource_subtype",
   "type": "string",
-  "pick_list": [["Default task", "default_task"], ["Milestone", "milestone"], ["Approval", "approval"]]
+  "pick_list": [
+    ["Default task", "default_task"],
+    ["Milestone", "milestone"],
+    ["Approval", "approval"]
+  ]
 }
 ```
 
@@ -218,6 +249,7 @@ See [validation-checklist.md](validation-checklist.md) for Asana-specific valida
 ## Templates
 
 See `templates/` directory:
+
 - `create-task.json` — Create a task with full field support (assignee, due dates, custom fields, followers, projects, tags)
 - `get-task.json` — Get a task by ID with opt_fields
 - `search-tasks.json` — Search tasks in a workspace with filters
