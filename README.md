@@ -1,10 +1,10 @@
-# Recipe Skills
+# Workato Developer Skills
 
 An open-source knowledge library for agent-assisted Workato recipe development. A **Workato Labs** project.
 
-## What are Recipe Skills?
+## What are Workato Developer Skills?
 
-Recipe Skills teach AI agents how to generate valid Workato recipe JSON. Each skill encapsulates the connector-specific knowledge an agent needs -- which actions exist, when to use each one, how datapills work for that connector, and what gotchas to avoid. Without skills, agents hallucinate action names, produce malformed schemas, and miss critical connector rules.
+Workato Developer Skills teach AI agents how to generate valid Workato recipe JSON. Each skill encapsulates the connector-specific knowledge an agent needs -- which actions exist, when to use each one, how datapills work for that connector, and what gotchas to avoid. Without skills, agents hallucinate action names, produce malformed schemas, and miss critical connector rules.
 
 **A skill IS:**
 - A knowledge bundle that teaches agents how to write recipes for a specific connector
