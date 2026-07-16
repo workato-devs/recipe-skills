@@ -1,0 +1,12 @@
+{
+  "name": "recipe-skills",
+  "version": "0.1.0",
+  "description": "Workato recipe skills: base + connector skills that teach an agent to generate valid Workato recipe JSON",
+  "skills": "./skills/",
+  "author": {
+    "name": "Workato Labs"
+  },
+  "homepage": "https://github.com/workato-devs/recipe-skills",
+  "repository": "https://github.com/workato-devs/recipe-skills",
+  "license": "MIT"
+}

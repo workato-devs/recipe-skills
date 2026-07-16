@@ -9,7 +9,7 @@ metadata:
 
 # Slack Recipes Skill - Agent Instructions
 
-> **DEPENDENCY: Load `/workato-recipes` first if not already loaded.**
+> **DEPENDENCY: Load the `workato-recipes` base skill first if not already loaded.**
 > This skill requires the base Workato knowledge for triggers, control flow, datapills, and recipe structure.
 
 ---

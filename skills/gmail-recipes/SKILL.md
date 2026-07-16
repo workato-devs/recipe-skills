@@ -9,7 +9,7 @@ metadata:
 
 # Gmail Recipes Skill
 
-> **DEPENDENCY: Run `/workato-recipes` first if not already loaded.**
+> **DEPENDENCY: Load the `workato-recipes` base skill first if not already loaded.**
 > This skill requires the base Workato knowledge for triggers, control flow, datapills, and recipe structure.
 
 You are now equipped with Gmail-specific knowledge for writing Workato recipes using the **native Gmail connector**.

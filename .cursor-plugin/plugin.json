@@ -1,0 +1,8 @@
+{
+  "name": "recipe-skills",
+  "description": "Workato recipe skills: base + connector skills that teach an agent to generate valid Workato recipe JSON",
+  "version": "0.1.0",
+  "author": {
+    "name": "Workato Labs"
+  }
+}
