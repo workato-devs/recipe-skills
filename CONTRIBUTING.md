@@ -44,7 +44,7 @@ Do not:
 
 ```
 skills/<connector>-recipes/
-├── SKILL.md     # REQUIRED - Behavioral guidance, decision logic
+├── SKILL.md                  # REQUIRED - Behavioral guidance, decision logic
 ├── lint-rules.json           # REQUIRED - Authoritative action/trigger name list
 ├── skill.yaml                # REQUIRED - Manifest (must set extends: workato-recipes)
 ├── validation-checklist.md   # REQUIRED - Connector-specific validation checks
