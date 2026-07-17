@@ -316,9 +316,40 @@ The else block is optional:
 }
 ```
 
-### Multi-Way Branching (else-if chains)
+### Multi-Way Branching
 
-Workato does **NOT** support `elsif` as a keyword. To implement multi-way branching (if/else-if/else), nest a new `if` block inside the `else` block:
+Workato does **NOT** support `elsif` as a keyword. There are two ways to express multi-way (if / else-if / else) logic. **Prefer guard clauses;** reach for nested else-if only when your branches can't exit early.
+
+#### Preferred: guard clauses (early return)
+
+When each branch **exits the recipe** — a `return_result`, `return_response`, or `stop` — write the branches as a **flat list of sibling `if` blocks**, each ending in a return, with an explicit default at the end. This is the shape production recipes use: it stays shallow (depth 1) and reads top-to-bottom. Because the matching branch returns, later siblings never run — so they behave like else-if without any nesting.
+
+```json
+"block": [
+  { "number": 2, "keyword": "if", "as": "check_urgent",
+    "input": { "type": "compound", "operand": "and", "conditions": [
+      { "operand": "equals_to", "lhs": "#{_dp('{...status...}')}", "rhs": "active", "uuid": "c-active" },
+      { "operand": "equals_to", "lhs": "#{_dp('{...priority...}')}", "rhs": "high", "uuid": "c-high" }
+    ] },
+    "block": [ { "number": 3, "keyword": "action", "name": "return_result", "as": "return_urgent", "...": "..." } ],
+    "uuid": "if-urgent" },
+
+  { "number": 4, "keyword": "if", "as": "check_active",
+    "input": { "type": "compound", "operand": "and", "conditions": [
+      { "operand": "equals_to", "lhs": "#{_dp('{...status...}')}", "rhs": "active", "uuid": "c-active2" }
+    ] },
+    "block": [ { "number": 5, "keyword": "action", "name": "return_result", "as": "return_standard", "...": "..." } ],
+    "uuid": "if-active" },
+
+  { "number": 6, "keyword": "action", "name": "return_result", "as": "return_unknown", "...": "..." }
+]
+```
+
+See [`templates/classify_request.recipe.json`](../templates/classify_request.recipe.json) for a complete guard-clause recipe — validate-first, flat sibling branches, explicit default — wrapped in try/catch.
+
+#### Alternative: nested else-if (when branches don't exit)
+
+When branches **don't** return — they set a variable, log, then let flow continue — sibling `if`s would all run, so you need true mutual exclusion: nest a new `if` block inside the `else` block.
 
 ```json
 {
@@ -374,7 +405,7 @@ Workato does **NOT** support `elsif` as a keyword. To implement multi-way branch
 }
 ```
 
-Each additional branch adds one nesting level: `else` > `if` > (actions + `else` > `if` > ...).
+Each additional branch adds one nesting level: `else` > `if` > (actions + `else` > `if` > ...). Keep these shallow — if your branches return, use the guard-clause pattern above instead of deepening the pyramid.
 
 ## Gotchas and Best Practices
 
@@ -392,7 +423,7 @@ Each additional branch adds one nesting level: `else` > `if` > (actions + `else`
 
 7. **String comparison**: The `equals_to` operand performs string comparison. Ensure both sides are the same type.
 
-8. **`elsif` is NOT a valid keyword**: Workato does not support `elsif`. Using it causes the block to render as "misconfigured" in the UI. For multi-way branching, nest a new `if` inside the `else` block (see Multi-Way Branching pattern above).
+8. **`elsif` is NOT a valid keyword**: Workato does not support `elsif`. Using it causes the block to render as "misconfigured" in the UI. For multi-way branching, prefer **guard clauses** (flat sibling `if`s that each return) — see Multi-Way Branching above; nest a new `if` inside the `else` block only when branches don't exit early.
 
 9. **Condition LHS: NO formula mode**: The `lhs` field in conditions does **NOT** support formula mode (`=` prefix). It only supports `#{_dp(...)}` interpolation. Using formula mode (e.g., `"lhs": "=' ' + _dp('...').upcase + ' '"`) strips app recognition from child actions, causing them to display "select app and action" in the UI. To transform data before comparing, use a `declare_variable` step (see [variables-and-lists.md](../patterns/variables-and-lists.md)) to pre-compute the value, then reference it with `#{_dp(...)}` in the condition LHS.
 

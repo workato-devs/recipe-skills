@@ -1,0 +1,604 @@
+{
+  "code": {
+    "as": "trigger",
+    "keyword": "trigger",
+    "name": "execute",
+    "provider": "workato_recipe_function",
+    "block": [
+      {
+        "keyword": "try",
+        "input": {},
+        "block": [
+          {
+            "keyword": "if",
+            "as": "check_status_present",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "blank",
+                  "lhs": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"workato_recipe_function\", \"line\": \"trigger\", \"path\": [\"parameters\", \"status\"]}')}",
+                  "uuid": "cond-status-blank-001"
+                }
+              ]
+            },
+            "block": [
+              {
+                "as": "return_missing_status",
+                "keyword": "action",
+                "name": "return_result",
+                "provider": "workato_recipe_function",
+                "input": {
+                  "result": {
+                    "classification": "error",
+                    "reason": "status is required"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Classification",
+                        "name": "classification",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Classification",
+                        "name": "classification",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-missing-001",
+                "number": 3
+              }
+            ],
+            "uuid": "if-status-present-001",
+            "number": 2
+          },
+          {
+            "keyword": "if",
+            "as": "check_urgent",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"workato_recipe_function\", \"line\": \"trigger\", \"path\": [\"parameters\", \"status\"]}')}",
+                  "uuid": "cond-active-urgent-001",
+                  "rhs": "active"
+                },
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"workato_recipe_function\", \"line\": \"trigger\", \"path\": [\"parameters\", \"priority\"]}')}",
+                  "uuid": "cond-priority-high-001",
+                  "rhs": "high"
+                }
+              ]
+            },
+            "block": [
+              {
+                "as": "return_urgent",
+                "keyword": "action",
+                "name": "return_result",
+                "provider": "workato_recipe_function",
+                "input": {
+                  "result": {
+                    "classification": "urgent",
+                    "reason": "active + high priority"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Classification",
+                        "name": "classification",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Classification",
+                        "name": "classification",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-urgent-001",
+                "number": 5
+              }
+            ],
+            "uuid": "if-urgent-001",
+            "number": 4
+          },
+          {
+            "keyword": "if",
+            "as": "check_active",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"workato_recipe_function\", \"line\": \"trigger\", \"path\": [\"parameters\", \"status\"]}')}",
+                  "uuid": "cond-active-001",
+                  "rhs": "active"
+                }
+              ]
+            },
+            "block": [
+              {
+                "as": "return_standard",
+                "keyword": "action",
+                "name": "return_result",
+                "provider": "workato_recipe_function",
+                "input": {
+                  "result": {
+                    "classification": "standard",
+                    "reason": "active, standard priority"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Classification",
+                        "name": "classification",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Classification",
+                        "name": "classification",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-standard-001",
+                "number": 7
+              }
+            ],
+            "uuid": "if-active-001",
+            "number": 6
+          },
+          {
+            "keyword": "if",
+            "as": "check_queued",
+            "input": {
+              "type": "compound",
+              "operand": "or",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"workato_recipe_function\", \"line\": \"trigger\", \"path\": [\"parameters\", \"status\"]}')}",
+                  "uuid": "cond-pending-001",
+                  "rhs": "pending"
+                },
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"workato_recipe_function\", \"line\": \"trigger\", \"path\": [\"parameters\", \"status\"]}')}",
+                  "uuid": "cond-review-001",
+                  "rhs": "review"
+                }
+              ]
+            },
+            "block": [
+              {
+                "as": "return_queued",
+                "keyword": "action",
+                "name": "return_result",
+                "provider": "workato_recipe_function",
+                "input": {
+                  "result": {
+                    "classification": "queued",
+                    "reason": "pending or in review"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Classification",
+                        "name": "classification",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Classification",
+                        "name": "classification",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "name": "reason",
+                        "type": "string"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "return-queued-001",
+                "number": 9
+              }
+            ],
+            "uuid": "if-queued-001",
+            "number": 8
+          },
+          {
+            "as": "return_unknown",
+            "keyword": "action",
+            "name": "return_result",
+            "provider": "workato_recipe_function",
+            "input": {
+              "result": {
+                "classification": "unknown",
+                "reason": "status not recognized"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Classification",
+                    "name": "classification",
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Reason",
+                    "name": "reason",
+                    "type": "string"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Classification",
+                    "name": "classification",
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Reason",
+                    "name": "reason",
+                    "type": "string"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "return-unknown-001",
+            "number": 10
+          },
+          {
+            "keyword": "catch",
+            "as": "classify_catch",
+            "provider": null,
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "as": "log_error",
+                "keyword": "action",
+                "name": "log_message",
+                "provider": "logger",
+                "input": {
+                  "message": "Classify request failed: #{_dp('{\"pill_type\": \"output\", \"provider\": \"catch\", \"line\": \"classify_catch\", \"path\": [\"message\"]}')}",
+                  "user_logs_enabled": "false"
+                },
+                "uuid": "log-error-001",
+                "number": 12
+              },
+              {
+                "keyword": "if",
+                "as": "check_transient",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "contains",
+                      "lhs": "#{_dp('{\"pill_type\": \"output\", \"provider\": \"catch\", \"line\": \"classify_catch\", \"path\": [\"message\"]}')}",
+                      "uuid": "cond-timeout-001",
+                      "rhs": "timeout"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "as": "return_retry_later",
+                    "keyword": "action",
+                    "name": "return_result",
+                    "provider": "workato_recipe_function",
+                    "input": {
+                      "result": {
+                        "classification": "retry_later",
+                        "reason": "transient error — safe to retry"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Classification",
+                            "name": "classification",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Reason",
+                            "name": "reason",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "extended_output_schema": [
+                      {
+                        "label": "Result",
+                        "name": "result",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Classification",
+                            "name": "classification",
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Reason",
+                            "name": "reason",
+                            "type": "string"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "return-retry-001",
+                    "number": 14
+                  },
+                  {
+                    "keyword": "else",
+                    "as": "else_permanent",
+                    "input": {},
+                    "block": [
+                      {
+                        "as": "return_error",
+                        "keyword": "action",
+                        "name": "return_result",
+                        "provider": "workato_recipe_function",
+                        "input": {
+                          "result": {
+                            "classification": "error",
+                            "reason": "unhandled error"
+                          }
+                        },
+                        "extended_input_schema": [
+                          {
+                            "label": "Result",
+                            "name": "result",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Classification",
+                                "name": "classification",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Reason",
+                                "name": "reason",
+                                "type": "string"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "extended_output_schema": [
+                          {
+                            "label": "Result",
+                            "name": "result",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Classification",
+                                "name": "classification",
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Reason",
+                                "name": "reason",
+                                "type": "string"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "uuid": "return-error-001",
+                        "number": 16
+                      }
+                    ],
+                    "uuid": "else-permanent-001",
+                    "number": 15
+                  }
+                ],
+                "uuid": "if-transient-001",
+                "number": 13
+              }
+            ],
+            "uuid": "classify-catch-001",
+            "number": 11
+          }
+        ],
+        "uuid": "classify-try-001",
+        "number": 1
+      }
+    ],
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "hint": "Request status, e.g. active / pending / review",
+            "label": "Status",
+            "name": "status",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "hint": "Request priority, e.g. high / normal",
+            "label": "Priority",
+            "name": "priority",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "input": {
+      "parameters_schema_json": "[{\"name\": \"status\", \"label\": \"Status\", \"type\": \"string\", \"control_type\": \"text\", \"optional\": true, \"hint\": \"Request status, e.g. active / pending / review\"}, {\"name\": \"priority\", \"label\": \"Priority\", \"type\": \"string\", \"control_type\": \"text\", \"optional\": true, \"hint\": \"Request priority, e.g. high / normal\"}]",
+      "result_schema_json": "[{\"name\": \"classification\", \"label\": \"Classification\", \"type\": \"string\", \"control_type\": \"text\"}, {\"name\": \"reason\", \"label\": \"Reason\", \"type\": \"string\", \"control_type\": \"text\"}]"
+    },
+    "uuid": "classify-trigger-001",
+    "number": 0
+  },
+  "concurrency": 1,
+  "config": [
+    {
+      "account_id": null,
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false
+    },
+    {
+      "account_id": null,
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false
+    }
+  ],
+  "name": "classify request",
+  "private": true,
+  "version": 1
+}
