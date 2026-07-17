@@ -184,6 +184,7 @@ For mapping arrays directly in response bodies without explicit iteration, use t
 - Use `{"path_element_type": "current_item"}` in the path to reference each item's fields
 - This pattern is useful for transforming arrays in API responses without side effects
 - Use explicit foreach when you need to perform actions (API calls, logging) per item
+- **Nested array-of-primitive fields (2+ `current_item` levels deep) get silently stringified, not preserved as arrays** — wrap the primitive in a single-field object before mapping. See the gotcha below.
 
 ## Repeat Modes
 
@@ -218,12 +219,15 @@ Processes multiple items in parallel. Use for:
 
 5. **Variable scope**: With `clear_scope: "true"`, variables from previous iterations are cleared. Use `"false"` if you need to accumulate values.
 
+6. **Array-of-primitive fields nested 2+ `current_item` levels deep get silently stringified, not iterated.** A field that is itself an array of primitives (e.g. `array of string`) nested inside a multi-level `____source`/`current_item` chain — for example `quote[current_item].lines[current_item].serial_numbers` — does not survive as a real array by the time a downstream recipe consumes it. It arrives as literal bracket-and-quote text (e.g. `["f5-leih-pcdc"]`), whether consumed via a `foreach`'s `source` or a `py_eval` structured input. Confirmed from a live recipe pair (2173209 → 2173215, 2026-07-03): `serial_numbers` was mapped as array-of-string at that nesting depth; every downstream consumer received the stringified form, and a `foreach` over it just ran once with the whole string as the single item. **Fix:** wrap the primitive in a single-field object (e.g. `{"serial_number": "..."}` instead of a bare string) so the field becomes array-of-OBJECT — the same `____source`/`current_item` per-field decomposition that already works for object arrays (see "Array Mapping Alternative" above) then works correctly at any nesting depth. This is distinct from the `return_response` list-mapping gotcha in [variables-and-lists.md](../patterns/variables-and-lists.md): that one is single-level and fails by *stripping* the value entirely; this one is multi-level and fails by silently *stringifying* it instead.
+
 ## Validation Checklist
 
 - [ ] Foreach has `as`, `repeat_mode`, `source`, `block`, `input`
 - [ ] Foreach has NO `provider` field
 - [ ] `source` is a datapill reference to an array
 - [ ] When mapping arrays in return_response, uses `____source` pattern (NOT flat string datapill)
+- [ ] Array-of-primitive fields nested 2+ `current_item` levels deep are wrapped as array-of-object (e.g. `{"field": "value"}`) before being consumed downstream — otherwise they arrive silently stringified
 - [ ] `____source` value points to the array datapill
 - [ ] Individual field mappings use `{"path_element_type":"current_item"}` in path
 - [ ] List counts use `{"path_element_type":"size"}` — NOT `current_item.list_size`
