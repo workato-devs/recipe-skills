@@ -53,7 +53,7 @@
           "operand": "and",
           "conditions": [
             {
-              "operand": "equals",
+              "operand": "equals_to",
               "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}')}",
               "rhs": "active",
               "uuid": "condition-status-active-001"
@@ -70,7 +70,7 @@
               "operand": "and",
               "conditions": [
                 {
-                  "operand": "equals",
+                  "operand": "equals_to",
                   "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"priority\"]}')}",
                   "rhs": "high",
                   "uuid": "condition-priority-high-001"
@@ -539,13 +539,13 @@
                   "operand": "or",
                   "conditions": [
                     {
-                      "operand": "equals",
+                      "operand": "equals_to",
                       "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}')}",
                       "rhs": "pending",
                       "uuid": "condition-status-pending-001"
                     },
                     {
-                      "operand": "equals",
+                      "operand": "equals_to",
                       "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"status\"]}')}",
                       "rhs": "review",
                       "uuid": "condition-status-review-002"

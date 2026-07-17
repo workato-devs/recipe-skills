@@ -68,7 +68,7 @@ Never duplicate items between this file and the inline checklists.
 ### Error Handling
 
 - [ ] ALL code paths (success AND catch) provide values for required return fields
-- [ ] Catch blocks use `"=null"` for unavailable fields, NOT empty string `""`
+- [ ] Any path (success or catch) uses `"=null"` for an absent/empty field, NOT empty string `""` — confirmed live: a success-path `""` value came back missing its mandatory value after import (see [callable-recipe.md](triggers/callable-recipe.md))
 - [ ] All required fields in `result_schema_json` are mapped in every return path
 
 ---

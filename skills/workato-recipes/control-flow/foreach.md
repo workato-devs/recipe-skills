@@ -204,6 +204,8 @@ Processes multiple items in parallel. Use for:
 
 ## Gotchas and Best Practices
 
+0. **No block-form filtering (`.select`/`.reject`/`.filter`) on arrays, even nested/complex ones.** Workato's formula engine does not support a `.filter`-style method on arrays — per a community forum answer (not an official Workato statement): ["Can we filter a complex structure?"](https://systematic.workato.com/t5/workato-pros-discussion-board/can-we-filter-a-complex-structure/m-p/5777) ("Workato doesn't support the filter method for arrays, which would allow you [to] block process all of the array's items"). The two alternatives that answer describes: (a) `foreach` + `if` + `insert_to_list` as shown in this doc — fine for a handful of steps; or (b) a single `py_eval` step (see [python-snippets.md](../patterns/python-snippets.md)) once the chain would otherwise span 3+ primitives (declare_list → foreach → if → insert_to_list is already 4) — that forum answer's suggestion for this case is a code-execution action, not a formula.
+
 1. **Empty arrays**: The foreach body doesn't execute if the source array is empty. Plan for this case if you need to return a response.
 
 2. **Unique aliases**: If nesting foreach loops, each must have a unique `as` alias.
@@ -237,3 +239,4 @@ For cross-cutting validation (UUIDs, numbering, config, datapills), see [validat
 - [Datapill Syntax](../fundamentals/datapill-syntax.md)
 - [Try/Catch Error Handling](try-catch.md)
 - [If/Else Conditionals](if-else.md)
+- [Python Snippets](../patterns/python-snippets.md) — single-step alternative to a long foreach/if/insert_to_list chain when filtering or transforming a complex/nested array

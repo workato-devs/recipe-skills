@@ -236,6 +236,8 @@ The `pick_list` in `extended_input_schema` must map response names to their stat
 
 > **Note:** `return_response` actions require BOTH `extended_input_schema` AND `extended_output_schema`, and they must be **identical**. This is unique to `return_response` — most actions have different input/output schemas. If they don't match, the response action will not render correctly in the Workato UI.
 
+> **Activation requirement:** when you unify the schema across blocks, every declared field becomes required within EACH `return_response` block unless it is marked `"optional": true`. A 400 error block that only populates `error` will fail activation with `code_errors` ("can't be blank") for the unpopulated 200-path fields — even though the recipe lints clean. Mark every field that is not populated by every block as `"optional": true` in the shared schema. The platform rule is per-block: each block must populate all of its own non-optional declared fields; cross-block schema identity alone does not guarantee the recipe will activate.
+
 ## Accessing Request Data
 
 ### Request Fields
@@ -287,6 +289,7 @@ Access fields directly from the request object:
 - [ ] Every `return_response` action's `http_status_code` matches a defined response
 - [ ] ALL `return_response` actions share IDENTICAL `extended_input_schema`
 - [ ] ALL `return_response` actions share IDENTICAL `extended_output_schema`
+- [ ] Every schema field NOT populated by every `return_response` block is marked `"optional": true` (otherwise activation fails with `code_errors` despite a clean lint)
 - [ ] `extended_input_schema` fully defines ALL fields referenced in `input.response`
 - [ ] `pick_list` in EIS/EOS `http_status_code` field lists ALL response codes from trigger
 - [ ] Request field datapills use `["request", "field_name"]` path (NOT `["request", "body", "field_name"]`)

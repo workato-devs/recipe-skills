@@ -99,7 +99,7 @@
                   "operand": "and",
                   "conditions": [
                     {
-                      "operand": "equals",
+                      "operand": "equals_to",
                       "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"action\"]}')}",
                       "rhs": "create",
                       "uuid": "condition-action-create-001"
@@ -157,9 +157,18 @@
                         "label": "Response",
                         "name": "http_status_code",
                         "pick_list": [
-                          ["Success", "200"],
-                          ["Bad Request", "400"],
-                          ["Server Error", "500"]
+                          [
+                            "Success",
+                            "200"
+                          ],
+                          [
+                            "Bad Request",
+                            "400"
+                          ],
+                          [
+                            "Server Error",
+                            "500"
+                          ]
                         ],
                         "type": "string"
                       },
@@ -171,13 +180,22 @@
                             "control_type": "text",
                             "label": "ID",
                             "name": "id",
-                            "type": "string"
+                            "type": "string",
+                            "optional": true
                           },
                           {
                             "control_type": "text",
                             "label": "Message",
                             "name": "message",
-                            "type": "string"
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error",
+                            "name": "error",
+                            "type": "string",
+                            "optional": true
                           },
                           {
                             "control_type": "checkbox",
@@ -207,9 +225,18 @@
                         "label": "Response",
                         "name": "http_status_code",
                         "pick_list": [
-                          ["Success", "200"],
-                          ["Bad Request", "400"],
-                          ["Server Error", "500"]
+                          [
+                            "Success",
+                            "200"
+                          ],
+                          [
+                            "Bad Request",
+                            "400"
+                          ],
+                          [
+                            "Server Error",
+                            "500"
+                          ]
                         ],
                         "type": "string"
                       },
@@ -221,13 +248,22 @@
                             "control_type": "text",
                             "label": "ID",
                             "name": "id",
-                            "type": "string"
+                            "type": "string",
+                            "optional": true
                           },
                           {
                             "control_type": "text",
                             "label": "Message",
                             "name": "message",
-                            "type": "string"
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error",
+                            "name": "error",
+                            "type": "string",
+                            "optional": true
                           },
                           {
                             "control_type": "checkbox",
@@ -264,7 +300,7 @@
                         "as": "log_other_action",
                         "keyword": "action",
                         "input": {
-                          "message": "Action '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"action\"]}')}' for: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"email\"]}')}",
+                          "message": "=\"Action '\" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"action\"]}') + \"' for: \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"api_trigger\",\"path\":[\"request\",\"email\"]}')",
                           "user_logs_enabled": "false"
                         },
                         "extended_input_schema": [
@@ -307,9 +343,18 @@
                             "label": "Response",
                             "name": "http_status_code",
                             "pick_list": [
-                              ["Success", "200"],
-                              ["Bad Request", "400"],
-                              ["Server Error", "500"]
+                              [
+                                "Success",
+                                "200"
+                              ],
+                              [
+                                "Bad Request",
+                                "400"
+                              ],
+                              [
+                                "Server Error",
+                                "500"
+                              ]
                             ],
                             "type": "string"
                           },
@@ -321,13 +366,22 @@
                                 "control_type": "text",
                                 "label": "ID",
                                 "name": "id",
-                                "type": "string"
+                                "type": "string",
+                                "optional": true
                               },
                               {
                                 "control_type": "text",
                                 "label": "Message",
                                 "name": "message",
-                                "type": "string"
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Error",
+                                "name": "error",
+                                "type": "string",
+                                "optional": true
                               },
                               {
                                 "control_type": "checkbox",
@@ -357,9 +411,18 @@
                             "label": "Response",
                             "name": "http_status_code",
                             "pick_list": [
-                              ["Success", "200"],
-                              ["Bad Request", "400"],
-                              ["Server Error", "500"]
+                              [
+                                "Success",
+                                "200"
+                              ],
+                              [
+                                "Bad Request",
+                                "400"
+                              ],
+                              [
+                                "Server Error",
+                                "500"
+                              ]
                             ],
                             "type": "string"
                           },
@@ -371,13 +434,22 @@
                                 "control_type": "text",
                                 "label": "ID",
                                 "name": "id",
-                                "type": "string"
+                                "type": "string",
+                                "optional": true
                               },
                               {
                                 "control_type": "text",
                                 "label": "Message",
                                 "name": "message",
-                                "type": "string"
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Error",
+                                "name": "error",
+                                "type": "string",
+                                "optional": true
                               },
                               {
                                 "control_type": "checkbox",
@@ -437,9 +509,18 @@
                         "label": "Response",
                         "name": "http_status_code",
                         "pick_list": [
-                          ["Success", "200"],
-                          ["Bad Request", "400"],
-                          ["Server Error", "500"]
+                          [
+                            "Success",
+                            "200"
+                          ],
+                          [
+                            "Bad Request",
+                            "400"
+                          ],
+                          [
+                            "Server Error",
+                            "500"
+                          ]
                         ],
                         "type": "string"
                       },
@@ -449,9 +530,24 @@
                         "properties": [
                           {
                             "control_type": "text",
+                            "label": "ID",
+                            "name": "id",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Message",
+                            "name": "message",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
                             "label": "Error",
                             "name": "error",
-                            "type": "string"
+                            "type": "string",
+                            "optional": true
                           },
                           {
                             "control_type": "checkbox",
@@ -481,9 +577,18 @@
                         "label": "Response",
                         "name": "http_status_code",
                         "pick_list": [
-                          ["Success", "200"],
-                          ["Bad Request", "400"],
-                          ["Server Error", "500"]
+                          [
+                            "Success",
+                            "200"
+                          ],
+                          [
+                            "Bad Request",
+                            "400"
+                          ],
+                          [
+                            "Server Error",
+                            "500"
+                          ]
                         ],
                         "type": "string"
                       },
@@ -493,9 +598,24 @@
                         "properties": [
                           {
                             "control_type": "text",
+                            "label": "ID",
+                            "name": "id",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Message",
+                            "name": "message",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
                             "label": "Error",
                             "name": "error",
-                            "type": "string"
+                            "type": "string",
+                            "optional": true
                           },
                           {
                             "control_type": "checkbox",
@@ -583,9 +703,18 @@
                     "label": "Response",
                     "name": "http_status_code",
                     "pick_list": [
-                      ["Success", "200"],
-                      ["Bad Request", "400"],
-                      ["Server Error", "500"]
+                      [
+                        "Success",
+                        "200"
+                      ],
+                      [
+                        "Bad Request",
+                        "400"
+                      ],
+                      [
+                        "Server Error",
+                        "500"
+                      ]
                     ],
                     "type": "string"
                   },
@@ -595,9 +724,24 @@
                     "properties": [
                       {
                         "control_type": "text",
+                        "label": "ID",
+                        "name": "id",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Message",
+                        "name": "message",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
                         "label": "Error",
                         "name": "error",
-                        "type": "string"
+                        "type": "string",
+                        "optional": true
                       },
                       {
                         "control_type": "checkbox",
@@ -627,9 +771,18 @@
                     "label": "Response",
                     "name": "http_status_code",
                     "pick_list": [
-                      ["Success", "200"],
-                      ["Bad Request", "400"],
-                      ["Server Error", "500"]
+                      [
+                        "Success",
+                        "200"
+                      ],
+                      [
+                        "Bad Request",
+                        "400"
+                      ],
+                      [
+                        "Server Error",
+                        "500"
+                      ]
                     ],
                     "type": "string"
                   },
@@ -639,9 +792,24 @@
                     "properties": [
                       {
                         "control_type": "text",
+                        "label": "ID",
+                        "name": "id",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Message",
+                        "name": "message",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
                         "label": "Error",
                         "name": "error",
-                        "type": "string"
+                        "type": "string",
+                        "optional": true
                       },
                       {
                         "control_type": "checkbox",

@@ -9,13 +9,25 @@ How the `wk` CLI, the `recipe-lint` plugin, and recipe-skills work together for 
 ### Install the wk CLI
 
 ```bash
-go install github.com/workato-devs/wk-cli-beta/cmd/wk@latest
+go install github.com/workato-devs/wk/cmd/wk@latest
 ```
 
 ### Install the Recipe Lint Plugin
 
+`wk plugins install` requires a local directory containing both the plugin binary and a `plugin.toml` — it does not install Go modules directly. Use the following three-step sequence:
+
 ```bash
-wk plugins install github.com/workato-devs/wk-lint-beta@latest
+# 1. Install the binary
+go install github.com/workato-devs/wk-lint-beta/cmd/recipe-lint@latest
+
+# 2. Stage binary + plugin.toml together
+PLUGIN_DIR=$(mktemp -d)
+cp "$(go env GOPATH)/bin/recipe-lint" "$PLUGIN_DIR/"
+curl -fsSL "https://raw.githubusercontent.com/workato-devs/wk-lint-beta/v1.0.7/plugin.toml" \
+  -o "$PLUGIN_DIR/plugin.toml"
+
+# 3. Install via local path
+wk plugins install "$PLUGIN_DIR"
 ```
 
 ### Clone Recipe Skills
@@ -250,8 +262,11 @@ wk push
 
 # Other recipe commands
 wk recipes list
+wk recipes pull <id> -o recipe.json   # NOTE: writes raw API response — not lint-compatible (see below)
 wk recipes export <id> -o recipe.json
 wk recipes import my-recipe.recipe.json
 wk recipes start <id>
 wk recipes stop <id>
 ```
+
+> **`wk recipes pull` output is not lint-compatible.** The command writes the raw Workato REST API response, which differs from the format `wk lint` expects. Key mismatches: `version_no` (API) vs `version` (lint); `private` and `concurrency` are absent; `code` is a JSON string instead of an object. Use `wk recipes export` (full project sync output) as the lint-ready source, or manually transform the `pull` output before linting.

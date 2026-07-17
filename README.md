@@ -1,10 +1,10 @@
-# Recipe Skills
+# Workato Developer Skills
 
 An open-source knowledge library for agent-assisted Workato recipe development. A **Workato Labs** project.
 
-## What are Recipe Skills?
+## What are Workato Developer Skills?
 
-Recipe Skills teach AI agents how to generate valid Workato recipe JSON. Each skill encapsulates the connector-specific knowledge an agent needs -- which actions exist, when to use each one, how datapills work for that connector, and what gotchas to avoid. Without skills, agents hallucinate action names, produce malformed schemas, and miss critical connector rules.
+Workato Developer Skills teach AI agents how to generate valid Workato recipe JSON. Each skill encapsulates the connector-specific knowledge an agent needs -- which actions exist, when to use each one, how datapills work for that connector, and what gotchas to avoid. Without skills, agents hallucinate action names, produce malformed schemas, and miss critical connector rules.
 
 **A skill IS:**
 - A knowledge bundle that teaches agents how to write recipes for a specific connector
@@ -40,11 +40,31 @@ Action and trigger counts reflect what is audited in each skill's `lint-rules.js
 
 ## Quick Start
 
-### Open the folder — your agent discovers the skills
+Recipe Skills install as a **plugin** in your coding agent. Install it once, then ask for recipes in *any* project — you don't clone this repo or work inside it. The plugin bundles the base `workato-recipes` skill plus every connector skill; your agent loads the base and the relevant connector automatically when you ask for a recipe.
 
-Clone the repo and open it in any [`AGENTS.md`](AGENTS.md)-aware agent (Codex, Cursor, Windsurf, Claude Code, and others). The root [`AGENTS.md`](AGENTS.md) tells the agent what this library is, the mandatory load order, and how to route a request to the right skill — no manual per-file path-pointing required.
+### Install the plugin
 
-Then just ask for a recipe:
+**Claude Code**
+
+```bash
+/plugin marketplace add workato-devs/recipe-skills
+/plugin install recipe-skills@workato-labs
+```
+
+**Codex**
+
+```bash
+codex plugin marketplace add https://github.com/workato-devs/recipe-skills
+```
+
+Then open `/plugins`, install **recipe-skills**, and restart your session.
+
+**Cursor** — *coming soon (pending publication to the Cursor plugin marketplace).*
+
+### Use it
+
+Ask for a recipe in plain language:
+
 - "Create an API endpoint recipe that accepts customer data"
 - "Create a recipe to search for a Stripe customer by email and create a PaymentIntent"
 - "Create a recipe to upsert a Salesforce Contact by external ID"
@@ -52,25 +72,11 @@ Then just ask for a recipe:
 - "Create a recipe that searches Jira issues by JQL and returns sprint status"
 - "Create a recipe that creates an Asana task with subtasks"
 
-The agent loads the base skill (`skills/workato-recipes/SKILL.md`) first, then the relevant connector skill, and uses each skill's documentation, templates, and lint rules to generate valid recipe JSON.
+> **Tip:** name your connection when it matters (e.g. *"…using my Gmail connection named 'My Gmail account'"*) — the agent can't guess connection names, and importing a recipe fails if the named connection doesn't exist in your workspace.
 
-Each skill follows the [open agent skills standard](https://agentskills.io): every `SKILL.md` carries `name`/`description` frontmatter, and every `skill.yaml` declares an `entry_point` and `extends: workato-recipes`. SKILL.md-aware tooling can parse this metadata to load skills automatically; `AGENTS.md`-aware tooling routes from the root file.
+### Working in this repo (contributors)
 
-### Bonus: Claude Code slash commands
-
-Claude Code users get bundled slash commands as a convenience wrapper over the same skills. From this repo directory:
-
-```bash
-/workato-recipes    # Load recipe fundamentals
-/stripe-recipes     # Generate Stripe recipes
-/salesforce-recipes # Generate Salesforce recipes
-/slack-recipes      # Generate Slack/Workbot recipes
-/gmail-recipes      # Generate Gmail recipes
-/jira-recipes       # Generate Jira recipes
-/asana-recipes      # Generate Asana recipes
-```
-
-These are optional — the `AGENTS.md` flow above works in Claude Code too.
+If you're improving the skills themselves, clone the repo and open it in any [`AGENTS.md`](AGENTS.md)-aware agent (Codex, Cursor, and others) — the root [`AGENTS.md`](AGENTS.md) routes a request to the right skill. Each skill follows the [open agent skills standard](https://agentskills.io) (`name`/`description` frontmatter; `skill.yaml` with `extends: workato-recipes`). See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Deploy
 

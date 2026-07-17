@@ -157,6 +157,7 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 | Stop Action | [control-flow/stop.md](control-flow/stop.md) |
 | API Endpoint Trigger | [triggers/api-endpoint.md](triggers/api-endpoint.md) |
 | Callable Recipe Trigger | [triggers/callable-recipe.md](triggers/callable-recipe.md) |
+| Scheduler Trigger | [triggers/scheduler.md](triggers/scheduler.md) |
 | Messaging Topic Trigger | [triggers/messaging-topic.md](triggers/messaging-topic.md) |
 | Publish to Topic Action | [triggers/messaging-topic.md](triggers/messaging-topic.md) |
 | Adhoc HTTP Actions | [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) |
@@ -355,6 +356,16 @@ See: [triggers/api-endpoint.md](triggers/api-endpoint.md)
 ```
 
 See: [triggers/callable-recipe.md](triggers/callable-recipe.md)
+
+### Scheduler Trigger
+
+**Use when:** Recipe should run on a recurring time-based schedule (daily digests,
+periodic sync jobs) rather than in response to an external event.
+
+**Provider:** `clock`
+**Action:** `scheduled_event`
+
+See: [triggers/scheduler.md](triggers/scheduler.md)
 
 ### Choosing a Trigger Type
 

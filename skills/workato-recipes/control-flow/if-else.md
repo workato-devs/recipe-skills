@@ -95,7 +95,7 @@ The `input` object defines conditions using this structure:
   "operand": "and",
   "conditions": [
     {
-      "operand": "equals",
+      "operand": "equals_to",
       "lhs": "#{datapill}",
       "rhs": "expected_value",
       "uuid": "cond-uuid-1"
@@ -127,13 +127,15 @@ The `input` object defines conditions using this structure:
 |---------|-------------|--------------|
 | `present` | Value exists and is not empty | No |
 | `blank` | Value is null or empty | No |
-| `equals` | LHS equals RHS | Yes |
-| `not_equals` | LHS does not equal RHS | Yes |
+| `equals_to` | LHS equals RHS | Yes |
+| `not_equals_to` | LHS does not equal RHS | Yes |
 | `greater_than` | LHS > RHS | Yes |
 | `less_than` | LHS < RHS | Yes |
 | `contains` | LHS contains RHS | Yes |
 | `starts_with` | LHS starts with RHS | Yes |
 | `ends_with` | LHS ends with RHS | Yes |
+
+> **Confirmed from a live recipe (2168294, 2026-07-02):** the equality operands are `equals_to` / `not_equals_to`, NOT bare `equals` / `not_equals`. A recipe pushed with `not_equals` imported without error but the condition was "not properly defined" (silently non-functional) in the Workato UI. This was independently corroborated by [gmail-recipes/patterns/native-gmail-actions.md](../../gmail-recipes/patterns/native-gmail-actions.md), which already used `equals_to`. `greater_than`, `less_than`, `contains`, `starts_with`, `ends_with` have not been verified against a live recipe — treat them with caution until confirmed.
 
 ## Common Patterns
 
@@ -201,7 +203,7 @@ The `input` object defines conditions using this structure:
       "uuid": "cond-1"
     },
     {
-      "operand": "equals",
+      "operand": "equals_to",
       "lhs": "#{_dp('{...status...}')}",
       "rhs": "active",
       "uuid": "cond-2"
@@ -218,13 +220,13 @@ The `input` object defines conditions using this structure:
   "operand": "or",
   "conditions": [
     {
-      "operand": "equals",
+      "operand": "equals_to",
       "lhs": "#{_dp('{...type...}')}",
       "rhs": "premium",
       "uuid": "cond-1"
     },
     {
-      "operand": "equals",
+      "operand": "equals_to",
       "lhs": "#{_dp('{...type...}')}",
       "rhs": "enterprise",
       "uuid": "cond-2"
@@ -327,7 +329,7 @@ Workato does **NOT** support `elsif` as a keyword. To implement multi-way branch
     "type": "compound",
     "operand": "and",
     "conditions": [
-      { "operand": "equals", "lhs": "#{_dp('{...status...}')}", "rhs": "active", "uuid": "cond-active" }
+      { "operand": "equals_to", "lhs": "#{_dp('{...status...}')}", "rhs": "active", "uuid": "cond-active" }
     ]
   },
   "block": [
@@ -346,7 +348,7 @@ Workato does **NOT** support `elsif` as a keyword. To implement multi-way branch
             "type": "compound",
             "operand": "and",
             "conditions": [
-              { "operand": "equals", "lhs": "#{_dp('{...status...}')}", "rhs": "pending", "uuid": "cond-pending" }
+              { "operand": "equals_to", "lhs": "#{_dp('{...status...}')}", "rhs": "pending", "uuid": "cond-pending" }
             ]
           },
           "block": [
@@ -388,7 +390,7 @@ Each additional branch adds one nesting level: `else` > `if` > (actions + `else`
 
 6. **Present vs blank**: Use `present` to check for existence, `blank` for the opposite. These don't require an `rhs` value.
 
-7. **String comparison**: The `equals` operand performs string comparison. Ensure both sides are the same type.
+7. **String comparison**: The `equals_to` operand performs string comparison. Ensure both sides are the same type.
 
 8. **`elsif` is NOT a valid keyword**: Workato does not support `elsif`. Using it causes the block to render as "misconfigured" in the UI. For multi-way branching, nest a new `if` inside the `else` block (see Multi-Way Branching pattern above).
 

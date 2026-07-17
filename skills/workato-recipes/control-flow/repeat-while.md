@@ -96,7 +96,7 @@ The `while_condition`'s `input` uses the same compound-condition structure as [`
 }
 ```
 
-For the full operand table (`present`, `blank`, `equals`, `greater_than`, etc.), RHS requirements, and the "no formula mode in `lhs`" rule, see [if-else.md](if-else.md#condition-operands). The same rules apply here.
+For the full operand table (`present`, `blank`, `equals_to`, `greater_than`, etc.), RHS requirements, and the "no formula mode in `lhs`" rule, see [if-else.md](if-else.md#condition-operands). The same rules apply here.
 
 ## Common Patterns
 

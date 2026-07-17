@@ -9,7 +9,7 @@ metadata:
 
 # Data Tables Recipes Skill - Agent Instructions
 
-> **DEPENDENCY: Load `/workato-recipes` first if not already loaded.**
+> **DEPENDENCY: Load the `workato-recipes` base skill first if not already loaded.**
 > This skill requires the base Workato knowledge for triggers, control flow, datapills, formulas, and recipe structure.
 
 This skill provides Data Tables-specific knowledge for generating Workato recipes. It extends the **workato-recipes** base skill and focuses on the `workato_db_table` connector — Workato's internal relational data store.
