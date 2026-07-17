@@ -6,8 +6,6 @@ The stop action halts recipe execution at the current step. It uses `keyword: "s
 
 Stop is typically used inside an `else` block to bail out when input validation fails. The recipe ends immediately — no subsequent steps execute.
 
-> **Prefer an early return over `stop` when the recipe should return a value.** For callable recipes use `return_result`, for API endpoints use `return_response` (with an error status) — both let you return a structured payload the caller can read. `stop` yields an empty response (see [Behavior by Trigger Type](#behavior-by-trigger-type)), so reserve it for cases where no return value is needed. Production recipes lean on guard clauses that return (see [if-else.md](if-else.md)).
-
 ## JSON Structure
 
 ```json

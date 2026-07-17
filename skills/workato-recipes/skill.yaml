@@ -51,7 +51,7 @@ templates:
   - templates/api-endpoint-trigger.template.json
   - templates/api-endpoint-complete.template.json
   - templates/callable-recipe-complete.template.json
-  - templates/classify_request.recipe.json
+  - templates/control-flow-examples.template.json
 
 # Patterns
 patterns:
