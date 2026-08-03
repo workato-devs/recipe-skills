@@ -1,0 +1,58 @@
+# MCP Server Recipes Skill
+# Teaches an agent how to build Workato MCP servers and MCP Apps: the
+# workato_skill trigger, wiring tools onto a server's manifest, and creating
+# an interactive MCP App UI. Standalone (not nested under workato-recipes)
+# so its description is independently discoverable for MCP-shaped tasks --
+# Agent Skills load by matching a task against each skill's own description,
+# with no dependency-chain mechanism between skills.
+
+name: mcp-server-recipes
+version: 0.1.0
+description: >
+  Build and wire Workato MCP servers and MCP Apps -- tools callable over the
+  Model Context Protocol (MCP) by clients like Claude, plus interactive UI
+  apps that render inside those clients. Covers the workato_skill trigger,
+  wiring tools onto an MCP server's manifest, creating MCP Apps via the CLI,
+  and the app-side JS SDK for building the UI.
+
+author: Workato
+license: MIT
+
+extends: workato-recipes
+
+capabilities:
+  - Build a workato_skill trigger recipe exposed as an MCP tool
+  - Add typed input parameters to an MCP tool
+  - Wire tools onto an MCP server's manifest (references/tools)
+  - Create an MCP App (interactive UI) via the manifest, no UI required
+  - Write app-side JS using @modelcontextprotocol/ext-apps
+  - Connect an MCP client (e.g. Claude Desktop) to a Workato MCP server
+
+entry_point: SKILL.md
+
+patterns:
+  - patterns/mcp-apps.md
+
+validation:
+  - validation-checklist.md
+
+platforms:
+  - workato
+  - mcp
+
+tags:
+  - mcp
+  - model-context-protocol
+  - mcp-server
+  - mcp-apps
+  - agent-studio
+  - claude
+  - workato
+
+gaps:
+  - pattern: Error-return convention
+    status: needed
+    description: No verified example of an explicit error-return pattern for workato_skill triggers (unlike the Genie trigger's success:false convention)
+  - pattern: MCP resource types beyond apps
+    status: needed
+    description: Only UI-resource (MCP Apps) usage is covered; other MCP resource/prompt features are unaudited

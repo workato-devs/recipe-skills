@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0",
+  "connector": "workato_skill",
+  "connector_internals": [],
+  "valid_action_names": [
+    "workflow_return_result"
+  ],
+  "valid_trigger_names": [
+    "start_workflow"
+  ],
+  "action_rules": []
+}

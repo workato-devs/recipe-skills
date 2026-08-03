@@ -45,6 +45,7 @@ fundamentals:
   - fundamentals/recipe-structure.md
   - fundamentals/datapill-syntax.md
   - fundamentals/config-section.md
+  - fundamentals/cli-workflow.md
 
 # Templates
 templates:

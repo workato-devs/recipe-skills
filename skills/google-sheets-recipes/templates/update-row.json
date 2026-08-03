@@ -1,0 +1,153 @@
+{
+  "name": "update_sheet_row",
+  "version": 1,
+  "private": false,
+  "concurrency": 1,
+  "description": "",
+  "code": {
+    "as": "update-row-trigger",
+    "keyword": "trigger",
+    "name": "start_workflow",
+    "number": 0,
+    "provider": "workato_skill",
+    "title": null,
+    "unfinished": false,
+    "uuid": "update-sheet-row-trigger-001",
+    "description": "Start <span class=\"provider\">update_sheet_row</span>",
+    "input": {
+      "description": "Updates the status column for one row in the sheet, located by row_number. Call this after the user picks a new value.",
+      "requires_user_confirmation": "false",
+      "parameters_schema_json": "[{\"name\":\"row_number\",\"label\":\"Row number\",\"type\":\"integer\",\"control_type\":\"number\",\"optional\":false,\"hint\":\"The row_number field from a prior get_sheet_rows call\"},{\"name\":\"new_status\",\"label\":\"New status\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false}]",
+      "result_schema_json": "[{\"name\":\"final_message\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Final message\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "type": "object",
+        "properties": [
+          {"control_type": "number", "label": "Row number", "name": "row_number", "type": "integer", "optional": false},
+          {"control_type": "text", "label": "New status", "name": "new_status", "type": "string", "optional": false}
+        ]
+      }
+    ],
+    "block": [
+      {
+        "as": "update-row-action",
+        "description": null,
+        "dynamicPickListSelection": {
+          "spreadsheet": "content_management_mcp"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "extends_schema": true,
+            "hint": "Select a sheet to update row. The sheet must have at least one header row.",
+            "label": "Sheet",
+            "name": "sheet",
+            "optional": false,
+            "pick_list": [["Sheet1", "Sheet1"]],
+            "toggle_field": {
+              "change_on_blur": true,
+              "control_type": "text",
+              "extends_schema": true,
+              "hint": "Use Sheet name pill from the output of other Google Sheets triggers/actions. Or enter sheet name manually.",
+              "label": "Sheet name",
+              "name": "sheet_name",
+              "toggle_hint": "Use sheet name",
+              "toggle_to_primary_hint": "Select a sheet",
+              "toggle_to_secondary_hint": "Use sheet name",
+              "type": "string"
+            },
+            "toggle_hint": "Select a sheet",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "hint": "Enter the row number of the row you want to update. Or use a Row number data pill from the output of other Google Sheets triggers & actions.",
+            "label": "Row number",
+            "name": "row_number",
+            "optional": false,
+            "type": "string"
+          },
+          {
+            "hint": "Input new values to update the row. Only the columns you set are changed.",
+            "label": "Columns",
+            "name": "data",
+            "sticky": true,
+            "type": "object",
+            "properties": [
+              {"control_type": "text", "label": "id", "name": "col_id", "optional": true, "sticky": true, "type": "string"},
+              {"control_type": "text", "label": "title", "name": "col_title", "optional": true, "sticky": true, "type": "string"},
+              {"control_type": "text", "label": "status", "name": "col_status", "optional": true, "sticky": true, "type": "string"},
+              {"control_type": "text", "label": "notes", "name": "col_notes", "optional": true, "sticky": true, "type": "string"}
+            ]
+          }
+        ],
+        "extended_output_schema": [
+          {
+            "label": "Columns",
+            "name": "columns",
+            "type": "object",
+            "properties": [
+              {"control_type": "text", "custom_attribute": 1, "label": "id", "name": "col_id", "old_name": "col_id", "type": "string"},
+              {"control_type": "text", "custom_attribute": 2, "label": "title", "name": "col_title", "old_name": "col_title", "type": "string"},
+              {"control_type": "text", "custom_attribute": 3, "label": "status", "name": "col_status", "old_name": "col_status", "type": "string"},
+              {"control_type": "text", "custom_attribute": 4, "label": "notes", "name": "col_notes", "old_name": "col_notes", "type": "string"}
+            ]
+          }
+        ],
+        "input": {
+          "data": {
+            "col_status": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_skill\",\"line\":\"update-row-trigger\",\"path\":[\"parameters\",\"new_status\"]}')}"
+          },
+          "row_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_skill\",\"line\":\"update-row-trigger\",\"path\":[\"parameters\",\"row_number\"]}')}",
+          "sheet": "Sheet1",
+          "spreadsheet": "13KpVFiyIK4ykuAJWIE4rILebeIB3Fr-T2DEodqFLJro",
+          "team_drives": "my_drive"
+        },
+        "keyword": "action",
+        "name": "update_row_v4_new",
+        "number": 1,
+        "provider": "google_sheets",
+        "title": null,
+        "uuid": "update-sheet-row-action-001"
+      },
+      {
+        "as": "return-update",
+        "description": null,
+        "extended_input_schema": [
+          {"label": "Response", "name": "result", "properties": [
+            {"control_type": "text", "label": "Final message", "name": "final_message", "optional": false, "type": "string"}
+          ], "type": "object"}
+        ],
+        "extended_output_schema": [
+          {"label": "Response", "name": "result", "properties": [
+            {"control_type": "text", "label": "Final message", "name": "final_message", "optional": false, "type": "string"}
+          ], "type": "object"}
+        ],
+        "input": {
+          "result": {
+            "final_message": "{\"status\":\"updated\",\"row_number\":#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_skill\",\"line\":\"update-row-trigger\",\"path\":[\"parameters\",\"row_number\"]}')},\"new_status\":\"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_skill\",\"line\":\"update-row-trigger\",\"path\":[\"parameters\",\"new_status\"]}')}\"}"
+          }
+        },
+        "keyword": "action",
+        "name": "workflow_return_result",
+        "number": 2,
+        "provider": "workato_skill",
+        "title": null,
+        "uuid": "return-update-row-001"
+      }
+    ]
+  },
+  "config": [
+    {"account_id": null, "keyword": "application", "name": "workato_skill", "provider": "workato_skill", "skip_validation": false},
+    {
+      "account_id": {"folder": "", "name": "My Google Sheets account", "zip_name": "my_google_sheets_account.connection.json"},
+      "keyword": "application",
+      "name": "google_sheets",
+      "provider": "google_sheets",
+      "skip_validation": false
+    }
+  ]
+}

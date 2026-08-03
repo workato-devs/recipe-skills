@@ -162,6 +162,8 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 | Adhoc HTTP Actions | [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) |
 | JWT Bearer Auth | [patterns/jwt-auth.md](patterns/jwt-auth.md) |
 | API Platform Artifacts | [patterns/api-platform-artifacts.md](patterns/api-platform-artifacts.md) |
+| CLI Workflow (`wk`, linter) | [fundamentals/cli-workflow.md](fundamentals/cli-workflow.md) |
+| MCP servers, MCP tools, MCP Apps | separate skill — `mcp-server-recipes` |
 
 ---
 

@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0",
+  "connector": "google_sheets",
+  "connector_internals": ["team_drives", "dynamicPickListSelection"],
+  "valid_action_names": [
+    "add_spreadsheet_row_v4",
+    "get_spreadsheet_rows_v4",
+    "update_row_v4_new"
+  ],
+  "valid_trigger_names": [],
+  "action_rules": []
+}
