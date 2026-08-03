@@ -195,6 +195,8 @@ For **3 or more sources**, or when accumulating values in a loop, use the `worka
 
 10. **`now.utc` is invalid**: The `.utc` method is not available on Workato's `now` object. For ISO 8601 UTC timestamps, use `now.strftime('%Y-%m-%dT%H:%M:%SZ')`.
 
+11. **Interpolation silently stringifies non-string values**: `#{}` interpolation coerces its result to a string before writing it into the field — a number becomes `"537"` (quoted) and an array/object becomes a Ruby-inspect string (`"[{\"name\"=>\"x\"}]"`, note the `=>` hash syntax, not valid JSON). If the field is supposed to hold a native number, array, or object (e.g. a `return_response`/`workflow_return_result` field a downstream consumer will `JSON.parse`), bind it with formula mode (`=_dp(...)`, no `#{}`) instead — formula mode passes the datapill's native type through unchanged, provided the step's `extended_input_schema`/`extended_output_schema` actually models that field's type (object/array/integer, not just `string`). Plain strings are fine either way. (Verified: an MCP App build where a `return_response` field bound with `#{}` silently turned a `repos` array into an unparseable Ruby-syntax string; switching to `=_dp(...)` with EIS/EOS modeling the array fixed it — see [mcp-server-recipes/patterns/bound-html-apps.md](../../mcp-server-recipes/patterns/bound-html-apps.md#5-returning-native-json-from-return_response).)
+
 ## Validation
 
 See [validation-checklist.md](../validation-checklist.md) for consolidated validation.

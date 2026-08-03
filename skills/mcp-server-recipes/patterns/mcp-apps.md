@@ -4,6 +4,8 @@
 
 Read the [workato_skill trigger](../SKILL.md) first if you haven't.
 
+> This doc covers the `agentic_skill`-referenced path. If the MCP server's manifest has `tools_type: "project_assets"` with `references[]` pointing at recipes directly (`type: "recipe"`), see [bound-html-apps.md](bound-html-apps.md) instead — a separately-verified path with its own filename convention and typed-JSON gotchas that don't apply here.
+
 ---
 
 ## Creating the app: manifest only, no UI required
@@ -33,7 +35,7 @@ Add an `apps[]` entry to the MCP server's manifest and push a local HTML file:
 - `tool` — the `ref` (already present in `references`/`tools`) of the **opener** tool: the tool whose call causes an MCP-Apps-aware client to render this app.
 - `content_digest` — sha256 of the HTML file (`shasum -a 256 <file>`). Recompute and update on every HTML change; a stale digest is why UI changes don't show up in the client.
 - `meta.csp.resourceDomains` (and sibling CSP arrays) — list external origins the HTML loads directly (e.g. a CDN for the app SDK). Leave empty until one is actually needed.
-- The HTML file can have any filename.
+- The HTML file can have any filename. **This does not hold for the `project_assets`/recipe-referenced path** — see [bound-html-apps.md](bound-html-apps.md#3-apps-registration) for an enforced naming convention verified on that path; unconfirmed whether the difference is `tools_type`, the deployment mechanism, or both.
 
 Confirm registration with a raw `tools/list` call (not `wk mcp tools`, which omits this) — the opener tool's response includes `"_meta": {"ui": {"resourceUri": "ui://..."}}` when wired correctly.
 

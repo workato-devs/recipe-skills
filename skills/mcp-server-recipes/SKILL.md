@@ -217,7 +217,12 @@ A recipe edited very rapidly and repeatedly (alternating CLI pushes and UI saves
 
 ## MCP Apps (interactive UI)
 
-See [patterns/mcp-apps.md](patterns/mcp-apps.md) for creating the app itself (manifest `apps[]`, `content_digest`, CSP) and writing the app-side JS.
+Two independently-verified wiring paths exist, and which one you're on determines which pattern doc applies:
+
+- **`agentic_skill`-referenced tool** (the `workato_skill` trigger documented above, wrapped via `wk agentic skills create`) — see [patterns/mcp-apps.md](patterns/mcp-apps.md) for the app itself (manifest `apps[]`, `content_digest`, CSP) and app-side JS.
+- **Recipe-referenced tool** (a plain `workato_api_platform` API endpoint recipe, referenced directly under a `tools_type: "project_assets"` server, no agentic-skill wrapping) — see [patterns/bound-html-apps.md](patterns/bound-html-apps.md). Bound apps (`apps[]`) do **not** work under `tools_type: "api_collection"` — confirmed with the platform team on that path.
+
+**Not yet reconciled:** whether an `agentic_skill`-referenced server's `tools_type` is `project_assets`, `api_collection`, or something else entirely is unconfirmed — the two paths above were verified in separate builds without either one checking the other's manifest. Don't assume they're interchangeable.
 
 ---
 
@@ -228,4 +233,5 @@ See [validation-checklist.md](validation-checklist.md).
 ## Related Documentation
 
 - `workato-recipes` — general recipe JSON fundamentals, Genie Skill Trigger, Callable Recipe Trigger
-- [patterns/mcp-apps.md](patterns/mcp-apps.md) — MCP App creation and app-side JS
+- [patterns/mcp-apps.md](patterns/mcp-apps.md) — MCP App creation and app-side JS (`agentic_skill`-referenced path)
+- [patterns/bound-html-apps.md](patterns/bound-html-apps.md) — MCP App creation for a recipe-referenced tool under `tools_type: "project_assets"`, including native-JSON `return_response` typing and runtime gotchas

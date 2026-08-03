@@ -27,11 +27,14 @@ capabilities:
   - Create an MCP App (interactive UI) via the manifest, no UI required
   - Write app-side JS using @modelcontextprotocol/ext-apps
   - Connect an MCP client (e.g. Claude Desktop) to a Workato MCP server
+  - Wire a plain API endpoint recipe as an MCP tool under a project_assets server, with a bound HTML app
+  - Return native (non-stringified) JSON from a return_response action for an app to consume
 
 entry_point: SKILL.md
 
 patterns:
   - patterns/mcp-apps.md
+  - patterns/bound-html-apps.md
 
 validation:
   - validation-checklist.md
@@ -56,3 +59,11 @@ gaps:
   - pattern: MCP resource types beyond apps
     status: needed
     description: Only UI-resource (MCP Apps) usage is covered; other MCP resource/prompt features are unaudited
+  - pattern: tools_type reconciliation between the two MCP App paths
+    status: needed
+    description: >
+      patterns/mcp-apps.md (agentic_skill-referenced tool) and patterns/bound-html-apps.md
+      (recipe-referenced tool under tools_type project_assets) were verified in separate
+      builds. Neither confirmed the other's tools_type value, so it's unknown whether
+      they're the same underlying mechanism, or whether the "any filename" HTML rule and
+      the enforced .bin naming convention are both real constraints of different modes.
