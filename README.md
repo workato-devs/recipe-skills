@@ -141,7 +141,7 @@ Skills are structured around a key principle: **lint rules own the "what," instr
 ### Project
 - [Roadmap](docs/roadmap.md) -- Project direction, connector prioritization, how to get involved
 - [Contributing Guide](CONTRIBUTING.md) -- How to add or improve skills
-- [wk CLI + Recipe Lint Setup](docs/cli-guidance.md) -- one-time install steps (day-to-day CLI/lint usage is in the `workato-recipes` skill's `fundamentals/cli-workflow.md`, so it loads automatically for agents)
+- [wk CLI + Recipe Lint Guide](docs/cli-guidance.md) -- Linter setup, tiers, rule reference
 
 ## Contributing
 
