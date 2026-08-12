@@ -584,18 +584,24 @@ Batch query with typed filters, sorting, and pagination.
 
 **Output datapill path:** `["records"]` for the full array.
 
-**Filters** use AND logic with typed operands per column type:
+**Filters** use AND logic, under the `filters` key, with a **typed operand key** per column type:
 
-| Column type | Available operands |
-|---|---|
-| Short/Long text | equals, is_not_equal_to, starts_with, is_null, is_not_null |
-| Integer/Decimal | equals, is_not_equal_to, less_than, greater_than, less_or_equal, greater_or_equal, is_null, is_not_null |
-| Boolean | is_true, is_false, is_null, is_not_null |
-| Date/DateTime | equals, is_not_equal_to, is_before, is_after, on_or_before, on_or_after, is_null, is_not_null |
+```json
+"filters": [
+  { "field_id": "<column-uuid>", "op_default": "eq", "value_default": "..." },
+  { "field_id": "<bool-column-uuid>", "op_boolean": "istrue" }
+]
+```
 
-The exact JSON shape for advanced filters is TBD — the simple column-value filter in `input` is verified.
+`op_default` carries the operand for string / id / date_time columns; boolean columns use
+`op_boolean` instead. There is no single `operand` key. Operands measured in live recipes: `eq`,
+`starts_with`, `istrue` — note `istrue`, not `is_true`. The rest of the per-column-type operand
+vocabulary is **unverified**.
 
-See: [patterns/search-records.md](patterns/search-records.md)
+Some recipes also carry a top-level column-type map (`"<column-uuid>": "string"`) alongside
+`filters`. It is not required — a running recipe that filters and sorts carries none.
+
+See: [patterns/get-records.md](patterns/get-records.md)
 
 ### Batch Actions
 
