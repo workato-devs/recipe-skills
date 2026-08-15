@@ -1,8 +1,8 @@
 # Get Records Pattern
 
-> **Status:** Action name and filter shape verified 2026-08-12 against live recipes and platform
-> activation. Sections carry their own verification state; anything marked **unverified** has not
-> been measured.
+> **Status:** Action name and filter shape verified 2026-08-12; operand enum and filter behaviour
+> verified 2026-08-14/15 — both against live recipes and platform activation. Sections carry their
+> own verification state; anything marked **unverified** has not been measured.
 
 ## Overview
 
@@ -54,10 +54,14 @@ different contexts. Neither the object form nor a bare table UUID was probed her
 Verbatim from recipe `259412` (`running: true`).
 
 - The key is `filters` (plural); each entry uses `field_id`, not `column`.
-- The operand key varies. `op_default` carries the operand in every non-boolean filter observed
-  (13 of 14); the one boolean filter used **`op_boolean`**. There is no single `operand` key.
-  Which key applies to which column type, beyond boolean, is **unverified**.
-- The value key is `value_default`, paired with `op_default`.
+- The operand key is `op_default`; the value key is `value_default`.
+- Live recipes also show **`op_boolean`** on the one boolean filter among the 14 harvested, but the
+  key is **not** type-dispatched. Measured against an all-true boolean column: `op_default: isfalse`
+  and `op_boolean: isfalse` both return 0 rows, and both `istrue` forms return all 2. `op_boolean`
+  is what the UI writes for a boolean column, not what the platform requires.
+- An **unrecognised** operand key is not rejected — at activation or at runtime. The filter is
+  dropped and the step returns the whole table. See [Filters that are silently
+  dropped](#filters-that-are-silently-dropped).
 
 ### Column-type map — optional, purpose unverified
 
@@ -79,18 +83,97 @@ are **unverified**.
 | Position | Form | Observed example |
 |---|---|---|
 | `filters[].field_id`, `order_by_field_id` | hyphens | `2ea0e0d4-d332-482f-958a-d2e6ae5ce42d` |
-| `add_record` `parameters` keys, output record keys | underscores | `316ea4b9_db3d_4ab9_bebc_55fe9f519758` |
+| `add_record` `parameters` keys | underscores | `316ea4b9_db3d_4ab9_bebc_55fe9f519758` |
+
+Output record keys are a third case and depend on `output_format` — see [Output](#output).
 
 SKILL.md documents the same split for `upsert_record`'s `primary_field_id` (dashes) against its
 `parameters` keys (underscores), and warns that using underscores in `primary_field_id` causes a
 runtime Internal Error.
 
-### Operands
+### Operands — the `ApiQueryOperation` enum
 
-Observed in live recipes: `eq` and `starts_with` under `op_default`, `istrue` under `op_boolean`.
-Note `istrue`, not `is_true`.
+The operand vocabulary is a backend enum. A non-member fails the **job** (not activation) with an
+error that names it, which makes the enum directly probeable:
 
-The full per-column-type operand vocabulary is **unverified**.
+```
+parse request payload error: Expected input type "ApiQueryOperation", found "zzz_bogus".
+(occurred while parsing "ApiQueryCondition") (occurred while parsing "list_ApiQueryCondition")
+(occurred while parsing "ApiQueryRequest")
+```
+
+Candidate names were probed one at a time against that oracle. **12 are members**, each then run
+against known rows on a 2-row table (`label` = `FOUND1`, `TEST101`), filtering `label = FOUND1`:
+
+| Operand | Rows returned |
+|---|---|
+| `eq` | `FOUND1` |
+| `ne` | `TEST101` |
+| `lt` | none — comparison is lexical on a string column |
+| `gt` | `TEST101` |
+| `lte` | `FOUND1` |
+| `gte` | both |
+| `starts_with` | `FOUND1` |
+| `in` | member; a scalar value returned none — the list form was not probed |
+| `isnull` | none |
+| `isnotnull` | both |
+| `istrue` | boolean column: both rows (both true) |
+| `isfalse` | boolean column: none |
+
+**Not members** — each produced the `ApiQueryOperation` error: `le`, `ge`, `less_than`,
+`greater_than`, `less_or_equal`, `greater_or_equal`, `equals`, `is_not_equal_to`, `not_equals`,
+`neq`, `ends_with`, `endswith`, `contains`, `not_contains`, `contains_any`, `is_null`,
+`is_not_null`, `null`, `not_null`, `present`, `ispresent`, `blank`, `empty`, `isempty`,
+`isnotempty`, `isblank`, `nin`, `notin`, `not_in`, `between`, `matches`, `like`, `has`, `exists`,
+`sw`, `is_true`, `is_false`.
+
+Note the spelling throughout: `istrue`, not `is_true`. There is no `contains` and no `ends_with`.
+
+`istrue` / `isfalse` used on a **string** column fail with `specified value for Doc(label) is
+invalid` — a valid enum member on the wrong column type, a different error from a non-member.
+
+### Filters that are silently dropped
+
+**A filter is the one place in this surface where the platform returns wrong data instead of
+erroring.** Two cases, both measured, both leaving the job green:
+
+| Case | Result |
+|---|---|
+| Unrecognised operand key (`op_zzzkey: "eq"`) | filter dropped — **every row** returned |
+| Correct key and a member operand, on an **integer** column | filter dropped — **every row** returned |
+
+The integer case reproduced on three tables, against every encoding tried: `value_default`,
+`value_integer`, `value_number`, `value`, `value_int`, `values`, `value_decimal`; a string, a native
+JSON number, and formula mode (`=999`); `op_default` and `op_integer`; with and without the
+column-type map; with and without the step's `extended_input_schema`. All returned every row.
+`date_time` and `id` columns behave the same way — `gt` and `lt` against the *same* timestamp both
+returned all rows, which is impossible if either had been applied. Those date probes were on system
+columns; a **user-defined** `date_time` column and a **decimal** column remain untested.
+
+Only `string` and `boolean` columns are confirmed to filter correctly.
+
+This is a platform behaviour, not a recipe-authoring mistake — no change to a recipe made an
+integer filter apply. Until it changes: **filter data tables on string columns, and check the
+returned row count** — a step that returns the whole table is the symptom, and nothing in the job
+log will flag it.
+
+### What activation does not check
+
+`PUT /api/recipes/:id/start` validates `table_id` existence and `filters[].field_id` presence, and
+nothing else about a filter:
+
+| Probe | Activation |
+|---|---|
+| `op_default: "zzz_bogus"` — non-member operand | **accepted** |
+| `op_zzz: "eq"` — unknown operand key | **accepted** |
+| filter entry with no operand at all | **accepted** |
+| `field_id` = an all-zeros UUID naming no column | **accepted** |
+| `field_id` absent | refused — `Filters/1/Column name can't be blank` |
+| `table_id` = 99999999 | refused — `Table ID Does not exist in input field` |
+
+This is the opposite of if-condition operands, which **are** rejected at activation (see the
+condition-operand work in recipe-skills #15). The two surfaces do not behave alike, so "the recipe
+activated" says almost nothing about whether a data-table filter is correct.
 
 ## Sorting
 
@@ -108,9 +191,23 @@ handling, are **unverified**.
 
 ## Output
 
-Per SKILL.md's activation-verified shape: a flat `records` array plus `continuation_token`. Output
-record keys use underscored UUIDs. `output_format: "field_name_to_value"` appears in 8 of the 13
-live `get_records` steps harvested; its alternatives are **unverified**.
+Per SKILL.md's activation-verified shape: a flat `records` array plus `continuation_token`.
+
+Record keys depend on `output_format`. Under **`field_name_to_value`** — 8 of the 13 live
+`get_records` steps harvested — they are human column **names**, plus `Record ID`, `Created at` and
+`Updated at`:
+
+```json
+{"records": [{"Created at": "…", "Record ID": "4e32e358-…", "course_code": "FOUND1",
+              "label": "FOUND1", "api_client_id": 0, "active": true}],
+ "continuation_token": null}
+```
+
+The underscored-UUID record keys documented elsewhere must belong to a different `output_format`;
+which one is **unverified**, as are the other formats. Note that the datapill path in
+[Accessing Results](#accessing-results-in-datapills) below uses an underscored UUID — that step's
+`output_format` was not recorded, so treat the two as belonging to different formats until
+measured.
 
 ## Accessing Results in Datapills
 

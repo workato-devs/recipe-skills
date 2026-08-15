@@ -582,24 +582,40 @@ Batch query with typed filters, sorting, and pagination.
 }
 ```
 
+The underscored-UUID record keys above are one output shape. Under `output_format:
+"field_name_to_value"` the keys are instead the human column **names** plus `Record ID` /
+`Created at` / `Updated at` (measured 2026-08-15) — so which keys a datapill must address depends
+on the `output_format` the step carries.
+
 **Output datapill path:** `["records"]` for the full array.
 
-**Filters** use AND logic, under the `filters` key, with a **typed operand key** per column type:
+**Filters** use AND logic, under the `filters` key:
 
 ```json
 "filters": [
-  { "field_id": "<column-uuid>", "op_default": "eq", "value_default": "..." },
-  { "field_id": "<bool-column-uuid>", "op_boolean": "istrue" }
+  { "field_id": "<column-uuid>", "op_default": "eq", "value_default": "..." }
 ]
 ```
 
-`op_default` carries the operand for string / id / date_time columns; boolean columns use
-`op_boolean` instead. There is no single `operand` key. Operands measured in live recipes: `eq`,
-`starts_with`, `istrue` — note `istrue`, not `is_true`. The rest of the per-column-type operand
-vocabulary is **unverified**.
+The operand key is `op_default` and the value key `value_default`. Live recipes also show
+`op_boolean` on boolean columns, but the key is **not** type-dispatched — `op_default: "isfalse"`
+works on a boolean column. `op_boolean` is what the UI writes, not what the platform requires.
+
+Operands are members of a backend enum, `ApiQueryOperation`. All 12: `eq`, `ne`, `lt`, `gt`, `lte`,
+`gte`, `starts_with`, `in`, `isnull`, `isnotnull`, `istrue`, `isfalse`. Note the spelling —
+`istrue`, not `is_true` — and that there is no `contains` and no `ends_with`.
+
+⚠️ **A wrong filter returns wrong data, not an error.** Activation validates `table_id` and the
+presence of `field_id`, and nothing else — a non-member operand, an unknown operand key, and a
+`field_id` naming no column are all accepted. At runtime a non-member operand fails the job, but an
+unknown operand key is **silently dropped and the step returns every row, job green**. So is a
+filter on an **integer**, `date_time`, or `id` column, on every value encoding measured. Only
+`string` and `boolean` columns are confirmed to filter correctly. Filter on string columns, and
+check the returned row count.
 
 Some recipes also carry a top-level column-type map (`"<column-uuid>": "string"`) alongside
-`filters`. It is not required — a running recipe that filters and sorts carries none.
+`filters`. It is not required — a running recipe that filters and sorts carries none, and adding it
+does not restore integer filtering.
 
 See: [patterns/get-records.md](patterns/get-records.md)
 
