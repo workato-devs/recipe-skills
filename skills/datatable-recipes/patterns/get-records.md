@@ -1,8 +1,12 @@
 # Get Records Pattern
 
 > **Status:** Action name and filter shape verified 2026-08-12; operand enum and filter behaviour
-> verified 2026-08-14/15 — both against live recipes and platform activation. Sections carry their
-> own verification state; anything marked **unverified** has not been measured.
+> verified 2026-08-14/15. Sections carry their own verification state, and the evidence behind them
+> is not all the same strength — **read from live recipes** (this is what the UI emits, which is not
+> necessarily what the platform requires), **verified at activation** (the platform accepted or
+> refused it), or **measured at runtime** (a job ran and its output was read). The operand and
+> silent-drop sections are runtime-measured; the shape, sorting and datapill sections are read from
+> recipes. Anything marked **unverified** has not been measured at all.
 
 ## Overview
 
@@ -125,37 +129,59 @@ against known rows on a 2-row table (`label` = `FOUND1`, `TEST101`), filtering `
 `neq`, `ends_with`, `endswith`, `contains`, `not_contains`, `contains_any`, `is_null`,
 `is_not_null`, `null`, `not_null`, `present`, `ispresent`, `blank`, `empty`, `isempty`,
 `isnotempty`, `isblank`, `nin`, `notin`, `not_in`, `between`, `matches`, `like`, `has`, `exists`,
-`sw`, `is_true`, `is_false`.
+`sw`.
 
-Note the spelling throughout: `istrue`, not `is_true`. There is no `contains` and no `ends_with`.
+There is no `contains` and no `ends_with`. The members are spelled `istrue` / `isfalse`; whether
+the underscored `is_true` / `is_false` are *also* accepted was **not determined** — see below.
 
 `istrue` / `isfalse` used on a **string** column fail with `specified value for Doc(label) is
-invalid` — a valid enum member on the wrong column type, a different error from a non-member.
+invalid` — a valid enum member on the wrong column type, a different error from a non-member. That
+distinction is why the non-member list above is the probed set and not a complement: a name absent
+from the members table could have been rejected for the wrong-column-type reason instead, which
+would make it a member. `is_true` and `is_false` are exactly that unresolved case, so this file
+does not classify them either way.
 
 ### Filters that are silently dropped
 
-**A filter is the one place in this surface where the platform returns wrong data instead of
-erroring.** Two cases, both measured, both leaving the job green:
+**A filter is one place in this surface where the platform returns wrong data instead of erroring.**
+Two cases, both measured, both leaving the job green:
 
 | Case | Result |
 |---|---|
-| Unrecognised operand key (`op_zzzkey: "eq"`) | filter dropped — **every row** returned |
-| Correct key and a member operand, on an **integer** column | filter dropped — **every row** returned |
+| Unrecognised operand key (`op_zzzkey: "eq"`) | filter dropped — **unfiltered rows** returned |
+| Correct key and a member operand, on an **integer** column | filter dropped — **unfiltered rows** returned |
 
 The integer case reproduced on three tables, against every encoding tried: `value_default`,
 `value_integer`, `value_number`, `value`, `value_int`, `values`, `value_decimal`; a string, a native
 JSON number, and formula mode (`=999`); `op_default` and `op_integer`; with and without the
-column-type map; with and without the step's `extended_input_schema`. All returned every row.
+column-type map; with and without the step's `extended_input_schema`. All returned unfiltered rows.
 `date_time` and `id` columns behave the same way — `gt` and `lt` against the *same* timestamp both
-returned all rows, which is impossible if either had been applied. Those date probes were on system
-columns; a **user-defined** `date_time` column and a **decimal** column remain untested.
+returned every row, which is impossible if either had been applied. Those date probes were on
+system columns; a **user-defined** `date_time` column and a **decimal** column remain untested.
 
-Only `string` and `boolean` columns are confirmed to filter correctly.
+`string` and `boolean` columns filter correctly for the operations listed above; no claim is made
+about operations not in that table.
 
-This is a platform behaviour, not a recipe-authoring mistake — no change to a recipe made an
-integer filter apply. Until it changes: **filter data tables on string columns, and check the
-returned row count** — a step that returns the whole table is the symptom, and nothing in the job
-log will flag it.
+### How to detect this — not by row count
+
+Every probe above ran on a table of 2–7 rows with `limit: "50"`, so a dropped filter returned the
+entire table. **On a table larger than `limit`, it will not.** It returns an unfiltered *page* —
+the same row count a working filter might legitimately return. So "I got the whole table back" is
+not a general symptom, and any check built on the count will pass while the data is wrong.
+
+What actually indicates a dropped filter: **rows in the result that do not satisfy the filter.**
+Inspect a returned record, not a total. A job log showing success and a plausible row count is
+consistent with both outcomes.
+
+### What this is, stated no more strongly than it was measured
+
+Every construction tried was silently ineffective on a non-string column, and no change to a recipe
+made an integer filter apply. That is consistent with a platform defect, and equally consistent
+with integer filtering being **unsupported** with a silent failure mode instead of an error. These
+measurements do not distinguish the two, and this file does not claim to.
+
+The experiment that would: author an integer filter through the Workato **UI**, confirm at runtime
+that it filters, export it, and compare its representation to the ones above. Not run.
 
 ### What activation does not check
 
@@ -203,11 +229,12 @@ Record keys depend on `output_format`. Under **`field_name_to_value`** — 8 of 
  "continuation_token": null}
 ```
 
-The underscored-UUID record keys documented elsewhere must belong to a different `output_format`;
-which one is **unverified**, as are the other formats. Note that the datapill path in
-[Accessing Results](#accessing-results-in-datapills) below uses an underscored UUID — that step's
-`output_format` was not recorded, so treat the two as belonging to different formats until
-measured.
+The underscored-UUID record keys documented elsewhere do **not** appear under this format. Where
+they do come from is **unverified** — a different `output_format` is the obvious guess, but a
+datapill identifier need not match the serialized runtime key, so that is a guess and not a
+measurement. The datapill path in [Accessing Results](#accessing-results-in-datapills) below uses
+an underscored UUID and its step's `output_format` was not recorded, which is the same open
+question rather than a second data point.
 
 ## Accessing Results in Datapills
 

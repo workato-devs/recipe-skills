@@ -606,13 +606,17 @@ Operands are members of a backend enum, `ApiQueryOperation`. All 12: `eq`, `ne`,
 `istrue`, not `is_true` — and that there is no `contains` and no `ends_with`.
 
 ⚠️ **A wrong filter returns wrong data, not an error.** Activation validates `table_id` and the
-presence of `field_id`, and nothing else — a non-member operand, an unknown operand key, and a
-`field_id` naming no column are all accepted. At runtime a non-member operand fails the job, but an
-unknown operand key is **silently dropped and the step returns every row, job green**. So is a
-filter on an **integer** column — on three tables, across every value encoding measured — and so is
-one on a `date_time` or `id` column, though those probes ran on system columns only. Only `string`
-and `boolean` columns are confirmed to filter correctly. Filter on string columns, and check the
-returned row count.
+presence of `field_id`; nothing else about a filter was rejected in probing — a non-member operand,
+an unknown operand key, and a `field_id` naming no column are all accepted. At runtime a non-member
+operand fails the job, but an unknown operand key is **silently dropped, and the step returns
+unfiltered rows with the job green**. So is a filter on an **integer** column — on three tables,
+across every value encoding measured — and so is one on a `date_time` or `id` column, though those
+probes ran on system columns only. `string` and `boolean` columns filter correctly.
+
+Filter data tables on string columns. **Do not try to detect this by row count** — the probes ran
+on tables smaller than `limit`, so a dropped filter returned everything; on a larger table it
+returns an unfiltered *page*, which looks like a normal result. The symptom is a returned record
+that does not satisfy the filter.
 
 Some recipes also carry a top-level column-type map (`"<column-uuid>": "string"`) alongside
 `filters`. It is not required — a running recipe that filters and sorts carries none, and adding it
