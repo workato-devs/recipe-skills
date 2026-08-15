@@ -183,6 +183,9 @@ measurements do not distinguish the two, and this file does not claim to.
 The experiment that would: author an integer filter through the Workato **UI**, confirm at runtime
 that it filters, export it, and compare its representation to the ones above. Not run.
 
+Everything in this section is reproducible against your own workspace —
+[`../probes/probe_operands.py`](../probes/probe_operands.py), with a README beside it.
+
 ### What activation does not check
 
 `PUT /api/recipes/:id/start` validates `table_id` existence and `filters[].field_id` presence, and
