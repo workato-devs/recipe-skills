@@ -609,9 +609,10 @@ Operands are members of a backend enum, `ApiQueryOperation`. All 12: `eq`, `ne`,
 presence of `field_id`, and nothing else — a non-member operand, an unknown operand key, and a
 `field_id` naming no column are all accepted. At runtime a non-member operand fails the job, but an
 unknown operand key is **silently dropped and the step returns every row, job green**. So is a
-filter on an **integer**, `date_time`, or `id` column, on every value encoding measured. Only
-`string` and `boolean` columns are confirmed to filter correctly. Filter on string columns, and
-check the returned row count.
+filter on an **integer** column — on three tables, across every value encoding measured — and so is
+one on a `date_time` or `id` column, though those probes ran on system columns only. Only `string`
+and `boolean` columns are confirmed to filter correctly. Filter on string columns, and check the
+returned row count.
 
 Some recipes also carry a top-level column-type map (`"<column-uuid>": "string"`) alongside
 `filters`. It is not required — a running recipe that filters and sorts carries none, and adding it

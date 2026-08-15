@@ -222,18 +222,17 @@ this way. The wrapper shape is otherwise **unverified**.
 
 ## Action names
 
-`SKILL.md` carries the full list, verified by activation testing 2026-05-08, and `lint-rules.json`
-rejects `search_records` and `create_record` by name. Re-verified 2026-08-12:
+`lint-rules.json` is authoritative for which names are valid — this file does not restate them.
+Re-verified 2026-08-12 that its list still matches what activation accepts, including that the two
+names the old pattern file taught are still rejected:
 
-| Name | Activation response |
-|---|---|
-| `get_records` | accepted |
-| `search_records` | rejected — `["name","search_records","is invalid"]` |
-| `create_record` | rejected — `["name","create_record","is invalid"]` |
+```
+["name","search_records","is invalid"]
+```
 
-A name the platform does not know is rejected at `name`; a known name whose required input is
-missing fails on that input instead. Both return `success: false`, so the response body — not the
-success flag — is what distinguishes them.
+Worth knowing when reading that response: a name the platform does not know is rejected at `name`;
+a known name whose required input is missing fails on that input instead. Both return
+`success: false`, so the response body — not the success flag — is what distinguishes them.
 
 This is the same failure shape as an invalid condition operand: the recipe lints clean, pushes
 fine, and is refused at activation.
