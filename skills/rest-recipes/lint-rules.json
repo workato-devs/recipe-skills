@@ -1,0 +1,54 @@
+{
+  "version": "0.1.0",
+  "connector": "rest",
+  "connector_internals": [],
+  "action_internals": {
+    "make_request_v2": [
+      "completion_threshold_seconds",
+      "disable_retries",
+      "enable_streaming",
+      "request",
+      "request_name",
+      "wait_for_response"
+    ]
+  },
+  "valid_action_names": [
+    "make_request_v2"
+  ],
+  "valid_trigger_names": [
+    "new_poll_event"
+  ],
+  "action_rules": [],
+  "action_output_schemas": {
+    "make_request_v2": {
+      "kind": "dynamic",
+      "intrinsic_fields": [
+        {
+          "name": "status_code",
+          "type": "string"
+        },
+        {
+          "name": "body",
+          "type": "string"
+        },
+        {
+          "name": "error",
+          "type": "string"
+        },
+        {
+          "name": "headers",
+          "type": "object"
+        },
+        {
+          "name": "response",
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "_notes": {
+    "verification_status": "Action, trigger, input, and output metadata verified from the live Workato REST connector catalog in Development on 2026-08-23.",
+    "canonical_export_behavior": "Canonical recipe exports can materialize only configured response fields in extended schemas while retaining connector-owned request controls and intrinsic transport outputs at runtime.",
+    "output_schema_semantics": "The action is dynamic. Intrinsic fields are connector-guaranteed top-level outputs; configured response fields remain recipe-specific."
+  }
+}

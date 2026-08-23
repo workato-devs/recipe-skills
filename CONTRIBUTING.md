@@ -118,6 +118,10 @@ This is the most critical file. It defines every valid action and trigger name f
 
 **Every name must be verified against the actual connector in a Workato workspace.** Do not guess action names from vendor API documentation -- the Workato connector may not expose all API endpoints, and internal names often differ from API method names.
 
+If the connector exposes stable output fields that canonical recipe EOS omits, or an action has a fully static output schema, add an audited `action_output_schemas` entry. Use `kind: "static"` with a complete `fields` array, or `kind: "dynamic"` with only connector-guaranteed `intrinsic_fields`. Record the Workato metadata/UI/export provenance in `_notes`. Do not infer output schemas from vendor API documentation.
+
+Use `action_internals` for connector-owned input fields that apply to one action. Reserve `connector_internals` for fields proven internal across the provider; a provider-wide exemption also affects triggers and sibling actions.
+
 ### Step 3: Write skill.yaml
 
 ```yaml
@@ -269,6 +273,8 @@ One markdown file per deep-dive topic:
 - Every addition or removal must be verified against the actual connector in a Workato workspace
 - Do not add names based on vendor API documentation alone
 - Keep the list sorted alphabetically
+- Treat `action_output_schemas` as audited connector metadata: static schemas must be complete; dynamic schemas list only guaranteed intrinsic roots
+- Keep one malformed or unknown action declaration from affecting sibling action metadata; validate the file with the current recipe-lint plugin
 
 ### Updating SKILL.md
 
@@ -356,6 +362,7 @@ Before submitting, verify your changes against at least 2 connector skills. The 
 ### PR checklist
 
 - [ ] `lint-rules.json` is present and every name verified against actual Workato connector
+- [ ] Any `action_output_schemas` fields are verified from Workato connector metadata, UI schemas, or canonical exports and have provenance in `_notes`
 - [ ] `skill.yaml` is valid YAML and includes `extends: workato-recipes`
 - [ ] `SKILL.md` follows the established section structure
 - [ ] `SKILL.md` does not enumerate action names (references `lint-rules.json` instead)

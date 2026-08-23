@@ -1,0 +1,35 @@
+name: rest-recipes
+version: 1.0.0
+description: >
+  Generic REST connector recipes for Workato, including connection-bound request
+  configuration, response handling, retry controls, transport status datapills,
+  and masking guidance.
+
+author: Workato
+license: MIT
+
+extends: workato-recipes
+
+capabilities:
+  - Make connection-bound REST requests
+  - Configure closed response schemas
+  - Classify HTTP transport outcomes
+  - Handle dynamic response bodies safely
+  - Apply retry and masking controls
+
+entry_point: SKILL.md
+
+validation:
+  - validation-checklist.md
+
+platforms:
+  - workato
+  - rest
+
+tags:
+  - rest
+  - http
+  - api
+  - workato
+  - integration
+  - recipes

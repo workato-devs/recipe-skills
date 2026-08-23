@@ -31,8 +31,9 @@ Match the user's request to a connector and load that skill (after the base skil
 | Jira (issues, JQL, sprints) | `skills/jira-recipes/SKILL.md` |
 | Asana (tasks, projects, portfolios, goals) | `skills/asana-recipes/SKILL.md` |
 | Workato Data Tables (CRUD, search, batch, the `workato_db_table` connector) | `skills/datatable-recipes/SKILL.md` |
+| Generic connection-bound REST requests (the `rest` connector) | `skills/rest-recipes/SKILL.md` |
 
-For an API operation a connector's native actions don't cover, every connector supports `__adhoc_http_action` — see the base skill's `patterns/adhoc-http-actions.md`.
+For an API operation a native SaaS connector does not cover, many connectors support `__adhoc_http_action` — see the base skill's `patterns/adhoc-http-actions.md`. The generic `rest` provider uses its own audited request action; follow `rest-recipes` instead of substituting the native-connector action name.
 
 ## After generating a recipe
 

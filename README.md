@@ -32,11 +32,12 @@ Workato Developer Skills teach AI agents how to generate valid Workato recipe JS
 | [datatable-recipes](skills/datatable-recipes/) | Workato Data Tables | 7 | 4 |
 | [gmail-recipes](skills/gmail-recipes/) | Gmail | 3 | 1 |
 | [jira-recipes](skills/jira-recipes/) | Jira | 17 | 11 |
+| [rest-recipes](skills/rest-recipes/) | Generic REST | 1 | 1 |
 | [salesforce-recipes](skills/salesforce-recipes/) | Salesforce | 32 | 15 |
 | [slack-recipes](skills/slack-recipes/) | Slack (native + Workbot) | 9 | 2 |
 | [stripe-recipes](skills/stripe-recipes/) | Stripe | 7 | 4 |
 
-Action and trigger counts reflect what is audited in each skill's `lint-rules.json`. All connectors also support `__adhoc_http_action` for API operations beyond the native action set.
+Action and trigger counts reflect what is audited in each skill's `lint-rules.json`. Many native SaaS connectors also support `__adhoc_http_action` for API operations beyond their native action set; the generic REST connector uses its own audited request action.
 
 ## Quick Start
 
@@ -123,6 +124,7 @@ Skills are structured around a key principle: **lint rules own the "what," instr
 - [asana-recipes](skills/asana-recipes/SKILL.md) -- Asana task and project management
 - [gmail-recipes](skills/gmail-recipes/SKILL.md) -- Gmail email operations
 - [jira-recipes](skills/jira-recipes/SKILL.md) -- Jira issue tracking and JQL
+- [rest-recipes](skills/rest-recipes/SKILL.md) -- Generic connection-bound REST requests
 - [salesforce-recipes](skills/salesforce-recipes/SKILL.md) -- Salesforce CRM operations
 - [slack-recipes](skills/slack-recipes/SKILL.md) -- Slack and Workbot integration
 - [stripe-recipes](skills/stripe-recipes/SKILL.md) -- Stripe payment processing

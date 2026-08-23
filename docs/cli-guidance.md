@@ -145,25 +145,38 @@ Validates that datapill references resolve to real steps and are reachable in th
 | `DP_PROVIDER_MATCHES` | warn | Datapill `provider` matches the referenced step's actual provider |
 | `DP_STEP_REACHABLE` | warn | Referenced step executes before the consuming step in control flow |
 | `DP_TRIGGER_PATH` | info | API endpoint trigger datapill paths start with `"request"` |
+| `DP_PATH_RESOLVES` | warn | Datapill paths resolve against recipe EOS and audited connector action output schemas |
 
 ---
 
 ## How the Linter Uses Recipe Skills
 
-When you pass `--skills-path`, the linter walks the directory tree for `lint-rules.json` files. Each file declares a connector name and its valid actions:
+When you pass `--skills-path`, the linter walks the directory tree for `lint-rules.json` files. Each file may declare a connector's valid names, connector-owned input fields, and audited action output contracts:
 
 ```json
 {
   "connector": "salesforce",
   "valid_action_names": ["upsert_sobject", "search_sobjects", ...],
-  "connector_internals": ["sobject_name", "limit"]
+  "connector_internals": ["sobject_name", "limit"],
+  "action_internals": {"search_sobjects": ["query_mode"]},
+  "action_output_schemas": {
+    "search_sobjects": {
+      "kind": "static",
+      "fields": [{"name": "records", "type": "array"}]
+    }
+  }
 }
 ```
 
-The linter uses this data for three rules:
+The linter uses this data for connector-aware rules:
 - **`ACTION_NAME_VALID`** -- rejects action names not in `valid_action_names` for that provider
-- **`CONFIG_PROVIDER_MATCH`** -- skips providers listed in `connector_internals`
 - **`EIS_NO_CONNECTOR_INTERNAL`** -- flags connector-internal fields that appear in `extended_input_schema`
+- **`EIS_MIRRORS_INPUT`** -- excludes connector-owned inputs that Workato may omit from canonical EIS
+- **`DP_PATH_RESOLVES`** -- validates paths against static connector schemas and stable intrinsic fields for dynamic actions
+
+For `action_output_schemas`, `kind: "static"` declares a closed output schema. `kind: "dynamic"` may declare stable `intrinsic_fields`; unknown runtime-defined roots remain conservatively accepted when no recipe EOS exists. When a recipe materializes a partial EOS, that EOS owns its declared response tree and audited intrinsic roots may augment it. Output data must be verified from current Workato connector metadata, UI schemas, or canonical exports and recorded in `_notes`.
+
+Use provider-wide `connector_internals` only for fields that are internal across that provider. Use `action_internals` when an input exemption is proven for one action so sibling actions and triggers retain normal EIS validation.
 
 The linter does **not** read `SKILL.md`, `validation-checklist.md`, templates, or patterns. Those files are for AI agents and human developers, not the linter.
 
