@@ -1,6 +1,9 @@
 # CRUD Actions Pattern
 
-> **Status:** Action names and input shapes are unverified guesses based on Workato docs and naming conventions. Build golden recipes to validate.
+> **Status:** Single-record action names are verified — see the confirmed list in `SKILL.md`
+> ("Action names, all verified via activation testing"), re-verified 2026-08-12. Input shapes and
+> the Batch Actions section below remain unverified guesses; anything marked TBD has not been
+> measured.
 
 ## Create Record
 
@@ -10,7 +13,7 @@ Creates a single row in a data table.
 {
   "number": 1,
   "provider": "workato_db_table",
-  "name": "create_record",
+  "name": "add_record",
   "as": "create_row",
   "keyword": "action",
   "dynamicPickListSelection": {
@@ -110,7 +113,9 @@ Creates if no match, updates if match found. Matches on a single primary key col
 
 - Only single-column primary key matching (no multi-column)
 - Output: `record_created` boolean + full `record` object
-- How the primary key column is specified in recipe JSON is TBD
+- The primary key column is `primary_field_id`, flat in `input` — see `SKILL.md` for the verified
+  shape and the dash-format UUID requirement. The platform's activation error names this field when
+  it is missing.
 
 ## Remove Values From Record
 
@@ -139,9 +144,9 @@ Clears specific column values without deleting the row.
 
 ## Batch Actions
 
-**Names:** `create_records`, `update_records`, `delete_records`
-
-Operate on multiple records. Input likely takes an array of records. Exact shape TBD — needs golden recipe validation.
+**`create_records`, `update_records` and `delete_records` are in `SKILL.md`'s confirmed-invalid
+list and in `lint-rules.json`'s `invalid_action_names`** — no batch action names are known to
+exist. For multiple records, see SKILL.md's `repeat`-loop guidance.
 
 ## Truncate Table
 

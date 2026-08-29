@@ -582,20 +582,47 @@ Batch query with typed filters, sorting, and pagination.
 }
 ```
 
+The underscored-UUID record keys above are one output shape. Under `output_format:
+"field_name_to_value"` the keys are instead the human column **names** plus `Record ID` /
+`Created at` / `Updated at` (measured 2026-08-15) — so which keys a datapill must address depends
+on the `output_format` the step carries.
+
 **Output datapill path:** `["records"]` for the full array.
 
-**Filters** use AND logic with typed operands per column type:
+**Filters** use AND logic, under the `filters` key:
 
-| Column type | Available operands |
-|---|---|
-| Short/Long text | equals, is_not_equal_to, starts_with, is_null, is_not_null |
-| Integer/Decimal | equals, is_not_equal_to, less_than, greater_than, less_or_equal, greater_or_equal, is_null, is_not_null |
-| Boolean | is_true, is_false, is_null, is_not_null |
-| Date/DateTime | equals, is_not_equal_to, is_before, is_after, on_or_before, on_or_after, is_null, is_not_null |
+```json
+"filters": [
+  { "field_id": "<column-uuid>", "op_default": "eq", "value_default": "..." }
+]
+```
 
-The exact JSON shape for advanced filters is TBD — the simple column-value filter in `input` is verified.
+The operand key is `op_default` and the value key `value_default`. Live recipes also show
+`op_boolean` on boolean columns, but the key is **not** type-dispatched — `op_default: "isfalse"`
+works on a boolean column. `op_boolean` is what the UI writes, not what the platform requires.
 
-See: [patterns/search-records.md](patterns/search-records.md)
+Operands are members of a backend enum, `ApiQueryOperation`. All 12: `eq`, `ne`, `lt`, `gt`, `lte`,
+`gte`, `starts_with`, `in`, `isnull`, `isnotnull`, `istrue`, `isfalse`. Note the spelling —
+`istrue`, not `is_true` — and that there is no `contains` and no `ends_with`.
+
+⚠️ **A wrong filter returns wrong data, not an error.** Activation validates `table_id` and the
+presence of `field_id`; nothing else about a filter was rejected in probing — a non-member operand,
+an unknown operand key, and a `field_id` naming no column are all accepted. At runtime a non-member
+operand fails the job, but an unknown operand key is **silently dropped, and the step returns
+unfiltered rows with the job green**. So is a filter on an **integer** column — on three tables,
+across every value encoding measured — and so is one on a `date_time` or `id` column, though those
+probes ran on system columns only. `string` and `boolean` columns filter correctly.
+
+Filter data tables on string columns. **Do not try to detect this by row count** — the probes ran
+on tables smaller than `limit`, so a dropped filter returned everything; on a larger table it
+returns an unfiltered *page*, which looks like a normal result. The symptom is a returned record
+that does not satisfy the filter.
+
+Some recipes also carry a top-level column-type map (`"<column-uuid>": "string"`) alongside
+`filters`. It is not required — a running recipe that filters and sorts carries none, and adding it
+does not restore integer filtering.
+
+See: [patterns/get-records.md](patterns/get-records.md)
 
 ### Batch Actions
 

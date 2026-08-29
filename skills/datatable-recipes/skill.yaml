@@ -32,7 +32,7 @@ entry_point: SKILL.md
 # Pattern documentation
 patterns:
   - patterns/crud-actions.md
-  - patterns/search-records.md
+  - patterns/get-records.md
   - patterns/uuid-column-mapping.md
 
 # Validation checklist
