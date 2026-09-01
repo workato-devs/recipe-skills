@@ -4,6 +4,8 @@
 
 The try/catch structure enables error handling in Workato recipes. Actions in the try block that fail trigger the catch block, allowing graceful error recovery, logging, or alternative flows.
 
+**This is the standard shape for a recipe, not just an add-on.** In production recipes the recipe's whole body lives inside a single top-level `try`: guards and happy-path actions run in the `try` and end in a success return; the sibling `catch` logs and returns an error payload. Default to wrapping recipe logic this way. See [`templates/classify_request.recipe.json`](../templates/classify_request.recipe.json) for a complete example (guard-first body in `try`, error triage in `catch`).
+
 ## JSON Structure
 
 ```json
@@ -257,6 +259,45 @@ For API endpoint recipes, return an error response:
     }
   ],
   "uuid": "try-block"
+}
+```
+
+### Error Triage in the Catch Block
+
+Branch on the error inside `catch` to return different results for transient vs. permanent failures — a guard clause (`if <transient> → return`) with an `else` for the permanent case. This is the guard-clause pattern (see [if-else.md](if-else.md)) applied inside `catch`, and works for callable recipes (`return_result`) as well as API endpoints (`return_response`):
+
+```json
+{
+  "number": 4,
+  "keyword": "catch",
+  "provider": null,
+  "as": "classify_catch",
+  "input": { "max_retry_count": "0", "retry_interval": "2" },
+  "block": [
+    {
+      "number": 5, "keyword": "action", "provider": "logger", "name": "log_message", "as": "log_error",
+      "input": { "message": "Failed: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"classify_catch\",\"path\":[\"message\"]}')}" },
+      "uuid": "log-error"
+    },
+    {
+      "number": 6, "keyword": "if", "as": "check_transient",
+      "input": { "type": "compound", "operand": "and", "conditions": [
+        { "operand": "contains", "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"classify_catch\",\"path\":[\"message\"]}')}", "rhs": "timeout", "uuid": "c-timeout" }
+      ] },
+      "block": [
+        { "number": 7, "keyword": "action", "provider": "workato_recipe_function", "name": "return_result", "as": "return_retry_later", "input": { "result": { "classification": "retry_later" } }, "uuid": "return-retry" },
+        {
+          "number": 8, "keyword": "else", "as": "else_permanent", "input": {},
+          "block": [
+            { "number": 9, "keyword": "action", "provider": "workato_recipe_function", "name": "return_result", "as": "return_error", "input": { "result": { "classification": "error" } }, "uuid": "return-error" }
+          ],
+          "uuid": "else-permanent"
+        }
+      ],
+      "uuid": "if-transient"
+    }
+  ],
+  "uuid": "catch-triage"
 }
 ```
 
