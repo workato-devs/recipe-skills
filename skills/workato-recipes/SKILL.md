@@ -158,6 +158,7 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 | API Endpoint Trigger | [triggers/api-endpoint.md](triggers/api-endpoint.md) |
 | Callable Recipe Trigger | [triggers/callable-recipe.md](triggers/callable-recipe.md) |
 | Scheduler Trigger | [triggers/scheduler.md](triggers/scheduler.md) |
+| Webhook Trigger | [triggers/webhook.md](triggers/webhook.md) |
 | Messaging Topic Trigger | [triggers/messaging-topic.md](triggers/messaging-topic.md) |
 | Publish to Topic Action | [triggers/messaging-topic.md](triggers/messaging-topic.md) |
 | Adhoc HTTP Actions | [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) |
@@ -367,14 +368,26 @@ periodic sync jobs) rather than in response to an external event.
 
 See: [triggers/scheduler.md](triggers/scheduler.md)
 
+### Webhook Trigger
+
+**Use when:** An external system needs to push events over HTTP and you don't
+control (or can't standardize) its request format — unlike an API Endpoint
+trigger, a webhook trigger accepts whatever payload shape the sender pushes,
+described after the fact via an author-defined schema.
+
+**Provider:** `workato_webhooks`
+**Action:** `new_event`
+
+See: [triggers/webhook.md](triggers/webhook.md)
+
 ### Choosing a Trigger Type
 
 | Scenario | Trigger Type |
 |----------|--------------|
-| External API access needed | API Endpoint |
+| External API access needed, request format you define | API Endpoint |
 | Called by other recipes only | Callable Recipe |
 | React to messages from other recipes | Messaging Topic (subscriber) |
-| Receive external webhooks | Webhook |
+| Receive external webhooks with an externally-defined payload shape | Webhook |
 | Time-based execution | Scheduler |
 
 ---

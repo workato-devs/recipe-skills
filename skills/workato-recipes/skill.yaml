@@ -33,6 +33,7 @@ triggers:
   - triggers/callable-recipe.md
   - triggers/data-table.md
   - triggers/genie-skill.md
+  - triggers/webhook.md
 
 # Control flow documentation
 control_flow:
