@@ -24,6 +24,14 @@ Workato Developer Skills teach AI agents how to generate valid Workato recipe JS
 |-------|-------------|
 | [workato-recipes](skills/workato-recipes/) | Core Workato recipe fundamentals -- triggers, control flow, datapills, formulas, recipe JSON structure |
 
+### Platform Skills
+
+Not tied to a third-party connector -- these cover Workato platform capabilities used across any connector.
+
+| Skill | Description |
+|-------|-------------|
+| [mcp-server-recipes](skills/mcp-server-recipes/) | Build and wire Workato MCP servers and MCP Apps -- the `workato_skill` trigger, server manifest wiring, and interactive app creation |
+
 ### Connector Skills
 
 | Skill | Connector | Native Actions | Triggers |
@@ -31,6 +39,7 @@ Workato Developer Skills teach AI agents how to generate valid Workato recipe JS
 | [asana-recipes](skills/asana-recipes/) | Asana | 16 | 2 |
 | [datatable-recipes](skills/datatable-recipes/) | Workato Data Tables | 7 | 4 |
 | [gmail-recipes](skills/gmail-recipes/) | Gmail | 3 | 1 |
+| [google-sheets-recipes](skills/google-sheets-recipes/) | Google Sheets | 3 | 0 |
 | [jira-recipes](skills/jira-recipes/) | Jira | 17 | 11 |
 | [salesforce-recipes](skills/salesforce-recipes/) | Salesforce | 32 | 15 |
 | [slack-recipes](skills/slack-recipes/) | Slack (native + Workbot) | 9 | 2 |
@@ -122,7 +131,9 @@ Skills are structured around a key principle: **lint rules own the "what," instr
 - [workato-recipes](skills/workato-recipes/SKILL.md) -- Recipe fundamentals and base patterns
 - [asana-recipes](skills/asana-recipes/SKILL.md) -- Asana task and project management
 - [gmail-recipes](skills/gmail-recipes/SKILL.md) -- Gmail email operations
+- [google-sheets-recipes](skills/google-sheets-recipes/SKILL.md) -- Google Sheets row read/append/update
 - [jira-recipes](skills/jira-recipes/SKILL.md) -- Jira issue tracking and JQL
+- [mcp-server-recipes](skills/mcp-server-recipes/SKILL.md) -- MCP servers, MCP tools, and MCP Apps
 - [salesforce-recipes](skills/salesforce-recipes/SKILL.md) -- Salesforce CRM operations
 - [slack-recipes](skills/slack-recipes/SKILL.md) -- Slack and Workbot integration
 - [stripe-recipes](skills/stripe-recipes/SKILL.md) -- Stripe payment processing

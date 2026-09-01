@@ -1,0 +1,217 @@
+{
+  "name": "get_sheet_rows",
+  "version": 1,
+  "private": false,
+  "concurrency": 1,
+  "description": "",
+  "code": {
+    "as": "get-rows-trigger",
+    "keyword": "trigger",
+    "name": "start_workflow",
+    "number": 0,
+    "provider": "workato_skill",
+    "title": null,
+    "unfinished": false,
+    "uuid": "get-sheet-rows-trigger-001",
+    "description": "Start <span class=\"provider\">get_sheet_rows</span>",
+    "input": {
+      "description": "Returns rows from the sheet (id, title, status, notes). Use when the user wants to view or check the tracker.",
+      "requires_user_confirmation": "false",
+      "result_schema_json": "[{\"name\":\"final_message\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Final message\"}]"
+    },
+    "block": [
+      {
+        "as": "get-rows-action",
+        "description": null,
+        "dynamicPickListSelection": {
+          "spreadsheet": "content_management_mcp"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "extends_schema": true,
+            "hint": "Select a sheet to retrieve rows. The sheet must have at least one header row.",
+            "label": "Sheet",
+            "name": "sheet",
+            "optional": false,
+            "pick_list": [
+              [
+                "Sheet1",
+                "Sheet1"
+              ]
+            ],
+            "toggle_field": {
+              "change_on_blur": true,
+              "control_type": "text",
+              "extends_schema": true,
+              "hint": "Use Sheet name pill from the output of other Google Sheets triggers/actions. Or enter sheet name manually.",
+              "label": "Sheet name",
+              "name": "sheet_name",
+              "toggle_hint": "Use sheet name",
+              "toggle_to_primary_hint": "Select a sheet",
+              "toggle_to_secondary_hint": "Use sheet name",
+              "type": "string"
+            },
+            "toggle_hint": "Select a sheet",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "hint": "Provide range to retrieve rows from Sheet in the format Start row:End row. i.e. 2:2000. Note: Range should start from second row, since the first row is the header row.",
+            "label": "Range",
+            "name": "range",
+            "optional": true,
+            "sticky": true,
+            "type": "string"
+          }
+        ],
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Spreadsheet ID",
+            "name": "spreadsheet_id",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Spreadsheet name",
+            "name": "spreadsheet_name",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Sheet name",
+            "name": "sheet",
+            "type": "string"
+          },
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "type": "array",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Row number",
+                "name": "row_number",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "control_type": "text",
+                "custom_attribute": 1,
+                "label": "id",
+                "name": "col_id",
+                "old_name": "col_id",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "custom_attribute": 2,
+                "label": "title",
+                "name": "col_title",
+                "old_name": "col_title",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "custom_attribute": 3,
+                "label": "status",
+                "name": "col_status",
+                "old_name": "col_status",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "custom_attribute": 4,
+                "label": "notes",
+                "name": "col_notes",
+                "old_name": "col_notes",
+                "type": "string"
+              }
+            ]
+          }
+        ],
+        "input": {
+          "range": "2:1000",
+          "sheet": "Sheet1",
+          "spreadsheet": "13KpVFiyIK4ykuAJWIE4rILebeIB3Fr-T2DEodqFLJro",
+          "team_drives": "my_drive"
+        },
+        "keyword": "action",
+        "name": "get_spreadsheet_rows_v4",
+        "number": 1,
+        "provider": "google_sheets",
+        "title": null,
+        "uuid": "get-sheet-rows-action-001"
+      },
+      {
+        "as": "return-rows",
+        "description": null,
+        "extended_input_schema": [
+          {
+            "label": "Response",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Final message",
+                "name": "final_message",
+                "optional": false,
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_output_schema": [
+          {
+            "label": "Response",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Final message",
+                "name": "final_message",
+                "optional": false,
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "input": {
+          "result": {
+            "final_message": "=_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"get-rows-action\",\"path\":[\"rows\"]}').to_json"
+          }
+        },
+        "keyword": "action",
+        "name": "workflow_return_result",
+        "number": 2,
+        "provider": "workato_skill",
+        "title": null,
+        "uuid": "return-sheet-rows-001"
+      }
+    ]
+  },
+  "config": [
+    {
+      "account_id": null,
+      "keyword": "application",
+      "name": "workato_skill",
+      "provider": "workato_skill",
+      "skip_validation": false
+    },
+    {
+      "account_id": {
+        "folder": "",
+        "name": "My Google Sheets account",
+        "zip_name": "my_google_sheets_account.connection.json"
+      },
+      "keyword": "application",
+      "name": "google_sheets",
+      "provider": "google_sheets",
+      "skip_validation": false
+    }
+  ]
+}

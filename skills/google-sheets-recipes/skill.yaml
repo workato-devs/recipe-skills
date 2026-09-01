@@ -1,0 +1,63 @@
+# Google Sheets Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write Workato recipes
+# using the native Google Sheets connector, audited against a real workspace.
+
+name: google-sheets-recipes
+version: 0.1.0
+description: >
+  Google Sheets integration recipes for Workato. This skill enables AI agents to
+  generate valid Workato recipe JSON for reading, appending, and updating rows in
+  a Google Sheet via the native Google Sheets connector.
+
+author: Workato
+license: MIT
+
+extends: workato-recipes
+
+capabilities:
+  - Read a range of rows from a sheet (get_spreadsheet_rows_v4)
+  - Append a new row to a sheet (add_spreadsheet_row_v4)
+  - Update an existing row by row number (update_row_v4_new)
+
+entry_point: SKILL.md
+
+patterns:
+  - patterns/dynamic-column-fields.md
+
+validation:
+  - validation-checklist.md
+
+templates:
+  - templates/get-rows.json
+  - templates/update-row.json
+
+platforms:
+  - workato
+  - google_sheets
+
+tags:
+  - google-sheets
+  - spreadsheet
+  - workato
+  - integration
+  - recipes
+
+# Roadmap: this skill is intentionally narrow (audited against real usage in one
+# project). Every gap below is unverified, not confirmed-absent -- do not assume
+# these actions/triggers don't exist, only that this skill doesn't yet cover them.
+gaps:
+  - pattern: New row trigger
+    status: needed
+    description: Trigger a recipe when a new row is added to a sheet
+  - pattern: Search/filter rows
+    status: needed
+    description: Find rows matching criteria rather than a fixed row-number range
+  - pattern: Delete row / clear row
+    status: needed
+    description: Remove or blank out a row
+  - pattern: Multi-sheet / cross-spreadsheet operations
+    status: needed
+    description: Copy or move data between sheets or spreadsheets
+  - pattern: Formatting and data validation
+    status: needed
+    description: Setting cell formatting, dropdowns, or validation rules via the API
