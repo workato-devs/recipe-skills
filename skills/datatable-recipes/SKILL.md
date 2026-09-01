@@ -47,7 +47,7 @@ This skill provides Data Tables-specific knowledge for generating Workato recipe
 7. [Actions](#actions)
 8. [Datapill Paths](#datapill-paths)
 9. [Patterns](#patterns)
-10. [Verification Status](#verification-status)
+10. [Action Input/Output Structure Reference](#action-inputoutput-structure-reference)
 
 ---
 
@@ -184,12 +184,7 @@ Data table triggers use suffix-based naming:
 - **`_realtime` suffix** = real-time triggers (fire immediately on change)
 - **`_polling` suffix** = batch triggers (process records in groups on a schedule)
 
-| Trigger type | Real-time | Batch |
-|---|---|---|
-| New records | `new_records_realtime` (verified) | `new_records_polling` (verified) |
-| New/updated records | `updated_records_realtime` (verified) | `updated_records_polling` (verified) |
-
-**INVALID trigger names confirmed:** `new_record_realtime` (singular — must be plural `new_records_realtime`)
+See `lint-rules.json` for the authoritative list of valid trigger names (and the invalid names known to be confused with them).
 
 ### Real-Time Triggers
 
@@ -798,31 +793,9 @@ See: [slack-recipes/patterns/workbot-triggers.md](../../slack-recipes/patterns/w
 
 ---
 
-## Verification Status
+## Action Input/Output Structure Reference
 
-This skill is in **v0.3.0** — all trigger names, all action names, and all action input/output structures are verified via golden recipe end-to-end testing.
-
-### Verified (from golden recipes on server)
-
-**Triggers (all verified via brute-force activation testing 2026-05-08):**
-- `new_records_realtime` (real-time new records — plural, NOT `new_record_realtime`)
-- `updated_records_realtime` (real-time new/updated)
-- `new_records_polling` (batch new records)
-- `updated_records_polling` (batch new/updated)
-- Naming convention: `_realtime` = real-time, `_polling` = batch
-
-**INVALID trigger names confirmed:** `new_record_realtime` (singular)
-
-**Action names (all verified via activation testing 2026-05-08):**
-- `add_record` — create a single record (NOT `create_record`)
-- `get_records` — search/query records (NOT `search_records`)
-- `update_record` — update a single record by ID
-- `delete_record` — delete a single record by ID
-- `upsert_record` — create or update by primary key
-- `truncate_table` — clear all records from a table (activation-verified, runtime untested)
-- `remove_values_from_record` — clear column values from a record
-
-**INVALID action names confirmed:** `create_record`, `search_records`, `add_row`, `insert_record`, `create_row`, `create_records`, `update_records`, `delete_records`, `add_records`, `upsert_records`, `batch_create`, `batch_update`, `batch_delete`, `bulk_create`, `bulk_update`, `bulk_delete`
+See `lint-rules.json` for the authoritative list of valid action and trigger names — it is not reproduced here.
 
 **Action input structure:**
 - `add_record`: column fields MUST be nested under `parameters` in both `input` and EIS
@@ -857,17 +830,6 @@ This skill is in **v0.3.0** — all trigger names, all action names, and all act
 - [ ] Search advanced filter JSON structure (beyond simple column-value filter)
 - [ ] `truncate_table` runtime output structure (cannot test without destroying data)
 - [ ] Output format toggle (field hash vs field name)
-
-### Golden Recipes (on server)
-
-| Action | Recipe ID | Endpoint Path | Status |
-|--------|-----------|---------------|--------|
-| `add_record` | 237619 | `golden-dt-create` | Verified |
-| `get_records` | 237620 | `golden-dt-search` | Verified |
-| `update_record` | 237621 | `golden-dt-update` | Verified |
-| `delete_record` | 237622 | `golden-dt-delete` | Verified |
-| `upsert_record` | 237624 | `golden-dt-upsert` | Verified |
-| `remove_values_from_record` | 237627 | `golden-dt-remove-values` | Verified |
 
 ---
 
