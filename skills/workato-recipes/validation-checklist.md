@@ -97,3 +97,5 @@ After completing the checks above, run the connector-specific checklist for your
 - **Salesforce:** See [salesforce-recipes/validation-checklist.md](../salesforce-recipes/validation-checklist.md)
 - **Slack:** See [slack-recipes/validation-checklist.md](../slack-recipes/validation-checklist.md)
 - **Gmail:** See [gmail-recipes/validation-checklist.md](../gmail-recipes/validation-checklist.md)
+- **Jira:** See [jira-recipes/validation-checklist.md](../jira-recipes/validation-checklist.md)
+- **Asana:** See [asana-recipes/validation-checklist.md](../asana-recipes/validation-checklist.md)

@@ -33,12 +33,16 @@ triggers:
   - triggers/callable-recipe.md
   - triggers/data-table.md
   - triggers/genie-skill.md
+  - triggers/messaging-topic.md
+  - triggers/scheduler.md
 
 # Control flow documentation
 control_flow:
   - control-flow/if-else.md
   - control-flow/try-catch.md
   - control-flow/foreach.md
+  - control-flow/repeat-while.md
+  - control-flow/stop.md
 
 # Fundamentals
 fundamentals:
@@ -60,6 +64,7 @@ patterns:
   - patterns/api-platform-artifacts.md
   - patterns/variables-and-lists.md
   - patterns/python-snippets.md
+  - patterns/jwt-auth.md
 
 # Validation checklist
 validation:
