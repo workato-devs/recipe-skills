@@ -60,6 +60,12 @@ patterns:
   - patterns/api-platform-artifacts.md
   - patterns/variables-and-lists.md
   - patterns/python-snippets.md
+  - patterns/smart-lists.md
+  - patterns/document-templates.md
+  - patterns/workato-files.md
+  - patterns/xml-parser.md
+  - patterns/lookup-tables.md
+  - patterns/logging.md
 
 # Validation checklist
 validation:

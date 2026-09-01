@@ -163,6 +163,12 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 | Adhoc HTTP Actions | [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) |
 | JWT Bearer Auth | [patterns/jwt-auth.md](patterns/jwt-auth.md) |
 | API Platform Artifacts | [patterns/api-platform-artifacts.md](patterns/api-platform-artifacts.md) |
+| Smart Lists | [patterns/smart-lists.md](patterns/smart-lists.md) |
+| Document Templates | [patterns/document-templates.md](patterns/document-templates.md) |
+| Workato Files | [patterns/workato-files.md](patterns/workato-files.md) |
+| XML Parser | [patterns/xml-parser.md](patterns/xml-parser.md) |
+| Lookup Tables (Legacy) | [patterns/lookup-tables.md](patterns/lookup-tables.md) |
+| Logging | [patterns/logging.md](patterns/logging.md) |
 
 ---
 
