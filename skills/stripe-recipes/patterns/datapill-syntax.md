@@ -41,7 +41,7 @@ Unlike other HTTP connectors, Stripe custom HTTP actions return responses **with
 
 | Component | Description | Example |
 |-----------|-------------|---------|
-| `pill_type` | Always "output" for reading values | `"output"` |
+| `pill_type` | `"output"` for reading step outputs (the vast majority of pills — a distinct `"job_context"` type also exists for job-level metadata; see [workato-recipes/fundamentals/datapill-syntax.md](../../workato-recipes/fundamentals/datapill-syntax.md#job-context)) | `"output"` |
 | `provider` | The connector/service name | `"stripe"`, `"workato_recipe_function"` |
 | `line` | The step's `as` alias | `"search_customer"`, `"trigger"` |
 | `path` | Array of field path elements | `["id"]`, `["parameters", "email"]` |

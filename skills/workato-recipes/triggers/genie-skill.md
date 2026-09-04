@@ -165,6 +165,32 @@ Use `workflow_return_result` to send the typed output back to the genie:
 
 **CRITICAL:** `workflow_return_result` requires both `extended_input_schema` and `extended_output_schema` defining the result fields. Without them, the UI cannot resolve the result object and datapills break. The `toggleCfg` entry controls how boolean fields are rendered.
 
+**`toggleCfg` keys can point at nested fields, not just top-level ones.** Use a dotted path into the `result` object to toggle a field nested inside an object or an array-of-objects result field:
+
+```json
+"toggleCfg": {
+  "result.quote.isLatestVersion": true,
+  "result.items.system": false
+}
+```
+
+`result.quote.isLatestVersion` toggles a boolean nested inside a `quote` object field; `result.items.system` toggles a boolean property (`system`) shared by every item of an `items` array field. Both patterns are in active use in production genie skill recipes.
+
+**A recipe usually has more than one `workflow_return_result` step** — one per exit path (the happy path, an early validation-failure return, a `catch`-block error return). Each one independently needs its own `extended_input_schema`/`extended_output_schema`, and every key in every one of them must exist in the trigger's `result_schema_json` — unknown keys are dropped silently (see above), and schema-less return steps just won't resolve their datapills.
+
+### Result field conventions
+
+The `success: true/false` boolean shown above is one valid convention, but it is not the only — or even the most common — one seen in practice. Across a set of active production genie skill recipes, most instead use a plain string `status` field (e.g. `"created"`, `"error"`, `"already exists"`, `"patched"`) rather than a boolean:
+
+```json
+"result": {
+  "status": "project created",
+  "renewalprojectId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"liferay_connector\",\"line\":\"create_project\",\"path\":[\"id\"]}')}"
+}
+```
+
+A string `status` field can carry more information back to the LLM than a boolean can — e.g. distinguishing "already exists" from "created" from "error" in one field, instead of needing a boolean plus a separate message field to explain a `false`. Read-only fetch/search skills often skip this field entirely: if the fetch action itself didn't fail, reaching `workflow_return_result` at all is the success signal, and the schema only needs the data fields (e.g. `items`, `totalCount`).
+
 Each key in `input.result` must match a field name in the trigger's `result_schema_json`. Unknown keys are dropped silently.
 
 ### Returning an error
@@ -188,7 +214,7 @@ For genie skills, **the canonical "fail with a message" pattern is `workflow_ret
 }
 ```
 
-> **Note:** `stop` with `stop_with_error: "true"` and a message is rejected by the recipe visualizer in genie skill recipes (`unknown keyword stop`). Only `stop_with_error: "false"` (graceful exit, no error message) is supported for the `stop` keyword. For all error paths, return via `workflow_return_result` with `success: false`.
+> **Note:** `stop` with `stop_with_error: "true"` and a `stop_reason` is not rejected by the recipe visualizer in genie skill recipes — verified against 4 distinct, active production genie skill recipes in the same workspace, all using this construct inside a `catch` block, all saving, activating, and running normally. It still returns nothing structured to the genie's LLM caller, though, so `workflow_return_result` with `success: false` remains the recommended pattern for all genie error paths.
 
 ---
 
@@ -226,7 +252,7 @@ The `trigger_description` on this file appears to be ignored by the UI (see gotc
 - [ ] `parameters_schema_json` and `result_schema_json` are stringified JSON arrays (NOT `input_schema`/`output_schema`)
 - [ ] Each `workflow_return_result.input.result` key matches a field in `result_schema_json`
 - [ ] `requires_user_confirmation` is present (string `"true"` or `"false"`)
-- [ ] Error paths use `workflow_return_result` with `success: false` (NOT `stop` with `stop_with_error: "true"`)
+- [ ] Error paths use `workflow_return_result` with `success: false` for a structured result the genie can read (`stop` with `stop_with_error: "true"` is accepted by the platform, but gives the LLM caller nothing to act on)
 - [ ] Config entry for `workato_genie` includes `"name": "workato_genie"`, `"account_id": null`, and `"skip_validation": false`
 - [ ] `workflow_return_result` has both `extended_input_schema` and `extended_output_schema` matching the result fields
 
@@ -238,4 +264,4 @@ The `trigger_description` on this file appears to be ignored by the UI (see gotc
 - [Datapill Syntax](../fundamentals/datapill-syntax.md)
 - [Python Snippets](../patterns/python-snippets.md) — preferred for any non-trivial transformation inside a genie skill
 - [Data Table Trigger](./data-table.md) — for background recipes triggered by row events (typically paired with genie skills that write to those tables)
-- [Stop Action](../control-flow/stop.md) — `stop_with_error: "true"` is NOT supported in genie skills; use `workflow_return_result` with `success: false` instead
+- [Stop Action](../control-flow/stop.md) — for genie error paths, prefer `workflow_return_result` with `success: false`; `stop_with_error: "true"` is accepted by the platform, but gives the LLM caller nothing structured

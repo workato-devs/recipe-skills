@@ -27,7 +27,7 @@ The JSON object inside defines which data to reference:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `pill_type` | string | Yes | Always `"output"` for referencing step outputs |
+| `pill_type` | string | Yes | `"output"` for referencing step outputs (the vast majority of pills). `"job_context"` is a distinct pill type for job-level metadata — see [Job Context](#job-context) below. |
 | `provider` | string | Yes | The provider name of the source step |
 | `line` | string | Yes | The `as` alias of the source step |
 | `path` | array | Yes | Path to the specific field (supports nesting) |
@@ -107,6 +107,16 @@ Access error details in a catch block:
 ```json
 "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"catch_error\",\"path\":[\"message\"]}')}"
 ```
+
+### Job Context
+
+`pill_type: "job_context"` is a distinct pill shape from the usual `"output"` pills above — it has no `provider` or `line` field, since it isn't referencing a step's output. It reads job-level metadata instead. Verified field: `job_url`, the URL of the currently running job — used, for example, to link back to the failing job from an alert notification:
+
+```json
+"#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}')}"
+```
+
+Only `job_url` is verified; other `job_context` fields may exist but have not been observed.
 
 ## Multiple Datapills in One Field
 
