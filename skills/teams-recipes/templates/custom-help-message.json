@@ -1,0 +1,63 @@
+{
+  "name": "Teams Bot - Custom Help Message",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "teams_bot",
+    "name": "help_event",
+    "as": "help-trigger-001",
+    "keyword": "trigger",
+    "input": {},
+    "block": [
+      {
+        "number": 1,
+        "provider": "teams_bot",
+        "name": "get_user_by_principal_name",
+        "as": "lookup-caller-002",
+        "keyword": "action",
+        "input": {
+          "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"help-trigger-001\",\"path\":[\"context\",\"from\",\"aadObjectId\"]}')}"
+        },
+        "uuid": "lookup-caller-002"
+      },
+      {
+        "number": 2,
+        "provider": "teams_bot",
+        "name": "post_blocks_message",
+        "as": "post-help-reply-003",
+        "keyword": "action",
+        "toggleCfg": {
+          "adaptive_card_width": true,
+          "channel": false
+        },
+        "input": {
+          "adaptive_card_width": "default",
+          "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"lookup-caller-002\",\"path\":[\"id\"]}')}",
+          "blocks": [
+            {
+              "block_type": "text_block",
+              "text_block": {
+                "text": "Here's what I can help with. Send a command name to get started, or ask about a specific topic (e.g. `help renewals`).",
+                "text_type": "body_text"
+              }
+            }
+          ]
+        },
+        "uuid": "post-help-reply-003"
+      }
+    ],
+    "uuid": "help-trigger-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "name": "teams_bot",
+      "provider": "teams_bot",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

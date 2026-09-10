@@ -1,0 +1,106 @@
+# Teams Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write recipes using
+# Workato's Workbot for Microsoft Teams connector (teams_bot).
+
+name: teams-recipes
+version: 1.10.0
+description: >
+  Microsoft Teams Workbot integration recipes for Workato. This skill enables
+  AI agents to generate valid Workato recipe JSON for receiving Teams bot
+  commands, responding to help requests, looking up Teams users, posting or
+  replying with adaptive-card-style block messages, deleting messages, and
+  responding to real-time Teams events, via the `teams_bot` connector.
+
+author: Your Name
+license: MIT
+
+extends: workato-recipes
+
+capabilities:
+  - Receive a Teams Workbot slash-style command with typed parameters, including string and date parameters
+  - Respond to a user's "help" message with a fully custom reply
+  - Respond to a message that doesn't match any registered command, with full confirmed output schema (new_message_event: messageText, conversationId, attachments, etc. -- all camelCase, not the doc's snake_case labels)
+  - Look up a Teams user by principal name (email/UPN) or Azure AD object ID
+  - Post a block-based message (text and text-with-button blocks) to a specific user or channel, addressed by datapill or static ID
+  - Reply with a block-based message implicitly to whoever invoked the current command, with no recipient field needed
+  - Reply with buttons that chain into other bot commands, with both static and formula-computed parameters
+  - Delete a previously posted message, activation-tested end-to-end (message_id from the post step, conversation_id from the trigger's context.conversation.id)
+  - Post a message with a button that suspends the same job until clicked (or a timeout), then continues with new datapills (action_continue_flow) -- e.g. for a self-deleting message
+  - Post or reply with plain Markdown text when rich blocks/buttons aren't needed (post_simple_message/post_simple_reply)
+  - Respond to a real-time Teams event via invoke_response, with full confirmed schema for the Typeahead search event (matches Microsoft Bot Framework's public dynamic-search response format)
+  - Resolve a Teams user ID from an external-system identifier via a shared callable recipe
+
+entry_point: SKILL.md
+
+templates:
+  - templates/bot-command-notify.json
+  - templates/bot-command-buttons-reply.json
+  - templates/custom-help-message.json
+  - templates/self-deleting-message.json
+
+patterns:
+  - patterns/shared-teams-id-resolver.md
+  - patterns/real-time-events.md
+
+validation:
+  - validation-checklist.md
+
+platforms:
+  - workato
+  - microsoft-teams
+
+tags:
+  - teams
+  - microsoft
+  - workbot
+  - bot
+  - workato
+  - integration
+  - recipes
+
+# Roadmap: only the names actually observed in live recipes have been
+# verified. Do not add capabilities below without the same verification
+# (real recipe usage + activation test, see lint-rules.json _notes).
+gaps:
+  - pattern: Field-level shapes beyond the picker names themselves
+    status: partially_verified
+    description: >
+      Every trigger and action visible in the teams_bot connector's own
+      picker is now a verified name: bot_command, help_event,
+      new_message_event, new_event (triggers); get_user_by_principal_name,
+      post_blocks_message, post_blocks_reply_message, post_bot_message,
+      post_bot_reply, post_simple_message, post_simple_reply,
+      delete_message, invoke_response, and __adhoc_http_action (actions) --
+      see lint-rules.json's _notes.verification_status for how each was
+      confirmed. delete_message and the action_continue_flow button
+      pattern (including the full click-then-resume cycle) are now BOTH
+      fully resolved and activation-tested end-to-end together, click
+      included -- see templates/self-deleting-message.json.
+      new_message_event's full output schema and invoke_response's full
+      response-payload schema (for the application/search event) are now
+      both confirmed live from the connector's own materialized schema --
+      see lint-rules.json's per-name notes and patterns/real-time-events.md.
+      Still open: post_simple_message/reply's and post_bot_message/reply's
+      fields beyond what was captured unconfigured; the "Open URL"
+      button_type (doc-described, no internal value captured); a full live
+      round trip through invoke_response (schema confirmed, but no real
+      Adaptive Card with a dynamic search field has been posted and tested
+      against a real typed query yet -- this needs post_bot_message's
+      raw-JSON mode, itself still unexplored). None of these block basic
+      recipe generation, but none should be presented as more verified
+      than this. Also newly confirmed: clock/wait_for_interval (base
+      skill) CANNOT be used inside a bot_command-triggered recipe -- a
+      hard platform error, not a style preference -- see lint-rules.json's
+      _notes.wait_for_interval_forbidden_in_workbot.
+  - pattern: Tab opened trigger / Show tab using Adaptive Cards action
+    status: checked_not_available
+    description: >
+      Unlike the other gaps, this one has been actively checked, not merely
+      left untested. new_event's event_name is a live-search field; search
+      terms tab/task/card/fetch/adaptive/compose all returned zero matches
+      on the bot connection this skill was verified against. These
+      doc-described features are most likely gated behind an "Enterprise
+      Workbot" tier/manifest this connection isn't provisioned with (per
+      Workato's own documentation). See patterns/real-time-events.md. A
+      different teams_bot connection provisioned as an Enterprise Workbot
+      might expose these -- re-check before assuming this holds universally.

@@ -84,6 +84,7 @@ Run the inline checklist in each pattern your recipe uses:
 - [Variables & Lists](patterns/variables-and-lists.md#validation-checklist)
 - [Adhoc HTTP Actions](patterns/adhoc-http-actions.md#validation-checklist)
 - [Custom Connector Actions](patterns/custom-connector-actions.md#validation-checklist)
+- [Wait / Delay](patterns/wait-delay.md#validation-checklist)
 - [API Endpoint Trigger](triggers/api-endpoint.md#validation-checklist)
 - [Callable Recipe Trigger](triggers/callable-recipe.md#validation-checklist)
 

@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "connector": "email",
+  "connector_internals": [],
+  "valid_action_names": [
+    "send_mail"
+  ],
+  "valid_trigger_names": [],
+  "action_rules": [],
+  "_notes": {
+    "verification_status": "send_mail verified two ways: (1) present in 3 production recipes in a live Workato workspace; (2) a minimal recipe using this action name was imported and successfully activated (wk recipes start) against the live workspace, while a recipe using a fabricated action name on the same provider timed out and never activated.",
+    "unverified": "No other action or trigger names have been verified against a live connector. Do not add names to this list from vendor API docs or general knowledge alone -- verify with the activation test described above first."
+  }
+}

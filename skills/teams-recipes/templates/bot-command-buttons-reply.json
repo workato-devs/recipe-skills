@@ -1,0 +1,125 @@
+{
+  "name": "Teams Bot Command - Reply With Action Buttons",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "teams_bot",
+    "name": "bot_command",
+    "as": "review-request-trigger-001",
+    "keyword": "trigger",
+    "input": {
+      "hide_from_help": "false",
+      "action_name": "review_request",
+      "parameters": "[{\"control_type\":\"text\",\"label\":\"request_id\",\"name\":\"request_id\",\"type\":\"string\",\"optional\":false},{\"name\":\"due_date\",\"type\":\"date_time\",\"optional\":false,\"label\":\"due_date\",\"control_type\":\"date\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "request_id",
+            "name": "request_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "date",
+            "label": "due_date",
+            "render_input": "date_conversion",
+            "parse_output": "date_conversion",
+            "name": "due_date",
+            "type": "date_time",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "teams_bot",
+        "name": "get_user_by_principal_name",
+        "as": "lookup-caller-002",
+        "keyword": "action",
+        "input": {
+          "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"review-request-trigger-001\",\"path\":[\"context\",\"from\",\"aadObjectId\"]}')}"
+        },
+        "uuid": "lookup-caller-002"
+      },
+      {
+        "number": 2,
+        "provider": "teams_bot",
+        "name": "post_blocks_message",
+        "as": "post-reply-003",
+        "keyword": "action",
+        "toggleCfg": {
+          "adaptive_card_width": true,
+          "channel": false
+        },
+        "input": {
+          "adaptive_card_width": "default",
+          "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"lookup-caller-002\",\"path\":[\"id\"]}')}",
+          "blocks": [
+            {
+              "block_type": "text_block",
+              "text_block": {
+                "text": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"review-request-trigger-001\",\"path\":[\"parameters\",\"request_id\"]}')} is due for review.",
+                "text_type": "body_text"
+              }
+            },
+            {
+              "block_type": "text_with_button_block",
+              "text_with_button_block": {
+                "text": "Approve this request now?",
+                "button_title": "Approve",
+                "button_type": "submit",
+                "bot_command": "approve_request",
+                "params": "{\"request_id\": \"#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"review-request-trigger-001\",\"path\":[\"parameters\",\"request_id\"]}')}\" }",
+                "open_task_module": "false"
+              }
+            },
+            {
+              "block_type": "text_with_button_block",
+              "text_with_button_block": {
+                "text": "Not ready yet? Push the due date back a week.",
+                "button_title": "Snooze 7 days",
+                "button_type": "submit",
+                "bot_command": "snooze_request",
+                "params": "=\"{\\\"request_id\\\": \\\"\" + _dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"review-request-trigger-001\",\"path\":[\"parameters\",\"request_id\"]}').to_s + \"\\\", \\\"due_date\\\": \\\"\" + (_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"review-request-trigger-001\",\"path\":[\"parameters\",\"due_date\"]}').to_date + 7).strftime('%d.%m.%Y') + \"\\\"}\"",
+                "open_task_module": "false"
+              }
+            },
+            {
+              "block_type": "text_block",
+              "text_block": {
+                "text": "No action needed if this was already handled elsewhere.",
+                "text_type": "custom",
+                "separator": "true",
+                "style": {
+                  "isSubtle": "true"
+                }
+              }
+            }
+          ]
+        },
+        "uuid": "post-reply-003"
+      }
+    ],
+    "uuid": "review-request-trigger-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "name": "teams_bot",
+      "provider": "teams_bot",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

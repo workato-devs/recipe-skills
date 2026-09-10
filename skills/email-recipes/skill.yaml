@@ -1,0 +1,57 @@
+# Email Recipes Skill for Workato
+# A knowledge bundle that teaches AI agents how to write recipes using
+# Workato's native Email connector (send-only, no external connection).
+
+name: email-recipes
+version: 1.0.0
+description: >
+  Native Workato Email connector recipes. This skill enables AI agents to
+  generate valid Workato recipe JSON for sending email notifications from a
+  recipe using the built-in `email` connector (no external mail account
+  connection required).
+
+author: Your Name
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Send an HTML or plain-text email notification from within a recipe
+
+# Entry point for agent consumption
+entry_point: SKILL.md
+
+# Templates available for reference/adaptation
+templates:
+  - templates/send-email.json
+
+# Validation checklist
+validation:
+  - validation-checklist.md
+
+# Target platforms
+platforms:
+  - workato
+  - email
+
+# Tags for discovery
+tags:
+  - email
+  - notifications
+  - workato
+  - integration
+  - recipes
+
+# Roadmap: only one action has ever been observed/verified against a live
+# Workato connector. Do not add capabilities below without the same
+# verification (see lint-rules.json _notes).
+gaps:
+  - pattern: Additional native actions/triggers
+    status: unverified
+    description: >
+      Only `send_mail` has been confirmed against a live connector (real
+      recipe usage + activation test). No other action or trigger name has
+      been verified — do not assume this connector has more surface area
+      until confirmed the same way.

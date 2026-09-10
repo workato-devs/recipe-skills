@@ -1,0 +1,90 @@
+{
+  "name": "Teams Bot Command - Self-Deleting Message",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "teams_bot",
+    "name": "bot_command",
+    "as": "hossa-trigger-001",
+    "keyword": "trigger",
+    "input": {
+      "action_name": "hossa",
+      "hide_from_help": "false",
+      "parameters": "[]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "teams_bot",
+        "name": "get_user_by_principal_name",
+        "as": "lookup-caller-002",
+        "keyword": "action",
+        "input": {
+          "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"hossa-trigger-001\",\"path\":[\"context\",\"from\",\"aadObjectId\"]}')}"
+        },
+        "uuid": "lookup-caller-002"
+      },
+      {
+        "number": 2,
+        "provider": "teams_bot",
+        "name": "post_blocks_message",
+        "as": "post-hello-003",
+        "keyword": "action",
+        "toggleCfg": {
+          "adaptive_card_width": true,
+          "channel": false,
+          "timeout": false
+        },
+        "input": {
+          "adaptive_card_width": "default",
+          "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"lookup-caller-002\",\"path\":[\"id\"]}')}",
+          "blocks": [
+            {
+              "block_type": "text_with_button_block",
+              "text_with_button_block": {
+                "button_type": "action_continue_flow",
+                "text": "Hello! 👋",
+                "button_title": "Dismiss"
+              }
+            }
+          ],
+          "timeout": "22"
+        },
+        "uuid": "post-hello-003"
+      },
+      {
+        "number": 3,
+        "provider": "teams_bot",
+        "name": "delete_message",
+        "as": "delete-hello-005",
+        "keyword": "action",
+        "input": {
+          "conversation_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"hossa-trigger-001\",\"path\":[\"context\",\"conversation\",\"id\"]}')}",
+          "message_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"teams_bot\",\"line\":\"post-hello-003\",\"path\":[\"id\"]}')}"
+        },
+        "uuid": "delete-hello-005"
+      }
+    ],
+    "uuid": "hossa-trigger-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "name": "teams_bot",
+      "provider": "teams_bot",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

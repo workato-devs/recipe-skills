@@ -3,7 +3,7 @@
 # control flow, datapill syntax, and recipe structure fundamentals.
 
 name: workato-recipes
-version: 1.0.0
+version: 1.2.0
 description: >
   Base skill for Workato recipe development. Provides foundational knowledge
   for recipe JSON structure, trigger types, control flow patterns, and datapill
@@ -23,6 +23,7 @@ capabilities:
   - Return/response handling
   - Adhoc HTTP actions (direct API calls)
   - Custom connector actions (Connector SDK)
+  - Pausing a running job for a fixed number of seconds (clock's wait_for_interval action)
 
 # Entry point for agent consumption
 entry_point: SKILL.md
@@ -60,6 +61,7 @@ patterns:
   - patterns/api-platform-artifacts.md
   - patterns/variables-and-lists.md
   - patterns/python-snippets.md
+  - patterns/wait-delay.md
 
 # Validation checklist
 validation:

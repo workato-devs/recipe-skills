@@ -4,7 +4,7 @@ description: Base skill for Workato recipe development. Provides foundational kn
 license: MIT
 metadata:
   author: Workato
-  version: "1.0.0"
+  version: "1.2.0"
 ---
 
 # Workato Recipes Base Skill - Agent Instructions
@@ -163,6 +163,7 @@ The `workato` provider is **built-in** and should **NOT** be in the recipe's `co
 | Adhoc HTTP Actions | [patterns/adhoc-http-actions.md](patterns/adhoc-http-actions.md) |
 | JWT Bearer Auth | [patterns/jwt-auth.md](patterns/jwt-auth.md) |
 | API Platform Artifacts | [patterns/api-platform-artifacts.md](patterns/api-platform-artifacts.md) |
+| Wait / Delay Mid-Recipe | [patterns/wait-delay.md](patterns/wait-delay.md) |
 
 ---
 
@@ -366,6 +367,8 @@ periodic sync jobs) rather than in response to an external event.
 **Action:** `scheduled_event`
 
 See: [triggers/scheduler.md](triggers/scheduler.md)
+
+The `clock` provider also offers an **action** — `wait_for_interval` — for pausing a running job for a fixed number of seconds before its next step, unrelated to this trigger. See [patterns/wait-delay.md](patterns/wait-delay.md).
 
 ### Choosing a Trigger Type
 

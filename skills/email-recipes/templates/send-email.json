@@ -1,0 +1,124 @@
+{
+  "name": "Send Email Notification",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "trigger",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"recipient\",\"label\":\"Recipient\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false},{\"name\":\"message\",\"label\":\"Message\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false}]",
+      "result_schema_json": "[{\"name\":\"sent\",\"label\":\"Sent\",\"type\":\"boolean\",\"control_type\":\"checkbox\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Recipient",
+            "name": "recipient",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Message",
+            "name": "message",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "email",
+        "name": "send_mail",
+        "as": "send-notification-001",
+        "keyword": "action",
+        "input": {
+          "email_type": "html",
+          "to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"recipient\"]}')}",
+          "subject": "Recipe notification",
+          "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"message\"]}')}"
+        },
+        "uuid": "send-notification-001"
+      },
+      {
+        "number": 2,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "return-sent-002",
+        "keyword": "action",
+        "toggleCfg": {
+          "result.sent": true
+        },
+        "input": {
+          "result": {
+            "sent": "true"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "checkbox",
+                "label": "Sent",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "sent",
+                "type": "boolean"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "checkbox",
+                "label": "Sent",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "sent",
+                "type": "boolean"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "return-sent-002"
+      }
+    ],
+    "uuid": "trigger-send-email-001",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "name": "workato_recipe_function",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "name": "email",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
