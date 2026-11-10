@@ -69,7 +69,7 @@ Initialize a variable with a starting value. Uses `variables.schema` (stringifie
     "variables": {
       "schema": "[{\"name\":\"customer_id\",\"type\":\"string\",\"optional\":true,\"label\":\"customer_id\",\"details\":{\"real_name\":\"customer_id\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
       "data": {
-        "customer_id": ""
+        "customer_id": "=\"\""
       }
     }
   },
@@ -138,6 +138,7 @@ Initialize a variable with a starting value. Uses `variables.schema` (stringifie
 - **EIS**: Uses `"control_type": "form-schema-builder"` with a `schema` property and a `data` property containing the field definitions
 - **EOS**: Defines the output field using the **field name** (e.g., `"name": "customer_id"`), NOT `"value"`
 - **`visible_config_fields`**: Array of `"variables.data.{field_name}"` entries
+- **Empty-string defaults**: do NOT write `"field": ""` for a variable that is read later. Use the formula `"field": "=\"\""` instead (see gotcha 15). Checkbox/number fields: keep literal values, do not use formulas (see gotcha 16).
 
 #### Variable Types
 
@@ -391,7 +392,7 @@ This example shows using a variable to capture a customer ID from either a searc
           "variables": {
             "schema": "[{\"name\":\"customer_id\",\"type\":\"string\",\"optional\":true,\"label\":\"customer_id\",\"details\":{\"real_name\":\"customer_id\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
             "data": {
-              "customer_id": ""
+              "customer_id": "=\"\""
             }
           }
         },
@@ -585,6 +586,8 @@ This example shows using a variable to capture a customer ID from either a searc
 
 13. **Array-of-primitive fields nested 2+ `current_item` levels deep get stringified, not stripped**: Distinct from gotcha #12 above — that one is single-level `return_response` list mapping and fails by *stripping* the value entirely if you skip the `current_item` decomposition. This one is different: a bare array-of-string (or other primitive) nested inside a *multi-level* `current_item` chain (e.g. two levels of array decomposition deep, like `quote[current_item].lines[current_item].serial_numbers`) silently arrives as literal bracket-and-quote text (`["value"]`) at the consuming recipe, rather than being stripped or staying a real array — even though the surrounding object-array levels decompose correctly. Confirmed from a live recipe pair (2173209 → 2173215, 2026-07-03). **Fix:** wrap the primitive in a single-field object (e.g. `{"serial_number": "..."}`) so it becomes array-of-object, which the `____source`/`current_item` decomposition mechanism handles correctly at any nesting depth. See [foreach.md](../control-flow/foreach.md) for the full write-up.
 14. **Every schema field needs an explicit `control_type`, even scalars**: A field in `variables.schema`/`list_item_schema_json` (or a `py_eval` `code_input.schema` — see [python-snippets.md](python-snippets.md)) that omits `control_type` imports fine and passes `wk lint`, but the Workato UI cannot render a datapill-mapping target for it at all. Confirmed from a live recipe (2173215, 2026-07-02): a scalar string field with `name`/`type`/`optional`/`label`/`parent` but no `control_type` had no way to accept a mapped pill in the editor; adding `"control_type": "text"` fixed it immediately. Set `control_type` on every leaf field, not just the ones that feel like top-level inputs.
+15. **A literal `""` default in `declare_variable` is dropped when the recipe is saved in the Workato UI, and the variable becomes `nil`**: `"variables": {"data": {"report": ""}}` imports, deploys and runs as written, but any save of the recipe in the editor removes the key from `variables.data`; at runtime the variable is `nil`. Any later `variable + "text"` then fails with `Error calculating input for field '<field>': argument must not be nil`, reported on the *consuming* step, not on the declaration. Typical trigger: a field is flagged red in the editor, someone fills it and saves, and every other empty-string default disappears with that save. Confirmed on a live recipe (DEV 3958376 -> TEST/PROD, 2026-11-10): a deploy kept `""` (test recipe job output `"lit_empty": ""`), the same recipe after one UI save had no `lit_empty` key and the job output was `"lit_empty": null`, while the sibling field declared as the formula `"=\"\""` stayed `""`. **Fix:** declare empty defaults as the formula `"=\"\""` (it survives UI saves) and guard concatenations with `.to_s`. Non-empty literals (`"true"`, `"0"`, `"x"`) are kept.
+16. **Do not put formulas into checkbox (boolean) or number fields of `declare_variable`**: the editor marks such a field red ("missing a value") and refuses to run the recipe in test, although the scheduled job evaluates the formula fine. Give boolean fields a literal (`"true"`/`"false"`); if the value must be computed, declare a `text` (string) field and compare it as a string (`equals_to` `"true"`), or compute it in a later `update_variables` step. Confirmed on a live recipe (2026-11-10): a formula in a `text` field was not flagged, the same kind of formula in a `checkbox` field was red.
 
 ## Validation Checklist
 
