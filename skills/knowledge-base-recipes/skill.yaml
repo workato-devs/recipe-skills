@@ -1,0 +1,60 @@
+# Knowledge Base Recipes Skill for Workato
+# Knowledge bundle for AI agents to write recipes that fill and search
+# Agent Studio knowledge bases (connector "Knowledge base by Workato",
+# internal provider enterprise_context).
+
+name: knowledge-base-recipes
+version: 0.1.0
+description: >
+  Knowledge base connector recipes for Workato (Knowledge base by Workato,
+  provider enterprise_context). Enables AI agents to generate valid recipe
+  JSON that writes documents into recipe-type Agent Studio knowledge bases,
+  searches them from a recipe (retrieval for an LLM call or an MCP tool),
+  lists and deletes documents. Covers the pick-list fields, the search output
+  shape, and import gotchas of this internal connector.
+
+author: Workato community (jco-cw-de)
+license: MIT
+
+# Base skill dependency
+extends: workato-recipes
+
+# Capabilities this skill provides
+capabilities:
+  - Upsert documents into a recipe-type knowledge base (sync from an external source)
+  - Search one or more knowledge bases from a recipe, with optional LLM reranking
+  - Build an LLM-ready context block and source list from search results
+  - Expose knowledge base search as an MCP tool through a callable recipe
+  - List and delete knowledge base documents
+
+# Entry point for agent consumption
+entry_point: SKILL.md
+
+# Validated recipe templates
+templates:
+  - templates/search-knowledge-base.json
+
+# Pattern documentation
+patterns:
+  - patterns/search-documents.md
+  - patterns/upsert-documents.md
+  - patterns/search-as-mcp-tool.md
+
+# Validation checklist
+validation:
+  - validation-checklist.md
+
+# Target platforms
+platforms:
+  - workato
+
+# Tags for discovery
+tags:
+  - workato
+  - knowledge-base
+  - enterprise-context
+  - agent-studio
+  - rag
+  - integration
+  - recipes
+  - internal-connector

@@ -40,6 +40,7 @@ These are built-in Workato providers that don't require external connections. Be
 | `workato_recipe_function` | Callable recipe triggers |
 | `workato_variable` | Variables and lists (see [patterns/variables-and-lists.md](../patterns/variables-and-lists.md)) |
 | `logger` | Logging/debugging actions |
+| `enterprise_context` | Knowledge base by Workato (Agent Studio knowledge bases); see the `knowledge-base-recipes` skill |
 
 **Config entry for platform providers:**
 ```json
@@ -51,6 +52,8 @@ These are built-in Workato providers that don't require external connections. Be
   "account_id": null
 }
 ```
+
+> **Evidence and format note (2026-11-27):** reproduced on the Recipes API path. Recipe 4200723 written with `wk recipes update` without `name` in its two platform-provider entries failed activation with `missing adapter configuration: workato_recipe_function, enterprise_context`; restoring `name` fixed it. The **package export** (`wk pull`) of running recipes, however, lists platform providers *without* `name` (e.g. `workato_genie`, `workato_recipe_function`, `py_eval`, `email` in a running genie-skill recipe), so do not treat a missing `name` in pulled files as a defect. Keep including it in files you generate, as this page requires.
 
 > **Note:** The built-in `workato` provider (for `set_variable` action) does NOT require a config entry, but its datapill references often fail to resolve. Use `workato_variable` instead.
 

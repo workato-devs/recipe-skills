@@ -1,0 +1,156 @@
+{
+  "code": {
+    "as": "trigger",
+    "block": [
+      {
+        "as": "search_kb",
+        "description": null,
+        "dynamicPickListSelection": {
+          "knowledge_bases": [
+            {
+              "label": "IT Support Wiki (IT Support Genie)",
+              "value": "kb-AcRTkpxR-6Axekt-CE"
+            }
+          ]
+        },
+        "input": {
+          "enable_llm_reranking": "true",
+          "knowledge_bases": "kb-AcRTkpxR-6Axekt-CE",
+          "page": "1",
+          "page_size": "5",
+          "query": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"trigger\",\"path\":[\"parameters\",\"question\"]}')}"
+        },
+        "keyword": "action",
+        "name": "search_with_dynamic_filters",
+        "number": 1,
+        "provider": "enterprise_context",
+        "title": null,
+        "toggleCfg": {
+          "enable_llm_reranking": true,
+          "knowledge_bases": true
+        },
+        "uuid": "search-kb-001"
+      },
+      {
+        "as": "return_hits",
+        "description": null,
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Hit count",
+                "name": "hit_count",
+                "type": "integer"
+              },
+              {
+                "control_type": "text",
+                "label": "Context (markdown)",
+                "name": "context",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Sources",
+                "name": "sources",
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Hit count",
+                "name": "hit_count",
+                "type": "integer"
+              },
+              {
+                "control_type": "text",
+                "label": "Context (markdown)",
+                "name": "context",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Sources",
+                "name": "sources",
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "input": {
+          "result": {
+            "context": "=_dp('{\"pill_type\":\"output\",\"provider\":\"enterprise_context\",\"line\":\"search_kb\",\"path\":[\"documents\"]}').format_map(\"### %{title}\\nLink: %{url}\\nZuletzt aktualisiert: %{updated_date}\\nRelevanz: %{score}\\n\\n%{content}\").join(\"\\n\\n---\\n\\n\")",
+            "hit_count": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"enterprise_context\",\"line\":\"search_kb\",\"path\":[\"count\"]}')}",
+            "sources": "=_dp('{\"pill_type\":\"output\",\"provider\":\"enterprise_context\",\"line\":\"search_kb\",\"path\":[\"documents\"]}').format_map(\"- %{title}: %{url}\").join(\"\\n\")"
+          }
+        },
+        "keyword": "action",
+        "name": "return_result",
+        "number": 2,
+        "provider": "workato_recipe_function",
+        "title": null,
+        "uuid": "return-hits-002"
+      }
+    ],
+    "description": null,
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "hint": "Question in natural language",
+            "label": "Question",
+            "name": "question",
+            "optional": false,
+            "type": "string"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"question\",\"label\":\"Question\",\"type\":\"string\",\"control_type\":\"text\",\"optional\":false,\"hint\":\"Question in natural language\"}]",
+      "result_schema_json": "[{\"name\":\"hit_count\",\"label\":\"Hit count\",\"type\":\"integer\",\"control_type\":\"number\"},{\"name\":\"context\",\"label\":\"Context (markdown)\",\"type\":\"string\",\"control_type\":\"text\"},{\"name\":\"sources\",\"label\":\"Sources\",\"type\":\"string\",\"control_type\":\"text\"}]"
+    },
+    "keyword": "trigger",
+    "name": "execute",
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "title": null,
+    "uuid": "trigger-001"
+  },
+  "concurrency": 1,
+  "config": [
+    {
+      "account_id": null,
+      "keyword": "application",
+      "name": "workato_recipe_function",
+      "provider": "workato_recipe_function",
+      "skip_validation": false
+    },
+    {
+      "account_id": null,
+      "keyword": "application",
+      "name": "enterprise_context",
+      "provider": "enterprise_context",
+      "skip_validation": false
+    }
+  ],
+  "description": "Callable recipe: question in, the 5 best matching knowledge base passages out as markdown (title, link, last update, score, passage) plus a source list. Read-only. Can be exposed as an MCP tool.",
+  "name": "Search knowledge base",
+  "private": false,
+  "version": 14
+}

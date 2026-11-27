@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0",
+  "connector": "enterprise_context",
+  "connector_internals": [
+    "knowledge_base_id",
+    "knowledge_bases"
+  ],
+  "valid_action_names": [
+    "delete_document",
+    "list_documents",
+    "list_with_dynamic_filters",
+    "search_documents",
+    "search_with_dynamic_filters",
+    "upsert_documents"
+  ],
+  "valid_trigger_names": [],
+  "action_rules": [],
+  "_notes": {
+    "verification_status": "All six action names were read from a recipe built in the Workato recipe editor (every action of the connector added once) and exported with `wk recipes get`, 2026-11-27. search_with_dynamic_filters and upsert_documents are also verified end to end (recipe 4200723: live searches through an MCP tool; recipes 4180581 and 4198175: 408 documents ingested). The other four are verified by name and by the input keys the editor writes, not by a run.",
+    "verified_actions": ["delete_document", "list_documents", "list_with_dynamic_filters", "search_documents", "search_with_dynamic_filters", "upsert_documents"],
+    "run_verified_actions": ["search_with_dynamic_filters", "upsert_documents"],
+    "unverified_actions": [],
+    "triggers": "Triggers of this connector were not enumerated. valid_trigger_names is empty because none were checked, not because the connector has none.",
+    "invalid_action_names": ["search_documents_advanced_filters"],
+    "invalid_action_names_evidence": "Imported with `wk recipes import`: every input key was stripped on import (stored input {}). The editor label is 'Search documents (advanced filters)', the internal name is search_with_dynamic_filters.",
+    "connector_internals_note": "Pick-list fields the editor writes into input plus toggleCfg plus dynamicPickListSelection, never into extended_input_schema. knowledge_base_id (single knowledge base) is used by upsert_documents, delete_document, list_documents and list_with_dynamic_filters; knowledge_bases (one or more) by search_documents and search_with_dynamic_filters. The other name is stripped on import (verified: knowledge_base_id and knowledge_base_ids on a search action)."
+  }
+}
