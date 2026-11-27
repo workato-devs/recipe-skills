@@ -128,11 +128,16 @@ Use the `return_result` action:
 ```json
 {
   "keyword": "application",
+  "name": "workato_recipe_function",
   "provider": "workato_recipe_function",
   "skip_validation": false,
   "account_id": null
 }
 ```
+
+`name` is required when the recipe is written through the Recipes API (`wk recipes import` / `update`): without it activation fails with `missing adapter configuration: workato_recipe_function` (verified 2026-11-27, recipe 4200723). See [config-section.md](../fundamentals/config-section.md).
+
+To call this recipe from another recipe, use the `call_recipe` action (see SKILL.md, "Calling Other Recipes").
 
 ## Extended Schemas on Return Blocks
 

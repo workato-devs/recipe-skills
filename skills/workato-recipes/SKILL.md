@@ -381,7 +381,9 @@ See: [triggers/scheduler.md](triggers/scheduler.md)
 
 ## Calling Other Recipes
 
-When a recipe needs to call another callable recipe, use the `workato_recipe_function` provider with action type `call`.
+When a recipe needs to call another callable recipe, use the `workato_recipe_function` provider with action name **`call_recipe`**.
+
+> **`call` is not a valid action name.** Verified 2026-11-27: a step with `"name": "call"` imported through the Recipes API (`wk recipes import`) kept no input at all (`input: {}`) and activation failed with `step 1: name is invalid`; the same step with `"name": "call_recipe"` imported with its `flow_id` and activated. The recipe editor writes `call_recipe`: all 4 call steps of a running, editor-built genie-skill recipe (4091467) carry it, both in the package export (`wk pull`) and in the Recipes API export (`wk recipes get`).
 
 ### CRITICAL: flow_id Requires zip_name
 
@@ -391,7 +393,7 @@ The `flow_id` object MUST include ALL fields, including `zip_name`.
 |-------|----------|-------------|
 | `name` | Yes | Recipe display name |
 | `folder` | Yes | Folder containing the recipe |
-| `folder_full_path` | Yes | Full path from Home |
+| `folder_full_path` | See note | Full path from Home. Not present in the package export of the working recipe above (its `flow_id` had only `folder`, `name`, `zip_name`). |
 | `zip_name` | **YES** | Path to recipe JSON file |
 
 > **CRITICAL WARNING:** Missing `zip_name` causes **RECIPE MUTATION AT RUNTIME**. Without `zip_name`, Workato will unpredictably modify the recipe's metadata during execution. This corruption persists and breaks all future invocations. The recipe will appear valid during import/testing but will corrupt itself when actually invoked. **This is worse than a silent failure - it permanently corrupts the recipe.**
@@ -419,7 +421,7 @@ The `flow_id` object MUST include ALL fields, including `zip_name`.
 ```json
 {
   "provider": "workato_recipe_function",
-  "name": "call",
+  "name": "call_recipe",
   "as": "call_search_contact",
   "keyword": "action",
   "input": {
@@ -435,6 +437,17 @@ The `flow_id` object MUST include ALL fields, including `zip_name`.
   }
 }
 ```
+
+### `flow_id` in the two export formats
+
+The callee reference looks different depending on how the recipe JSON is read or written:
+
+| Format | Produced / consumed by | `flow_id` |
+|---|---|---|
+| Package (project files) | `wk pull` / `wk push` | Object `{ "folder", "name", "zip_name" }` pointing at the callee's `.recipe.json` (see above) |
+| Recipes API | `wk recipes get` / `wk recipes import` / `wk recipes update` | The callee's recipe **ID as a string**, e.g. `"flow_id": "4091717"`, plus `"dynamicPickListSelection": { "flow_id": "<callee recipe name>" }` |
+
+When writing through the Recipes API, the call step also needs an `extended_input_schema` entry for `parameters` (editor-built steps carry one with the callee's parameter fields). A probe step imported without it kept only `flow_id`; the `parameters` mapping was stripped.
 
 ---
 
@@ -1240,6 +1253,8 @@ When connections are in a different folder:
 | `+` concat with datapills at import | Validation error | Use ternary or single datapill |
 | Random hex UUIDs | Poor maintainability | **Always** use descriptive UUIDs (don't copy existing random UUIDs) |
 | Copying patterns from declarative UI recipes | Various errors | Use skill templates, not UI-generated recipes as reference |
+| Wrong action name (e.g. `call` instead of `call_recipe`) | `input` is `{}` after import; activation: `name is invalid` | Use the name from the skill's `lint-rules.json` / docs; compare the stored input with `wk recipes get <id> --json` |
+| Input key the action does not know (e.g. a guessed field name) | Key silently missing after import, no error | Read the key from an editor-built step; compare the stored input after import |
 
 ---
 
