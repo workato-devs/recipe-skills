@@ -31,6 +31,7 @@ Match the user's request to a connector and load that skill (after the base skil
 | Jira (issues, JQL, sprints) | `skills/jira-recipes/SKILL.md` |
 | Asana (tasks, projects, portfolios, goals) | `skills/asana-recipes/SKILL.md` |
 | Workato Data Tables (CRUD, search, batch, the `workato_db_table` connector) | `skills/datatable-recipes/SKILL.md` |
+| Agent Studio knowledge bases (upsert, search, RAG context, KB search as MCP tool, the `enterprise_context` connector) | `skills/knowledge-base-recipes/SKILL.md` |
 
 For an API operation a connector's native actions don't cover, every connector supports `__adhoc_http_action` — see the base skill's `patterns/adhoc-http-actions.md`.
 

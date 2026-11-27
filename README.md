@@ -32,6 +32,7 @@ Workato Developer Skills teach AI agents how to generate valid Workato recipe JS
 | [datatable-recipes](skills/datatable-recipes/) | Workato Data Tables | 7 | 4 |
 | [gmail-recipes](skills/gmail-recipes/) | Gmail | 3 | 1 |
 | [jira-recipes](skills/jira-recipes/) | Jira | 17 | 11 |
+| [knowledge-base-recipes](skills/knowledge-base-recipes/) | Knowledge base by Workato (`enterprise_context`) | 6 | 0 |
 | [salesforce-recipes](skills/salesforce-recipes/) | Salesforce | 32 | 15 |
 | [slack-recipes](skills/slack-recipes/) | Slack (native + Workbot) | 9 | 2 |
 | [stripe-recipes](skills/stripe-recipes/) | Stripe | 7 | 4 |
